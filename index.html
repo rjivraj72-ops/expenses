@@ -16,13 +16,13 @@
     padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
     -webkit-tap-highlight-color: transparent;
   }
-.logo { padding: 20px 0 4px; }
-  .logo span { font-size: 48px; }
-  /* To use your own image logo, replace the <span> in the HTML with:
-     <img src="logo.png" alt="Logo" style="width:64px;height:64px;border-radius:16px;"> */
+  .logo { padding: 20px 0 4px; }
   h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: #5c4a3a; }
-  .total { font-size: 15px; color: #8a7968; padding-bottom: 16px; text-align: center; }
-  .total span { color: #5c4a3a; font-weight: 600; }
+  .summary { text-align: center; padding-bottom: 16px; font-size: 14px; color: #8a7968; }
+  .summary .balance { font-size: 28px; font-weight: 700; color: #5c4a3a; margin: 4px 0 8px; }
+  .summary .row { display: flex; justify-content: center; gap: 24px; }
+  .summary .inc { color: #5a8a5e; font-weight: 600; }
+  .summary .exp { color: #c0694f; font-weight: 600; }
   .card {
     background: #fff; border-radius: 12px; padding: 16px;
     margin-bottom: 12px; box-shadow: 0 1px 4px rgba(60,46,36,0.08);
@@ -42,6 +42,13 @@
     background: #8b6f4e; color: #fff; width: 100%;
   }
   button:active { opacity: 0.7; }
+  .toggle { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid #d4c8bc; }
+  .toggle label {
+    flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500;
+    cursor: pointer; background: #faf7f4; color: #8a7968; transition: all 0.2s;
+  }
+  .toggle input { display: none; }
+  .toggle input:checked + label { background: #8b6f4e; color: #fff; }
   .expense {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 0; border-bottom: 0.5px solid #e8ddd2;
@@ -50,50 +57,93 @@
   .expense-info { flex: 1; }
   .expense-desc { font-size: 16px; font-weight: 500; color: #3b2e24; }
   .expense-meta { font-size: 13px; color: #8a7968; margin-top: 2px; }
-  .expense-amount { font-size: 17px; font-weight: 600; margin-right: 12px; color: #5c4a3a; }
+  .expense-amount { font-size: 17px; font-weight: 600; margin-right: 12px; }
+  .expense-amount.inc { color: #5a8a5e; }
+  .expense-amount.exp { color: #c0694f; }
   .del-btn {
     background: none; border: none; color: #c0694f; font-size: 22px;
     padding: 4px 8px; width: auto; font-weight: 400;
   }
+  .paid-badge {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-right: 8px;
+  }
+  .paid-badge.yes { background: #e8f5e9; color: #5a8a5e; }
+  .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
   .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
+  .starting { font-size: 14px; color: #8a7968; text-align: center; margin-bottom: 12px; }
+  .starting input {
+    width: 140px; display: inline-block; text-align: center; font-weight: 600;
+    padding: 8px; font-size: 16px;
+  }
 </style>
 </head>
 <body>
 <div class="logo"><img src="logo.png" alt="Logo" style="width:100%;display:block;"></div>
 <h1>Expenses</h1>
-<div class="total">Total: <span id="total">$0.00</span></div>
+
+<div class="starting">
+  Starting Balance: $<input id="start" type="number" step="0.01" min="0" placeholder="0.00" inputmode="decimal">
+</div>
+
+<div class="summary">
+  <div class="balance" id="bal">$0.00</div>
+  <div class="row">
+    <span class="inc">↑ $<span id="tinc">0.00</span></span>
+    <span class="exp">↓ $<span id="texp">0.00</span></span>
+  </div>
+</div>
 
 <div class="card">
   <form id="form">
+    <div class="toggle">
+      <input type="radio" name="type" id="tExp" value="expense" checked><label for="tExp">Expense</label>
+      <input type="radio" name="type" id="tInc" value="income"><label for="tInc">Income</label>
+    </div>
     <input id="desc" placeholder="Description" required>
     <div class="row">
       <input id="amount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
       <select id="category">
         <option>Food</option><option>Transport</option><option>Shopping</option>
-        <option>Bills</option><option>Entertainment</option><option>Other</option>
+        <option>Bills</option><option>Entertainment</option><option>Salary</option>
+        <option>Freelance</option><option>Other</option>
       </select>
     </div>
     <input id="date" type="date">
-    <button type="submit">Add Expense</button>
+    <div class="row">
+      <select id="paid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
+      <button type="submit">Add</button>
+    </div>
   </form>
 </div>
 
 <div class="card" id="list-card" style="display:none">
   <div id="list"></div>
 </div>
-<div class="empty" id="empty">No expenses yet</div>
+<div class="empty" id="empty">No entries yet</div>
 
 <script>
 const $ = id => document.getElementById(id);
-const KEY = "expenses";
+const KEY = "expenses", SKEY = "startBal";
 $("date").value = new Date().toISOString().split("T")[0];
+$("start").value = localStorage.getItem(SKEY) || "";
+
+$("start").oninput = () => {
+  localStorage.setItem(SKEY, $("start").value);
+  render(load());
+};
 
 const load = () => JSON.parse(localStorage.getItem(KEY) || "[]");
 const save = d => { localStorage.setItem(KEY, JSON.stringify(d)); render(d); };
 
 function render(data) {
-  const total = data.reduce((s, e) => s + parseFloat(e.amount), 0);
-  $("total").textContent = `$${total.toFixed(2)}`;
+  const startBal = parseFloat($("start").value) || 0;
+  const inc = data.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount), 0);
+  const exp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.amount), 0);
+  const bal = startBal + inc - exp;
+  $("bal").textContent = `$${bal.toFixed(2)}`;
+  $("bal").style.color = bal >= 0 ? "#5c4a3a" : "#c0694f";
+  $("tinc").textContent = inc.toFixed(2);
+  $("texp").textContent = exp.toFixed(2);
   $("empty").style.display = data.length ? "none" : "block";
   $("list-card").style.display = data.length ? "block" : "none";
   $("list").innerHTML = data.map((e, i) => `
@@ -102,7 +152,8 @@ function render(data) {
         <div class="expense-desc">${esc(e.description)}</div>
         <div class="expense-meta">${esc(e.category)} · ${e.date}</div>
       </div>
-      <div class="expense-amount">$${parseFloat(e.amount).toFixed(2)}</div>
+      <div class="expense-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${parseFloat(e.amount).toFixed(2)}</div>
+      <span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `pay(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span>
       <button class="del-btn" onclick="del(${i})">&times;</button>
     </div>`).join("");
 }
@@ -115,10 +166,12 @@ $("form").onsubmit = e => {
   e.preventDefault();
   const data = load();
   data.unshift({
+    type: document.querySelector('input[name="type"]:checked').value,
     description: $("desc").value,
     amount: $("amount").value,
     category: $("category").value,
-    date: $("date").value
+    date: $("date").value,
+    paid: $("paid").value
   });
   save(data);
   $("desc").value = ""; $("amount").value = "";
@@ -128,6 +181,12 @@ $("form").onsubmit = e => {
 function del(i) {
   const data = load();
   data.splice(i, 1);
+  save(data);
+}
+
+function pay(i) {
+  const data = load();
+  data[i].paid = "yes";
   save(data);
 }
 
