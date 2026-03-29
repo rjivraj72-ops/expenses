@@ -78,13 +78,13 @@
   .starting .label { display: block; margin-bottom: 4px; }
   .starting .input-wrap {
     display: inline-flex; align-items: center; background: #fff;
-    border: 1px solid #d4c8bc; border-radius: 10px; padding: 0 12px;
+    border: 1px solid #d4c8bc; border-radius: 10px; padding: 0 10px;
   }
   .starting .input-wrap:focus-within { border-color: #8b6f4e; }
-  .starting .dollar { font-size: 18px; font-weight: 700; color: #5c4a3a; }
+  .starting .dollar { font-size: 20px; font-weight: 700; color: #5c4a3a; }
   .starting input {
-    width: 120px; text-align: left; font-weight: 600;
-    padding: 10px 4px; font-size: 18px; border: none; background: transparent;
+    width: 100px; text-align: left; font-weight: 700;
+    padding: 8px 4px; font-size: 20px; border: none; background: transparent;
   }
   .starting input:focus { outline: none; }
   .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
@@ -105,6 +105,18 @@
     justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
   }
   .bar-inc span, .bar-exp span { padding: 0 4px; white-space: nowrap; overflow: hidden; }
+  .celebrate {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 999; overflow: hidden;
+  }
+  .celebrate span {
+    position: absolute; top: -30px; font-size: 24px;
+    animation: fall 1.5s ease-in forwards;
+  }
+  @keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+  }
 </style>
 </head>
 <body>
@@ -172,22 +184,24 @@ $("start").oninput = () => { localStorage.setItem(SKEY, $("start").value); rende
 
 async function fetchData() {
   try {
-    const res = await fetch(API);
+    const res = await fetch(API, { redirect: "follow" });
     const json = await res.json();
     allData = [
       ...json.income.map(r => ({ ...r, type: "income" })),
       ...json.expense.map(r => ({ ...r, type: "expense" }))
-    ].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    ].sort((a, b) => (fmtDate(b.date)).localeCompare(fmtDate(a.date)));
     $("loading").style.display = "none";
     render();
   } catch (err) {
-    $("loading").textContent = "Error loading data. Pull down to refresh.";
+    $("loading").textContent = "Error loading data. Tap to retry.";
+    $("loading").onclick = () => { $("loading").textContent = "Loading..."; $("loading").onclick = null; fetchData(); };
   }
 }
 
 async function post(body) {
   await fetch(API, {
     method: "POST",
+    redirect: "follow",
     body: JSON.stringify(body)
   });
 }
@@ -240,7 +254,7 @@ function render() {
         <span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${parseFloat(e.amount || 0).toFixed(2)}</span>
       </div>
       <div class="entry-bottom">
-        <span>${esc(e.category || "")} · ${e.date || ""}</span>
+        <span>${esc(e.category || "")} · ${fmtDate(e.date)}</span>
         <div class="entry-actions">
           <span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span>
           <button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button>
@@ -253,6 +267,27 @@ function render() {
 
 function esc(s) {
   const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
+}
+
+function fmtDate(d) {
+  if (!d) return "";
+  return String(d).substring(0, 10);
+}
+
+function celebrate() {
+  const emojis = ["💰","🌟","🎉","💵","✨","🌾"];
+  const div = document.createElement("div");
+  div.className = "celebrate";
+  for (let i = 0; i < 20; i++) {
+    const s = document.createElement("span");
+    s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    s.style.left = Math.random() * 100 + "%";
+    s.style.animationDelay = Math.random() * 0.5 + "s";
+    s.style.fontSize = (18 + Math.random() * 16) + "px";
+    div.appendChild(s);
+  }
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 2200);
 }
 
 $("form").onsubmit = async e => {
@@ -273,6 +308,7 @@ $("form").onsubmit = async e => {
   $("date").value = new Date().toISOString().split("T")[0];
   $("addBtn").textContent = "Add";
   $("addBtn").disabled = false;
+  if (type === "income") celebrate();
   fetchData();
 };
 
@@ -291,7 +327,7 @@ async function markPaid(i) {
 
 async function cam(i) {
   const inp = document.createElement("input");
-  inp.type = "file"; inp.accept = "image/*"; inp.capture = "environment";
+  inp.type = "file"; inp.accept = "image/*";
   inp.onchange = async () => {
     const file = inp.files[0];
     const reader = new FileReader();
