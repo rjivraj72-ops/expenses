@@ -50,13 +50,9 @@
   }
   .toggle input { display: none; }
   .toggle input:checked + label { background: #8b6f4e; color: #fff; }
-  .entry {
-    padding: 12px 0; border-bottom: 0.5px solid #e8ddd2;
-  }
+  .entry { padding: 12px 0; border-bottom: 0.5px solid #e8ddd2; }
   .entry:last-child { border-bottom: none; }
-  .entry-top {
-    display: flex; justify-content: space-between; align-items: center;
-  }
+  .entry-top { display: flex; justify-content: space-between; align-items: center; }
   .entry-desc { font-size: 15px; font-weight: 500; }
   .entry-amount { font-size: 16px; font-weight: 600; }
   .entry-amount.inc { color: #5a8a5e; }
@@ -77,6 +73,7 @@
   .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
   .receipt-img { width: 100%; border-radius: 8px; margin-top: 8px; }
   .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
+  .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .starting { font-size: 14px; color: #8a7968; text-align: center; margin-bottom: 12px; }
   .starting .label { display: block; margin-bottom: 4px; }
   .starting .input-wrap {
@@ -152,7 +149,7 @@
     <input id="date" type="date">
     <div class="row">
       <select id="paid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
-      <button type="submit">Add</button>
+      <button type="submit" id="addBtn">Add</button>
     </div>
   </form>
 </div>
@@ -160,26 +157,46 @@
 <div class="card" id="list-card" style="display:none">
   <div id="list"></div>
 </div>
-<div class="empty" id="empty">No entries yet</div>
+<div class="loading" id="loading">Loading...</div>
+<div class="empty" id="empty" style="display:none">No entries yet</div>
 
 <script>
 const $ = id => document.getElementById(id);
-const KEY = "expenses", SKEY = "startBal";
+const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
+const SKEY = "startBal";
+let allData = [];
+
 $("date").value = new Date().toISOString().split("T")[0];
 $("start").value = localStorage.getItem(SKEY) || "";
+$("start").oninput = () => { localStorage.setItem(SKEY, $("start").value); render(); };
 
-$("start").oninput = () => {
-  localStorage.setItem(SKEY, $("start").value);
-  render(load());
-};
+async function fetchData() {
+  try {
+    const res = await fetch(API);
+    const json = await res.json();
+    allData = [
+      ...json.income.map(r => ({ ...r, type: "income" })),
+      ...json.expense.map(r => ({ ...r, type: "expense" }))
+    ].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    $("loading").style.display = "none";
+    render();
+  } catch (err) {
+    $("loading").textContent = "Error loading data. Pull down to refresh.";
+  }
+}
 
-const load = () => JSON.parse(localStorage.getItem(KEY) || "[]");
-const save = d => { localStorage.setItem(KEY, JSON.stringify(d)); render(d); };
+async function post(body) {
+  await fetch(API, {
+    method: "POST",
+    body: JSON.stringify(body)
+  });
+}
 
-function render(data) {
+function render() {
+  const data = allData;
   const startBal = parseFloat($("start").value) || 0;
-  const inc = data.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount), 0);
-  const exp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.amount), 0);
+  const inc = data.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const exp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
   const bal = startBal + inc - exp;
   $("bal").textContent = `$${bal.toFixed(2)}`;
   $("bal").style.color = bal >= 0 ? "" : "#c0694f";
@@ -191,10 +208,10 @@ function render(data) {
 
   const months = {};
   data.forEach(e => {
-    const m = e.date ? e.date.substring(0, 7) : "Unknown";
-    if (!months[m]) months[m] = { inc: 0, exp: 0 };
-    if (e.type === "income") months[m].inc += parseFloat(e.amount);
-    else months[m].exp += parseFloat(e.amount);
+    const d = e.date ? String(e.date).substring(0, 7) : "Unknown";
+    if (!months[d]) months[d] = { inc: 0, exp: 0 };
+    if (e.type === "income") months[d].inc += parseFloat(e.amount || 0);
+    else months[d].exp += parseFloat(e.amount || 0);
   });
   const sorted = Object.keys(months).sort().reverse();
   const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -219,18 +236,18 @@ function render(data) {
   $("list").innerHTML = data.map((e, i) => `
     <div class="entry">
       <div class="entry-top">
-        <span class="entry-desc">${esc(e.description)}</span>
-        <span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${parseFloat(e.amount).toFixed(2)}</span>
+        <span class="entry-desc">${esc(e.description || "")}</span>
+        <span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${parseFloat(e.amount || 0).toFixed(2)}</span>
       </div>
       <div class="entry-bottom">
-        <span>${esc(e.category)} · ${e.date}</span>
+        <span>${esc(e.category || "")} · ${e.date || ""}</span>
         <div class="entry-actions">
-          <span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `pay(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span>
+          <span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span>
           <button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button>
           <button onclick="del(${i})">🗑️</button>
         </div>
       </div>
-      ${e.receipt ? `<img class="receipt-img" src="${e.receipt}">` : ''}
+      ${e.receipt ? `<a href="${esc(e.receipt)}" target="_blank"><img class="receipt-img" src="${esc(e.receipt)}"></a>` : ''}
     </div>`).join("");
 }
 
@@ -238,37 +255,68 @@ function esc(s) {
   const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
 }
 
-$("form").onsubmit = e => {
+$("form").onsubmit = async e => {
   e.preventDefault();
-  const data = load();
-  data.unshift({
-    type: document.querySelector('input[name="type"]:checked').value,
-    description: $("desc").value,
-    amount: $("amount").value,
-    category: $("category").value,
+  $("addBtn").textContent = "Adding...";
+  $("addBtn").disabled = true;
+  const type = document.querySelector('input[name="type"]:checked').value;
+  await post({
+    action: "add",
+    type: type,
     date: $("date").value,
+    description: $("desc").value,
+    category: $("category").value,
+    amount: parseFloat($("amount").value),
     paid: $("paid").value
   });
-  save(data);
   $("desc").value = ""; $("amount").value = "";
   $("date").value = new Date().toISOString().split("T")[0];
+  $("addBtn").textContent = "Add";
+  $("addBtn").disabled = false;
+  fetchData();
 };
 
-function del(i) { const data = load(); data.splice(i, 1); save(data); }
-function pay(i) { const data = load(); data[i].paid = "yes"; save(data); }
+async function del(i) {
+  if (!confirm("Delete this entry?")) return;
+  const e = allData[i];
+  await post({ action: "delete", type: e.type, row: e.row });
+  fetchData();
+}
 
-function cam(i) {
+async function markPaid(i) {
+  const e = allData[i];
+  await post({ action: "pay", type: e.type, row: e.row });
+  fetchData();
+}
+
+async function cam(i) {
   const inp = document.createElement("input");
   inp.type = "file"; inp.accept = "image/*"; inp.capture = "environment";
-  inp.onchange = () => {
+  inp.onchange = async () => {
+    const file = inp.files[0];
     const reader = new FileReader();
-    reader.onload = () => { const data = load(); data[i].receipt = reader.result; save(data); };
-    reader.readAsDataURL(inp.files[0]);
+    reader.onload = async () => {
+      const base64 = reader.result.split(",")[1];
+      const e = allData[i];
+      const res = await fetch(API, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "receipt",
+          type: e.type,
+          row: e.row,
+          data: base64,
+          mime: file.type,
+          filename: `receipt_${e.date}_${Date.now()}.${file.type.split("/")[1]}`
+        })
+      });
+      fetchData();
+    };
+    reader.readAsDataURL(file);
   };
   inp.click();
 }
 
-render(load());
+fetchData();
 </script>
 </body>
 </html>
