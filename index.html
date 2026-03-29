@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#5c4a3a">
-<title>Expenses</title>
+<title>Granola Kid</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -15,6 +15,25 @@
     background: #f5f0eb; color: #3b2e24;
     padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
     -webkit-tap-highlight-color: transparent;
+    transition: background 0.3s, color 0.3s;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #1c1714; color: #e8ddd2; }
+    h1 { color: #d4c8bc; }
+    .summary .balance { color: #d4c8bc; }
+    .total span, .expense-desc { color: #e8ddd2; }
+    .summary .row, .expense-meta, .empty, .starting { color: #8a7968; }
+    .card { background: #2a2118; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    input, select { background: #352a20; border-color: #4a3d30; color: #e8ddd2; }
+    input:focus, select:focus { border-color: #a8885e; }
+    .toggle label { background: #352a20; color: #8a7968; }
+    .toggle { border-color: #4a3d30; }
+    .toggle input:checked + label { background: #8b6f4e; color: #fff; }
+    .expense { border-bottom-color: #3a2e22; }
+    .expense-amount { color: #d4c8bc; }
+    .mic-btn { border-color: #4a3d30; }
+    .paid-badge.no { background: #3a2218; }
+    .paid-badge.yes { background: #1e3020; }
   }
   .logo { padding: 20px 0 4px; }
   h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: #5c4a3a; }
@@ -26,12 +45,13 @@
   .card {
     background: #fff; border-radius: 12px; padding: 16px;
     margin-bottom: 12px; box-shadow: 0 1px 4px rgba(60,46,36,0.08);
+    transition: background 0.3s, box-shadow 0.3s;
   }
   form { display: flex; flex-direction: column; gap: 10px; }
   input, select {
     font-size: 16px; padding: 12px; border: 1px solid #d4c8bc;
     border-radius: 10px; background: #faf7f4; width: 100%;
-    color: #3b2e24; -webkit-appearance: none;
+    color: #3b2e24; -webkit-appearance: none; transition: background 0.3s, border-color 0.3s, color 0.3s;
   }
   input:focus, select:focus { outline: none; border-color: #8b6f4e; }
   .row { display: flex; gap: 10px; }
@@ -40,46 +60,119 @@
     font-size: 16px; font-weight: 600; padding: 12px;
     border: none; border-radius: 10px; cursor: pointer;
     background: #8b6f4e; color: #fff; width: 100%;
+    transform: scale(1); transition: transform 0.1s;
   }
-  button:active { opacity: 0.7; }
+  button:active { transform: scale(0.95); }
   .toggle { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid #d4c8bc; }
   .toggle label {
     flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500;
     cursor: pointer; background: #faf7f4; color: #8a7968; transition: all 0.2s;
+    transform: scale(1);
   }
+  .toggle label:active { transform: scale(0.96); }
   .toggle input { display: none; }
   .toggle input:checked + label { background: #8b6f4e; color: #fff; }
-  .expense {
+  .expense-wrap {
+    overflow: hidden; position: relative;
+    animation: slideIn 0.3s ease-out;
+  }
+  .expense-wrap.removing {
+    animation: slideOut 0.3s ease-in forwards;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); max-height: 0; }
+    to { opacity: 1; transform: translateY(0); max-height: 200px; }
+  }
+  @keyframes slideOut {
+    from { opacity: 1; transform: translateX(0); max-height: 200px; }
+    to { opacity: 0; transform: translateX(-100%); max-height: 0; }
+  }
+  .swipe-container {
+    position: relative; overflow: hidden;
+  }
+  .swipe-content {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 0; border-bottom: 0.5px solid #e8ddd2;
+    position: relative; z-index: 1; background: inherit;
+    transition: transform 0.2s;
   }
-  .expense:last-child { border-bottom: none; }
+  .expense-wrap:last-child .swipe-content { border-bottom: none; }
+  .swipe-delete {
+    position: absolute; right: 0; top: 0; bottom: 0;
+    background: #c0694f; color: #fff; display: flex; align-items: center;
+    padding: 0 20px; font-weight: 600; font-size: 14px; border-radius: 0 8px 8px 0;
+  }
   .expense-info { flex: 1; }
   .expense-desc { font-size: 16px; font-weight: 500; color: #3b2e24; }
   .expense-meta { font-size: 13px; color: #8a7968; margin-top: 2px; }
   .expense-amount { font-size: 17px; font-weight: 600; margin-right: 12px; }
   .expense-amount.inc { color: #5a8a5e; }
   .expense-amount.exp { color: #c0694f; }
-  .del-btn {
-    background: none; border: none; color: #c0694f; font-size: 22px;
-    padding: 4px 8px; width: auto; font-weight: 400;
+  .cam-btn {
+    background: none; border: none; font-size: 18px;
+    padding: 4px 8px; width: auto; cursor: pointer;
+    transform: scale(1); transition: transform 0.1s;
   }
+  .cam-btn:active { transform: scale(0.85); }
+  .receipt-img { width: 100%; border-radius: 8px; margin-top: 8px; }
   .paid-badge {
     font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-right: 8px;
+    transform: scale(1); transition: transform 0.1s;
   }
+  .paid-badge:active { transform: scale(0.9); }
   .paid-badge.yes { background: #e8f5e9; color: #5a8a5e; }
   .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
+  .mic-btn {
+    background: none; border: 1px solid #d4c8bc; border-radius: 10px;
+    font-size: 20px; padding: 10px 14px; width: auto; cursor: pointer;
+    flex-shrink: 0; transform: scale(1); transition: transform 0.1s, background 0.2s;
+  }
+  .mic-btn:active { transform: scale(0.9); }
+  .mic-btn.active { background: #c0694f; border-color: #c0694f; }
   .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .starting { font-size: 14px; color: #8a7968; text-align: center; margin-bottom: 12px; }
   .starting input {
     width: 140px; display: inline-block; text-align: center; font-weight: 600;
     padding: 8px; font-size: 16px;
   }
+  .chart-title {
+    font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px;
+    text-align: center;
+  }
+  .month-row { margin-bottom: 14px; }
+  .month-label {
+    font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 4px;
+    display: flex; justify-content: space-between;
+  }
+  .month-label .net { font-weight: 700; }
+  .month-label .net.pos { color: #5a8a5e; }
+  .month-label .net.neg { color: #c0694f; }
+  .bar-track {
+    height: 24px; border-radius: 8px; background: #ede6df; overflow: hidden;
+    display: flex; position: relative;
+  }
+  .bar-inc {
+    height: 100%; background: #5a8a5e; border-radius: 8px 0 0 8px;
+    transition: width 0.5s ease; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
+    min-width: 0;
+  }
+  .bar-exp {
+    height: 100%; background: #c0694f; border-radius: 0 8px 8px 0;
+    transition: width 0.5s ease; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
+    min-width: 0;
+  }
+  .bar-inc span, .bar-exp span { padding: 0 4px; white-space: nowrap; overflow: hidden; }
+  @media (prefers-color-scheme: dark) {
+    .chart-title, .month-label { color: #d4c8bc; }
+    .bar-track { background: #352a20; }
+  }
 </style>
 </head>
 <body>
 <div class="logo"><img src="logo.png" alt="Logo" style="width:100%;display:block;"></div>
-<h1>Expenses</h1>
+<h1>Welcome Granola Kid</h1>
 
 <div class="starting">
   Starting Balance: $<input id="start" type="number" step="0.01" min="0" placeholder="0.00" inputmode="decimal">
@@ -93,19 +186,26 @@
   </div>
 </div>
 
+<div class="card" id="chart-card" style="display:none">
+  <div class="chart-title">📊 Monthly Breakdown</div>
+  <div id="chart"></div>
+</div>
+
 <div class="card">
   <form id="form">
     <div class="toggle">
       <input type="radio" name="type" id="tExp" value="expense" checked><label for="tExp">Expense</label>
       <input type="radio" name="type" id="tInc" value="income"><label for="tInc">Income</label>
     </div>
-    <input id="desc" placeholder="Description" required>
+    <div class="row">
+      <input id="desc" placeholder="Description" required style="flex:1">
+      <button type="button" class="mic-btn" id="mic" onclick="listen()">🎙️</button>
+    </div>
     <div class="row">
       <input id="amount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
       <select id="category">
-        <option>Food</option><option>Transport</option><option>Shopping</option>
-        <option>Bills</option><option>Entertainment</option><option>Salary</option>
-        <option>Freelance</option><option>Other</option>
+        <option>🌾 Ingredients</option><option>💻 Shopify</option>
+        <option>📦 Co-Packing</option><option>👜 Packaging</option>
       </select>
     </div>
     <input id="date" type="date">
@@ -141,25 +241,83 @@ function render(data) {
   const exp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.amount), 0);
   const bal = startBal + inc - exp;
   $("bal").textContent = `$${bal.toFixed(2)}`;
-  $("bal").style.color = bal >= 0 ? "#5c4a3a" : "#c0694f";
+  $("bal").style.color = bal >= 0 ? "" : "#c0694f";
   $("tinc").textContent = inc.toFixed(2);
   $("texp").textContent = exp.toFixed(2);
   $("empty").style.display = data.length ? "none" : "block";
   $("list-card").style.display = data.length ? "block" : "none";
-  $("list").innerHTML = data.map((e, i) => `
-    <div class="expense">
-      <div class="expense-info">
-        <div class="expense-desc">${esc(e.description)}</div>
-        <div class="expense-meta">${esc(e.category)} · ${e.date}</div>
+  $("chart-card").style.display = data.length ? "block" : "none";
+
+  // Monthly breakdown
+  const months = {};
+  data.forEach(e => {
+    const m = e.date ? e.date.substring(0, 7) : "Unknown";
+    if (!months[m]) months[m] = { inc: 0, exp: 0 };
+    if (e.type === "income") months[m].inc += parseFloat(e.amount);
+    else months[m].exp += parseFloat(e.amount);
+  });
+  const sorted = Object.keys(months).sort().reverse();
+  const maxVal = Math.max(...sorted.map(m => months[m].inc + months[m].exp), 1);
+  const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  $("chart").innerHTML = sorted.map(m => {
+    const d = months[m], total = d.inc + d.exp || 1;
+    const incW = (d.inc / total) * 100, expW = (d.exp / total) * 100;
+    const net = d.inc - d.exp;
+    const parts = m.split("-");
+    const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m;
+    return `<div class="month-row">
+      <div class="month-label">
+        <span>${label}</span>
+        <span class="net ${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '🌟' : '⚠️'} ${net >= 0 ? '+' : ''}$${net.toFixed(2)}</span>
       </div>
-      <div class="expense-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${parseFloat(e.amount).toFixed(2)}</div>
-      <span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `pay(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span>
-      <button class="del-btn" onclick="del(${i})">&times;</button>
+      <div class="bar-track">
+        <div class="bar-inc" style="width:${incW}%">${d.inc > 0 ? `<span>$${d.inc.toFixed(0)}</span>` : ''}</div>
+        <div class="bar-exp" style="width:${expW}%">${d.exp > 0 ? `<span>$${d.exp.toFixed(0)}</span>` : ''}</div>
+      </div>
+    </div>`;
+  }).join("");
+  $("list").innerHTML = data.map((e, i) => `
+    <div class="expense-wrap" id="ew${i}">
+      <div class="swipe-container">
+        <div class="swipe-delete">Delete</div>
+        <div class="swipe-content" ontouchstart="ts(event,${i})" ontouchmove="tm(event,${i})" ontouchend="te(event,${i})">
+          <div class="expense-info">
+            <div class="expense-desc">${esc(e.description)}</div>
+            <div class="expense-meta">${esc(e.category)} · ${e.date}</div>
+          </div>
+          <div class="expense-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${parseFloat(e.amount).toFixed(2)}</div>
+          <span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `pay(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span>
+          <button class="cam-btn" onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button>
+        </div>
+      </div>
+      ${e.receipt ? `<div><img class="receipt-img" src="${e.receipt}" onclick="this.requestFullscreen?.()"></div>` : ''}
     </div>`).join("");
 }
 
 function esc(s) {
   const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
+}
+
+let sx = 0, dx = 0;
+function ts(e, i) { sx = e.touches[0].clientX; dx = 0; }
+function tm(e, i) {
+  dx = e.touches[0].clientX - sx;
+  if (dx > 0) dx = 0;
+  const el = e.currentTarget;
+  el.style.transform = `translateX(${Math.max(dx, -80)}px)`;
+  el.style.transition = 'none';
+}
+function te(e, i) {
+  const el = e.currentTarget;
+  el.style.transition = 'transform 0.2s';
+  if (dx < -60) {
+    el.style.transform = 'translateX(-80px)';
+    setTimeout(() => {
+      el.onclick = () => del(i);
+    }, 10);
+  } else {
+    el.style.transform = 'translateX(0)';
+  }
 }
 
 $("form").onsubmit = e => {
@@ -179,15 +337,56 @@ $("form").onsubmit = e => {
 };
 
 function del(i) {
-  const data = load();
-  data.splice(i, 1);
-  save(data);
+  const el = document.getElementById(`ew${i}`);
+  if (el) {
+    el.classList.add("removing");
+    el.addEventListener("animationend", () => {
+      const data = load();
+      data.splice(i, 1);
+      save(data);
+    });
+  } else {
+    const data = load();
+    data.splice(i, 1);
+    save(data);
+  }
 }
 
 function pay(i) {
   const data = load();
   data[i].paid = "yes";
   save(data);
+}
+
+let rec;
+function listen() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return alert("Speech recognition not supported on this browser");
+  if (rec) { rec.stop(); rec = null; $("mic").classList.remove("active"); return; }
+  rec = new SR();
+  rec.lang = "en-US";
+  rec.onstart = () => $("mic").classList.add("active");
+  rec.onresult = e => { $("desc").value = e.results[0][0].transcript; };
+  rec.onend = () => { rec = null; $("mic").classList.remove("active"); };
+  rec.onerror = () => { rec = null; $("mic").classList.remove("active"); };
+  rec.start();
+}
+
+function cam(i) {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "image/*";
+  inp.capture = "environment";
+  inp.onchange = () => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const data = load();
+      data[i].receipt = reader.result;
+      save(data);
+    };
+    reader.readAsDataURL(inp.files[0]);
+  };
+  inp.click();
 }
 
 render(load());
