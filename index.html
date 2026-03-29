@@ -23,31 +23,16 @@
   .summary .row { display: flex; justify-content: center; gap: 24px; }
   .summary .inc { color: #5a8a5e; font-weight: 600; }
   .summary .exp { color: #c0694f; font-weight: 600; }
-  .card {
-    background: #fff; border-radius: 12px; padding: 16px;
-    margin-bottom: 12px; box-shadow: 0 1px 4px rgba(60,46,36,0.08);
-  }
+  .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(60,46,36,0.08); }
   form { display: flex; flex-direction: column; gap: 10px; }
-  input, select {
-    font-size: 16px; padding: 12px; border: 1px solid #d4c8bc;
-    border-radius: 10px; background: #faf7f4; width: 100%;
-    color: #3b2e24; -webkit-appearance: none;
-  }
+  input, select { font-size: 16px; padding: 12px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; width: 100%; color: #3b2e24; -webkit-appearance: none; }
   input:focus, select:focus { outline: none; border-color: #8b6f4e; }
   .row { display: flex; gap: 10px; }
   .row > * { flex: 1; }
-  button {
-    font-size: 16px; font-weight: 600; padding: 12px;
-    border: none; border-radius: 10px; cursor: pointer;
-    background: #8b6f4e; color: #fff; width: 100%;
-    transform: scale(1); transition: transform 0.1s;
-  }
+  button { font-size: 16px; font-weight: 600; padding: 12px; border: none; border-radius: 10px; cursor: pointer; background: #8b6f4e; color: #fff; width: 100%; transform: scale(1); transition: transform 0.1s; }
   button:active { transform: scale(0.95); }
   .toggle { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid #d4c8bc; }
-  .toggle label {
-    flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500;
-    cursor: pointer; background: #faf7f4; color: #8a7968; transition: all 0.2s;
-  }
+  .toggle label { flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500; cursor: pointer; background: #faf7f4; color: #8a7968; transition: all 0.2s; }
   .toggle input { display: none; }
   .toggle input:checked + label { background: #8b6f4e; color: #fff; }
   .entry { padding: 12px 0; border-bottom: 0.5px solid #e8ddd2; }
@@ -57,18 +42,10 @@
   .entry-amount { font-size: 16px; font-weight: 600; }
   .entry-amount.inc { color: #5a8a5e; }
   .entry-amount.exp { color: #c0694f; }
-  .entry-bottom {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-top: 4px; font-size: 12px; color: #8a7968;
-  }
+  .entry-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 12px; color: #8a7968; }
   .entry-actions { display: flex; gap: 8px; align-items: center; }
-  .entry-actions button {
-    background: none; border: none; font-size: 14px; padding: 2px 6px;
-    width: auto; color: #8a7968; font-weight: 400;
-  }
-  .entry-actions .paid-badge {
-    font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px;
-  }
+  .entry-actions button { background: none; border: none; font-size: 14px; padding: 2px 6px; width: auto; color: #8a7968; font-weight: 400; }
+  .entry-actions .paid-badge { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px; }
   .paid-badge.yes { background: #e8f5e9; color: #5a8a5e; }
   .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
   .receipt-img { width: 100%; border-radius: 8px; margin-top: 8px; }
@@ -76,16 +53,10 @@
   .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .starting { font-size: 14px; color: #8a7968; text-align: center; margin-bottom: 12px; }
   .starting .label { display: block; margin-bottom: 4px; }
-  .starting .input-wrap {
-    display: inline-flex; align-items: center; background: #fff;
-    border: 1px solid #d4c8bc; border-radius: 10px; padding: 0 10px;
-  }
+  .starting .input-wrap { display: inline-flex; align-items: center; background: #fff; border: 1px solid #d4c8bc; border-radius: 10px; padding: 0 10px; }
   .starting .input-wrap:focus-within { border-color: #8b6f4e; }
   .starting .dollar { font-size: 20px; font-weight: 700; color: #5c4a3a; }
-  .starting input {
-    width: 100px; text-align: left; font-weight: 700;
-    padding: 8px 4px; font-size: 20px; border: none; background: transparent;
-  }
+  .starting input { width: 100px; text-align: left; font-weight: 700; padding: 8px 4px; font-size: 20px; border: none; background: transparent; }
   .starting input:focus { outline: none; }
   .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
   .month-row { margin-bottom: 14px; }
@@ -94,29 +65,13 @@
   .month-label .net.pos { color: #5a8a5e; }
   .month-label .net.neg { color: #c0694f; }
   .bar-track { height: 24px; border-radius: 8px; background: #ede6df; overflow: hidden; display: flex; }
-  .bar-inc {
-    height: 100%; background: #5a8a5e; border-radius: 8px 0 0 8px;
-    transition: width 0.5s ease; display: flex; align-items: center;
-    justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
-  }
-  .bar-exp {
-    height: 100%; background: #c0694f; border-radius: 0 8px 8px 0;
-    transition: width 0.5s ease; display: flex; align-items: center;
-    justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
-  }
+  .bar-inc { height: 100%; background: #5a8a5e; border-radius: 8px 0 0 8px; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
+  .bar-exp { height: 100%; background: #c0694f; border-radius: 0 8px 8px 0; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
   .bar-inc span, .bar-exp span { padding: 0 4px; white-space: nowrap; overflow: hidden; }
-  .celebrate {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 999; overflow: hidden;
-  }
-  .celebrate span {
-    position: absolute; top: -30px; font-size: 24px;
-    animation: fall 1.5s ease-in forwards;
-  }
-  @keyframes fall {
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-  }
+  .celebrate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+  .celebrate span { position: absolute; top: -30px; font-size: 24px; animation: fall 1.5s ease-in forwards; }
+  @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+  .gst-info { font-size: 13px; color: #8a7968; text-align: right; padding: 2px 0; }
 </style>
 </head>
 <body>
@@ -145,23 +100,38 @@
 </div>
 
 <div class="card">
-  <form id="form">
-    <div class="toggle">
-      <input type="radio" name="type" id="tExp" value="expense" checked><label for="tExp">Expense</label>
-      <input type="radio" name="type" id="tInc" value="income"><label for="tInc">Income</label>
-    </div>
-    <input id="desc" placeholder="Description" required>
+  <div class="toggle">
+    <input type="radio" name="type" id="tExp" value="expense" checked onchange="toggleForm()"><label for="tExp">Expense</label>
+    <input type="radio" name="type" id="tInc" value="income" onchange="toggleForm()"><label for="tInc">Income</label>
+  </div>
+
+  <form id="expForm" style="margin-top:10px">
+    <input id="expDesc" placeholder="Description" required>
     <div class="row">
-      <input id="amount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
-      <select id="category">
-        <option>🌾 Ingredients</option><option>💻 Shopify</option>
-        <option>📦 Co-Packing</option><option>👜 Packaging</option>
+      <input id="expAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal" oninput="calcGst()">
+      <select id="expCat">
+        <option>📦 Co-Packing</option><option>🌾 Ingredients</option><option>🏷️ Bags & Boxes</option>
+        <option>🚚 Shipping & Gas</option><option>💻 Tech & Office</option><option>📢 Ads & Promo</option><option>☕ Business Meal</option>
       </select>
     </div>
-    <input id="date" type="date">
+    <div class="gst-info">GST (5%): $<span id="gstAmt">0.00</span> · Total: $<span id="totalAmt">0.00</span></div>
+    <input id="expDate" type="date">
     <div class="row">
-      <select id="paid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
-      <button type="submit" id="addBtn">Add</button>
+      <select id="expPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
+      <button type="submit" id="expBtn">Add Expense</button>
+    </div>
+  </form>
+
+  <form id="incForm" style="margin-top:10px;display:none">
+    <select id="incSource">
+      <option>🛍️ DTC</option><option>🏢 Wholesale</option>
+    </select>
+    <input id="incCustomer" placeholder="Customer / Order Number" required>
+    <input id="incAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
+    <input id="incDate" type="date">
+    <div class="row">
+      <select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
+      <button type="submit" id="incBtn">Add Income</button>
     </div>
   </form>
 </div>
@@ -178,9 +148,24 @@ const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrK
 const SKEY = "startBal";
 let allData = [];
 
-$("date").value = new Date().toISOString().split("T")[0];
+const today = () => new Date().toISOString().split("T")[0];
+$("expDate").value = today();
+$("incDate").value = today();
 $("start").value = localStorage.getItem(SKEY) || "";
 $("start").oninput = () => { localStorage.setItem(SKEY, $("start").value); render(); };
+
+function toggleForm() {
+  const isExp = $("tExp").checked;
+  $("expForm").style.display = isExp ? "flex" : "none";
+  $("incForm").style.display = isExp ? "none" : "flex";
+}
+
+function calcGst() {
+  const amt = parseFloat($("expAmount").value) || 0;
+  const gst = Math.round(amt * 0.05 * 100) / 100;
+  $("gstAmt").textContent = gst.toFixed(2);
+  $("totalAmt").textContent = (amt + gst).toFixed(2);
+}
 
 async function fetchData() {
   try {
@@ -189,7 +174,7 @@ async function fetchData() {
     allData = [
       ...json.income.map(r => ({ ...r, type: "income" })),
       ...json.expense.map(r => ({ ...r, type: "expense" }))
-    ].sort((a, b) => (fmtDate(b.date)).localeCompare(fmtDate(a.date)));
+    ].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
     $("loading").style.display = "none";
     render();
   } catch (err) {
@@ -199,18 +184,14 @@ async function fetchData() {
 }
 
 async function post(body) {
-  await fetch(API, {
-    method: "POST",
-    redirect: "follow",
-    body: JSON.stringify(body)
-  });
+  await fetch(API, { method: "POST", redirect: "follow", body: JSON.stringify(body) });
 }
 
 function render() {
   const data = allData;
   const startBal = parseFloat($("start").value) || 0;
   const inc = data.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const exp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const exp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
   const bal = startBal + inc - exp;
   $("bal").textContent = `$${bal.toFixed(2)}`;
   $("bal").style.color = bal >= 0 ? "" : "#c0694f";
@@ -222,10 +203,10 @@ function render() {
 
   const months = {};
   data.forEach(e => {
-    const d = e.date ? String(e.date).substring(0, 7) : "Unknown";
+    const d = fmtDate(e.date).substring(0, 7) || "Unknown";
     if (!months[d]) months[d] = { inc: 0, exp: 0 };
     if (e.type === "income") months[d].inc += parseFloat(e.amount || 0);
-    else months[d].exp += parseFloat(e.amount || 0);
+    else months[d].exp += parseFloat(e.total || e.amount || 0);
   });
   const sorted = Object.keys(months).sort().reverse();
   const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -236,10 +217,7 @@ function render() {
     const parts = m.split("-");
     const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m;
     return `<div class="month-row">
-      <div class="month-label">
-        <span>${label}</span>
-        <span class="net ${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '🌟' : '⚠️'} ${net >= 0 ? '+' : ''}$${net.toFixed(2)}</span>
-      </div>
+      <div class="month-label"><span>${label}</span><span class="net ${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '🌟' : '⚠️'} ${net >= 0 ? '+' : ''}$${net.toFixed(2)}</span></div>
       <div class="bar-track">
         <div class="bar-inc" style="width:${incW}%">${d.inc > 0 ? `<span>$${d.inc.toFixed(0)}</span>` : ''}</div>
         <div class="bar-exp" style="width:${expW}%">${d.exp > 0 ? `<span>$${d.exp.toFixed(0)}</span>` : ''}</div>
@@ -247,14 +225,17 @@ function render() {
     </div>`;
   }).join("");
 
-  $("list").innerHTML = data.map((e, i) => `
-    <div class="entry">
+  $("list").innerHTML = data.map((e, i) => {
+    const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || "");
+    const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`;
+    const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
+    return `<div class="entry">
       <div class="entry-top">
-        <span class="entry-desc">${esc(e.description || "")}</span>
-        <span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${parseFloat(e.amount || 0).toFixed(2)}</span>
+        <span class="entry-desc">${desc}</span>
+        <span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span>
       </div>
       <div class="entry-bottom">
-        <span>${esc(e.category || "")} · ${fmtDate(e.date)}</span>
+        <span>${meta}</span>
         <div class="entry-actions">
           <span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span>
           <button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button>
@@ -262,17 +243,12 @@ function render() {
         </div>
       </div>
       ${e.receipt ? `<a href="${esc(e.receipt)}" target="_blank"><img class="receipt-img" src="${esc(e.receipt)}"></a>` : ''}
-    </div>`).join("");
+    </div>`;
+  }).join("");
 }
 
-function esc(s) {
-  const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
-}
-
-function fmtDate(d) {
-  if (!d) return "";
-  return String(d).substring(0, 10);
-}
+function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+function fmtDate(d) { return d ? String(d).substring(0, 10) : ""; }
 
 function celebrate() {
   const emojis = ["💰","🌟","🎉","💵","✨","🌾"];
@@ -290,25 +266,33 @@ function celebrate() {
   setTimeout(() => div.remove(), 2200);
 }
 
-$("form").onsubmit = async e => {
+$("expForm").onsubmit = async e => {
   e.preventDefault();
-  $("addBtn").textContent = "Adding...";
-  $("addBtn").disabled = true;
-  const type = document.querySelector('input[name="type"]:checked').value;
+  $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true;
   await post({
-    action: "add",
-    type: type,
-    date: $("date").value,
-    description: $("desc").value,
-    category: $("category").value,
-    amount: parseFloat($("amount").value),
-    paid: $("paid").value
+    action: "add", type: "expense",
+    date: $("expDate").value, description: $("expDesc").value,
+    category: $("expCat").value, amount: parseFloat($("expAmount").value),
+    paid: $("expPaid").value
   });
-  $("desc").value = ""; $("amount").value = "";
-  $("date").value = new Date().toISOString().split("T")[0];
-  $("addBtn").textContent = "Add";
-  $("addBtn").disabled = false;
-  if (type === "income") celebrate();
+  $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = today();
+  $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00";
+  $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false;
+  fetchData();
+};
+
+$("incForm").onsubmit = async e => {
+  e.preventDefault();
+  $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true;
+  await post({
+    action: "add", type: "income",
+    date: $("incDate").value, source: $("incSource").value,
+    customer: $("incCustomer").value, amount: parseFloat($("incAmount").value),
+    paid: $("incPaid").value
+  });
+  $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = today();
+  $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false;
+  celebrate();
   fetchData();
 };
 
@@ -334,17 +318,10 @@ async function cam(i) {
     reader.onload = async () => {
       const base64 = reader.result.split(",")[1];
       const e = allData[i];
-      const res = await fetch(API, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "receipt",
-          type: e.type,
-          row: e.row,
-          data: base64,
-          mime: file.type,
-          filename: `receipt_${e.date}_${Date.now()}.${file.type.split("/")[1]}`
-        })
-      });
+      await fetch(API, { method: "POST", body: JSON.stringify({
+        action: "receipt", type: e.type, row: e.row, data: base64,
+        mime: file.type, filename: `receipt_${fmtDate(e.date)}_${Date.now()}.${file.type.split("/")[1]}`
+      })});
       fetchData();
     };
     reader.readAsDataURL(file);
