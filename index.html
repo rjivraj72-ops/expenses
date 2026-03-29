@@ -35,8 +35,9 @@
   .toggle label { flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500; cursor: pointer; background: #faf7f4; color: #8a7968; transition: all 0.2s; }
   .toggle input { display: none; }
   .toggle input:checked + label { background: #8b6f4e; color: #fff; }
-  .entry { padding: 12px 0; border-bottom: 0.5px solid #e8ddd2; cursor: pointer; }
-  .entry:last-child { border-bottom: none; }
+  .entry { padding: 12px; margin-bottom: 6px; border-radius: 8px; cursor: pointer; }
+  .entry.inc-row { background: #f0f7f1; }
+  .entry.exp-row { background: #fdf5f2; }
   .edit-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.4); z-index: 100; display: flex;
@@ -165,7 +166,7 @@
       <input id="expAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal" oninput="calcGst()">
       <select id="expCat">
         <option>📦 Co-Packing</option><option>🌾 Ingredients</option><option>🏷️ Bags & Boxes</option>
-        <option>🚚 Shipping & Gas</option><option>💻 Tech & Office</option><option>📢 Ads & Promo</option><option>☕ Business Meal</option>
+        <option>🚚 Shipping & Gas</option><option>💻 Tech & Office</option><option>📢 Ads & Promo</option><option>☕ Business Meal</option><option>💳 Debt Repayment</option>
       </select>
     </div>
     <div class="gst-info">GST (5%): $<span id="gstAmt">0.00</span> · Total: $<span id="totalAmt">0.00</span></div>
@@ -232,16 +233,48 @@ function updateDots() {
 }
 
 function initApp() {
+$("expDate").value = new Date().toISOString().split("T")[0];
+$("incDate").value = new Date().toISOString().split("T")[0];
+$("start").value = localStorage.getItem(SKEY) || "";
+$("start").oninput = () => { localStorage.setItem(SKEY, $("start").value); render(); };
+
+$("expForm").onsubmit = async e => {
+  e.preventDefault();
+  $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true;
+  await post({
+    action: "add", type: "expense",
+    date: $("expDate").value, description: $("expDesc").value,
+    category: $("expCat").value, amount: parseFloat($("expAmount").value),
+    paid: $("expPaid").value
+  });
+  $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0];
+  $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00";
+  $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false;
+  fetchData();
+};
+
+$("incForm").onsubmit = async e => {
+  e.preventDefault();
+  $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true;
+  await post({
+    action: "add", type: "income",
+    date: $("incDate").value, source: $("incSource").value,
+    customer: $("incCustomer").value, amount: parseFloat($("incAmount").value),
+    paid: $("incPaid").value
+  });
+  $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0];
+  $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false;
+  celebrate();
+  fetchData();
+};
+
+fetchData();
+}
+
 const $ = id => document.getElementById(id);
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
 const SKEY = "startBal";
 let allData = [];
-
-const today = () => new Date().toISOString().split("T")[0];
-$("expDate").value = today();
-$("incDate").value = today();
-$("start").value = localStorage.getItem(SKEY) || "";
-$("start").oninput = () => { localStorage.setItem(SKEY, $("start").value); render(); };
 
 function toggleForm() {
   const isExp = $("tExp").checked;
@@ -318,7 +351,7 @@ function render() {
     const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || "");
     const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`;
     const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
-    return `<div class="entry" onclick="edit(${i})">
+    return `<div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}" onclick="edit(${i})">
       <div class="entry-top">
         <span class="entry-desc">${desc}</span>
         <span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span>
@@ -354,36 +387,6 @@ function celebrate() {
   document.body.appendChild(div);
   setTimeout(() => div.remove(), 4500);
 }
-
-$("expForm").onsubmit = async e => {
-  e.preventDefault();
-  $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true;
-  await post({
-    action: "add", type: "expense",
-    date: $("expDate").value, description: $("expDesc").value,
-    category: $("expCat").value, amount: parseFloat($("expAmount").value),
-    paid: $("expPaid").value
-  });
-  $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = today();
-  $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00";
-  $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false;
-  fetchData();
-};
-
-$("incForm").onsubmit = async e => {
-  e.preventDefault();
-  $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true;
-  await post({
-    action: "add", type: "income",
-    date: $("incDate").value, source: $("incSource").value,
-    customer: $("incCustomer").value, amount: parseFloat($("incAmount").value),
-    paid: $("incPaid").value
-  });
-  $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = today();
-  $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false;
-  celebrate();
-  fetchData();
-};
 
 async function del(i) {
   event.stopPropagation();
@@ -434,7 +437,7 @@ function edit(i) {
       <div class="row">
         <input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal">
         <select id="eCat">
-          ${["📦 Co-Packing","🌾 Ingredients","🏷️ Bags & Boxes","🚚 Shipping & Gas","💻 Tech & Office","📢 Ads & Promo","☕ Business Meal"]
+          ${["📦 Co-Packing","🌾 Ingredients","🏷️ Bags & Boxes","🚚 Shipping & Gas","💻 Tech & Office","📢 Ads & Promo","☕ Business Meal","💳 Debt Repayment"]
             .map(c => `<option${(e.category||"").includes(c.substring(2)) ? " selected" : ""}>${c}</option>`).join("")}
         </select>
       </div>
@@ -477,9 +480,6 @@ function edit(i) {
     await post(body);
     fetchData();
   };
-}
-
-fetchData();
 }
 </script>
 </body>
