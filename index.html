@@ -15,7 +15,6 @@
     background: #f5f0eb; color: #3b2e24;
     padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
     -webkit-tap-highlight-color: transparent;
-    transition: background 0.3s, color 0.3s;
   }
   .logo { padding: 20px 0 4px; }
   h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: #5c4a3a; }
@@ -27,13 +26,12 @@
   .card {
     background: #fff; border-radius: 12px; padding: 16px;
     margin-bottom: 12px; box-shadow: 0 1px 4px rgba(60,46,36,0.08);
-    transition: background 0.3s, box-shadow 0.3s;
   }
   form { display: flex; flex-direction: column; gap: 10px; }
   input, select {
     font-size: 16px; padding: 12px; border: 1px solid #d4c8bc;
     border-radius: 10px; background: #faf7f4; width: 100%;
-    color: #3b2e24; -webkit-appearance: none; transition: background 0.3s, border-color 0.3s, color 0.3s;
+    color: #3b2e24; -webkit-appearance: none;
   }
   input:focus, select:focus { outline: none; border-color: #8b6f4e; }
   .row { display: flex; gap: 10px; }
@@ -49,75 +47,41 @@
   .toggle label {
     flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500;
     cursor: pointer; background: #faf7f4; color: #8a7968; transition: all 0.2s;
-    transform: scale(1);
   }
-  .toggle label:active { transform: scale(0.96); }
   .toggle input { display: none; }
   .toggle input:checked + label { background: #8b6f4e; color: #fff; }
-  .expense-wrap {
-    overflow: hidden; position: relative;
-    animation: slideIn 0.3s ease-out;
+  .entry {
+    padding: 12px 0; border-bottom: 0.5px solid #e8ddd2;
   }
-  .expense-wrap.removing {
-    animation: slideOut 0.3s ease-in forwards;
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); max-height: 0; }
-    to { opacity: 1; transform: translateY(0); max-height: 200px; }
-  }
-  @keyframes slideOut {
-    from { opacity: 1; transform: translateX(0); max-height: 200px; }
-    to { opacity: 0; transform: translateX(-100%); max-height: 0; }
-  }
-  .swipe-container {
-    position: relative; overflow: hidden;
-  }
-  .swipe-content {
+  .entry:last-child { border-bottom: none; }
+  .entry-top {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 0; border-bottom: 0.5px solid #e8ddd2;
-    position: relative; z-index: 1; background: inherit;
-    transition: transform 0.2s;
   }
-  .expense-wrap:last-child .swipe-content { border-bottom: none; }
-  .swipe-delete {
-    position: absolute; right: 0; top: 0; bottom: 0;
-    background: #c0694f; color: #fff; display: flex; align-items: center;
-    padding: 0 20px; font-weight: 600; font-size: 14px; border-radius: 0 8px 8px 0;
+  .entry-desc { font-size: 15px; font-weight: 500; }
+  .entry-amount { font-size: 16px; font-weight: 600; }
+  .entry-amount.inc { color: #5a8a5e; }
+  .entry-amount.exp { color: #c0694f; }
+  .entry-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 4px; font-size: 12px; color: #8a7968;
   }
-  .expense-info { flex: 1; }
-  .expense-desc { font-size: 16px; font-weight: 500; color: #3b2e24; }
-  .expense-meta { font-size: 13px; color: #8a7968; margin-top: 2px; }
-  .expense-amount { font-size: 17px; font-weight: 600; margin-right: 12px; }
-  .expense-amount.inc { color: #5a8a5e; }
-  .expense-amount.exp { color: #c0694f; }
-  .cam-btn {
-    background: none; border: none; font-size: 18px;
-    padding: 4px 8px; width: auto; cursor: pointer;
-    transform: scale(1); transition: transform 0.1s;
+  .entry-actions { display: flex; gap: 8px; align-items: center; }
+  .entry-actions button {
+    background: none; border: none; font-size: 14px; padding: 2px 6px;
+    width: auto; color: #8a7968; font-weight: 400;
   }
-  .cam-btn:active { transform: scale(0.85); }
-  .receipt-img { width: 100%; border-radius: 8px; margin-top: 8px; }
-  .paid-badge {
-    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-right: 8px;
-    transform: scale(1); transition: transform 0.1s;
+  .entry-actions .paid-badge {
+    font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px;
   }
-  .paid-badge:active { transform: scale(0.9); }
   .paid-badge.yes { background: #e8f5e9; color: #5a8a5e; }
   .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
-  .mic-btn {
-    background: none; border: 1px solid #d4c8bc; border-radius: 10px;
-    font-size: 20px; padding: 10px 14px; width: auto; cursor: pointer;
-    flex-shrink: 0; transform: scale(1); transition: transform 0.1s, background 0.2s;
-  }
-  .mic-btn:active { transform: scale(0.9); }
-  .mic-btn.active { background: #c0694f; border-color: #c0694f; }
+  .receipt-img { width: 100%; border-radius: 8px; margin-top: 8px; }
   .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .starting { font-size: 14px; color: #8a7968; text-align: center; margin-bottom: 12px; }
   .starting .label { display: block; margin-bottom: 4px; }
   .starting .input-wrap {
     display: inline-flex; align-items: center; background: #fff;
     border: 1px solid #d4c8bc; border-radius: 10px; padding: 0 12px;
-    transition: background 0.3s, border-color 0.3s;
   }
   .starting .input-wrap:focus-within { border-color: #8b6f4e; }
   .starting .dollar { font-size: 18px; font-weight: 700; color: #5c4a3a; }
@@ -126,33 +90,22 @@
     padding: 10px 4px; font-size: 18px; border: none; background: transparent;
   }
   .starting input:focus { outline: none; }
-  .chart-title {
-    font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px;
-    text-align: center;
-  }
+  .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
   .month-row { margin-bottom: 14px; }
-  .month-label {
-    font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 4px;
-    display: flex; justify-content: space-between;
-  }
+  .month-label { font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 4px; display: flex; justify-content: space-between; }
   .month-label .net { font-weight: 700; }
   .month-label .net.pos { color: #5a8a5e; }
   .month-label .net.neg { color: #c0694f; }
-  .bar-track {
-    height: 24px; border-radius: 8px; background: #ede6df; overflow: hidden;
-    display: flex; position: relative;
-  }
+  .bar-track { height: 24px; border-radius: 8px; background: #ede6df; overflow: hidden; display: flex; }
   .bar-inc {
     height: 100%; background: #5a8a5e; border-radius: 8px 0 0 8px;
     transition: width 0.5s ease; display: flex; align-items: center;
     justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
-    min-width: 0;
   }
   .bar-exp {
     height: 100%; background: #c0694f; border-radius: 0 8px 8px 0;
     transition: width 0.5s ease; display: flex; align-items: center;
     justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
-    min-width: 0;
   }
   .bar-inc span, .bar-exp span { padding: 0 4px; white-space: nowrap; overflow: hidden; }
 </style>
@@ -188,10 +141,7 @@
       <input type="radio" name="type" id="tExp" value="expense" checked><label for="tExp">Expense</label>
       <input type="radio" name="type" id="tInc" value="income"><label for="tInc">Income</label>
     </div>
-    <div class="row">
-      <input id="desc" placeholder="Description" required style="flex:1">
-      <button type="button" class="mic-btn" id="mic" onclick="listen()">🎙️</button>
-    </div>
+    <input id="desc" placeholder="Description" required>
     <div class="row">
       <input id="amount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
       <select id="category">
@@ -239,7 +189,6 @@ function render(data) {
   $("list-card").style.display = data.length ? "block" : "none";
   $("chart-card").style.display = data.length ? "block" : "none";
 
-  // Monthly breakdown
   const months = {};
   data.forEach(e => {
     const m = e.date ? e.date.substring(0, 7) : "Unknown";
@@ -248,7 +197,6 @@ function render(data) {
     else months[m].exp += parseFloat(e.amount);
   });
   const sorted = Object.keys(months).sort().reverse();
-  const maxVal = Math.max(...sorted.map(m => months[m].inc + months[m].exp), 1);
   const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   $("chart").innerHTML = sorted.map(m => {
     const d = months[m], total = d.inc + d.exp || 1;
@@ -267,48 +215,27 @@ function render(data) {
       </div>
     </div>`;
   }).join("");
+
   $("list").innerHTML = data.map((e, i) => `
-    <div class="expense-wrap" id="ew${i}">
-      <div class="swipe-container">
-        <div class="swipe-delete">Delete</div>
-        <div class="swipe-content" ontouchstart="ts(event,${i})" ontouchmove="tm(event,${i})" ontouchend="te(event,${i})">
-          <div class="expense-info">
-            <div class="expense-desc">${esc(e.description)}</div>
-            <div class="expense-meta">${esc(e.category)} · ${e.date}</div>
-          </div>
-          <div class="expense-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${parseFloat(e.amount).toFixed(2)}</div>
+    <div class="entry">
+      <div class="entry-top">
+        <span class="entry-desc">${esc(e.description)}</span>
+        <span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${parseFloat(e.amount).toFixed(2)}</span>
+      </div>
+      <div class="entry-bottom">
+        <span>${esc(e.category)} · ${e.date}</span>
+        <div class="entry-actions">
           <span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `pay(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span>
-          <button class="cam-btn" onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button>
+          <button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button>
+          <button onclick="del(${i})">🗑️</button>
         </div>
       </div>
-      ${e.receipt ? `<div><img class="receipt-img" src="${e.receipt}" onclick="this.requestFullscreen?.()"></div>` : ''}
+      ${e.receipt ? `<img class="receipt-img" src="${e.receipt}">` : ''}
     </div>`).join("");
 }
 
 function esc(s) {
   const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
-}
-
-let sx = 0, dx = 0;
-function ts(e, i) { sx = e.touches[0].clientX; dx = 0; }
-function tm(e, i) {
-  dx = e.touches[0].clientX - sx;
-  if (dx > 0) dx = 0;
-  const el = e.currentTarget;
-  el.style.transform = `translateX(${Math.max(dx, -80)}px)`;
-  el.style.transition = 'none';
-}
-function te(e, i) {
-  const el = e.currentTarget;
-  el.style.transition = 'transform 0.2s';
-  if (dx < -60) {
-    el.style.transform = 'translateX(-80px)';
-    setTimeout(() => {
-      el.onclick = () => del(i);
-    }, 10);
-  } else {
-    el.style.transform = 'translateX(0)';
-  }
 }
 
 $("form").onsubmit = e => {
@@ -327,72 +254,15 @@ $("form").onsubmit = e => {
   $("date").value = new Date().toISOString().split("T")[0];
 };
 
-function del(i) {
-  const el = document.getElementById(`ew${i}`);
-  if (el) {
-    el.classList.add("removing");
-    el.addEventListener("animationend", () => {
-      const data = load();
-      data.splice(i, 1);
-      save(data);
-    });
-  } else {
-    const data = load();
-    data.splice(i, 1);
-    save(data);
-  }
-}
-
-function pay(i) {
-  const data = load();
-  data[i].paid = "yes";
-  save(data);
-}
-
-let rec;
-function listen() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) return alert("Speech recognition is not supported on this browser. Try Chrome or Safari.");
-  if (rec) { rec.stop(); return; }
-  rec = new SR();
-  rec.lang = "en-US";
-  rec.continuous = false;
-  rec.interimResults = true;
-  rec.onstart = () => {
-    $("mic").classList.add("active");
-    $("desc").placeholder = "🔴 Listening...";
-  };
-  rec.onresult = e => {
-    const result = e.results[e.results.length - 1];
-    $("desc").value = result[0].transcript;
-  };
-  rec.onend = () => {
-    rec = null;
-    $("mic").classList.remove("active");
-    $("desc").placeholder = "Description";
-  };
-  rec.onerror = e => {
-    rec = null;
-    $("mic").classList.remove("active");
-    $("desc").placeholder = "Description";
-    if (e.error === "not-allowed") alert("Microphone access denied. Go to Settings > Safari > Microphone and allow access.");
-    else if (e.error === "no-speech") alert("No speech detected. Tap the mic and speak clearly.");
-  };
-  rec.start();
-}
+function del(i) { const data = load(); data.splice(i, 1); save(data); }
+function pay(i) { const data = load(); data[i].paid = "yes"; save(data); }
 
 function cam(i) {
   const inp = document.createElement("input");
-  inp.type = "file";
-  inp.accept = "image/*";
-  inp.capture = "environment";
+  inp.type = "file"; inp.accept = "image/*"; inp.capture = "environment";
   inp.onchange = () => {
     const reader = new FileReader();
-    reader.onload = () => {
-      const data = load();
-      data[i].receipt = reader.result;
-      save(data);
-    };
+    reader.onload = () => { const data = load(); data[i].receipt = reader.result; save(data); };
     reader.readAsDataURL(inp.files[0]);
   };
   inp.click();
