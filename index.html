@@ -131,9 +131,23 @@
   .mic-btn.active { background: #c0694f; border-color: #c0694f; }
   .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .starting { font-size: 14px; color: #8a7968; text-align: center; margin-bottom: 12px; }
+  .starting .label { display: block; margin-bottom: 4px; }
+  .starting .input-wrap {
+    display: inline-flex; align-items: center; background: #fff;
+    border: 1px solid #d4c8bc; border-radius: 10px; padding: 0 12px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .starting .input-wrap:focus-within { border-color: #8b6f4e; }
+  .starting .dollar { font-size: 18px; font-weight: 700; color: #5c4a3a; }
   .starting input {
-    width: 140px; display: inline-block; text-align: center; font-weight: 600;
-    padding: 8px; font-size: 16px;
+    width: 120px; text-align: left; font-weight: 600;
+    padding: 10px 4px; font-size: 18px; border: none; background: transparent;
+  }
+  .starting input:focus { outline: none; }
+  @media (prefers-color-scheme: dark) {
+    .starting .input-wrap { background: #352a20; border-color: #4a3d30; }
+    .starting .input-wrap:focus-within { border-color: #a8885e; }
+    .starting .dollar { color: #d4c8bc; }
   }
   .chart-title {
     font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px;
@@ -175,7 +189,11 @@
 <h1>Welcome Granola Kid</h1>
 
 <div class="starting">
-  Starting Balance: $<input id="start" type="number" step="0.01" min="0" placeholder="0.00" inputmode="decimal">
+  <span class="label">Starting Balance</span>
+  <div class="input-wrap">
+    <span class="dollar">$</span>
+    <input id="start" type="number" step="0.01" min="0" placeholder="0.00" inputmode="decimal">
+  </div>
 </div>
 
 <div class="summary">
@@ -361,14 +379,32 @@ function pay(i) {
 let rec;
 function listen() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) return alert("Speech recognition not supported on this browser");
-  if (rec) { rec.stop(); rec = null; $("mic").classList.remove("active"); return; }
+  if (!SR) return alert("Speech recognition is not supported on this browser. Try Chrome or Safari.");
+  if (rec) { rec.stop(); return; }
   rec = new SR();
   rec.lang = "en-US";
-  rec.onstart = () => $("mic").classList.add("active");
-  rec.onresult = e => { $("desc").value = e.results[0][0].transcript; };
-  rec.onend = () => { rec = null; $("mic").classList.remove("active"); };
-  rec.onerror = () => { rec = null; $("mic").classList.remove("active"); };
+  rec.continuous = false;
+  rec.interimResults = true;
+  rec.onstart = () => {
+    $("mic").classList.add("active");
+    $("desc").placeholder = "🔴 Listening...";
+  };
+  rec.onresult = e => {
+    const result = e.results[e.results.length - 1];
+    $("desc").value = result[0].transcript;
+  };
+  rec.onend = () => {
+    rec = null;
+    $("mic").classList.remove("active");
+    $("desc").placeholder = "Description";
+  };
+  rec.onerror = e => {
+    rec = null;
+    $("mic").classList.remove("active");
+    $("desc").placeholder = "Description";
+    if (e.error === "not-allowed") alert("Microphone access denied. Go to Settings > Safari > Microphone and allow access.");
+    else if (e.error === "no-speech") alert("No speech detected. Tap the mic and speak clearly.");
+  };
   rec.start();
 }
 
