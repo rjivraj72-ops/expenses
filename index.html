@@ -72,13 +72,16 @@
   .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
   .receipt-link { display: inline-block; font-size: 12px; color: #8b6f4e; font-weight: 500; margin-top: 6px; text-decoration: none; }
   .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
+  .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
   .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .starting { font-size: 14px; color: #8a7968; text-align: center; margin-bottom: 12px; }
   .starting .label { display: block; margin-bottom: 4px; }
   .starting .input-wrap { display: inline-flex; align-items: center; background: #fff; border: 1px solid #d4c8bc; border-radius: 10px; padding: 0 10px; }
   .starting .input-wrap:focus-within { border-color: #8b6f4e; }
   .starting .dollar { font-size: 20px; font-weight: 700; color: #5c4a3a; }
-  .starting input { width: 100px; text-align: left; font-weight: 700; padding: 8px 4px; font-size: 20px; border: none; background: transparent; }
+  .starting input { width: 100px; text-align: left; font-weight: 700; padding: 8px 4px; font-size: 20px; border: none; background: transparent; -moz-appearance: textfield; }
+  .starting input::-webkit-outer-spin-button,
+  .starting input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .starting input:focus { outline: none; }
   .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
   .month-row { margin-bottom: 14px; }
@@ -220,6 +223,7 @@
 </div>
 <div class="loading" id="loading">Loading...</div>
 <div class="empty" id="empty" style="display:none">No entries yet</div>
+<div class="footer">Made with 🌾 by Granola Kid</div>
 </div>
 
 <script>
@@ -373,11 +377,9 @@ function render() {
     </div>`;
   }).join("");
 
-  const curMonth = new Date().toISOString().substring(0, 7);
   const visible = data.filter((e, i) => {
     e._idx = i;
-    const m = fmtDate(e.date).substring(0, 7);
-    return m === curMonth || e.paid !== "yes";
+    return e.paid !== "yes";
   });
 
   $("list").innerHTML = visible.map(e => {
