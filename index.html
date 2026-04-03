@@ -25,10 +25,16 @@
   .logo { padding: 20px 0 4px; }
   h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: #5c4a3a; }
   .summary { text-align: center; padding-bottom: 16px; font-size: 14px; color: #8a7968; }
-  .summary .balance { font-size: 28px; font-weight: 700; color: #5c4a3a; margin: 4px 0 8px; }
-  .summary .row { display: flex; justify-content: center; gap: 24px; }
+  .summary .balance { font-size: 28px; font-weight: 700; color: #5c4a3a; margin: 4px 0 4px; }
+  .summary .balance-label { font-size: 11px; color: #8a7968; margin-bottom: 6px; }
+  .summary .bal-row { display: flex; justify-content: center; gap: 32px; margin-bottom: 8px; }
+  .summary .bal-item { text-align: center; }
+  .summary .bal-item .amt { font-size: 22px; font-weight: 700; }
+  .summary .bal-item .lbl { font-size: 10px; color: #8a7968; }
+  .summary .row { display: flex; justify-content: center; gap: 16px; font-size: 12px; }
   .summary .inc { color: #5a8a5e; font-weight: 600; }
   .summary .exp { color: #c0694f; font-weight: 600; }
+  .summary .pending { color: #c4a24e; font-weight: 600; }
   .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(60,46,36,0.06), 0 1px 3px rgba(60,46,36,0.04); }
   form { display: flex; flex-direction: column; gap: 10px; }
   input, select { font-size: 16px; padding: 12px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; width: 100%; color: #3b2e24; -webkit-appearance: none; }
@@ -74,15 +80,6 @@
   .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
   .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
-  .starting { font-size: 14px; color: #8a7968; text-align: center; margin-bottom: 12px; }
-  .starting .label { display: block; margin-bottom: 4px; }
-  .starting .input-wrap { display: inline-flex; align-items: center; background: #fff; border: 1px solid #d4c8bc; border-radius: 10px; padding: 0 10px; }
-  .starting .input-wrap:focus-within { border-color: #8b6f4e; }
-  .starting .dollar { font-size: 20px; font-weight: 700; color: #5c4a3a; }
-  .starting input { width: 100px; text-align: left; font-weight: 700; padding: 8px 4px; font-size: 20px; border: none; background: transparent; -moz-appearance: textfield; }
-  .starting input::-webkit-outer-spin-button,
-  .starting input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .starting input:focus { outline: none; }
   .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
   .month-row { margin-bottom: 14px; }
   .month-label { font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 4px; display: flex; justify-content: space-between; }
@@ -158,19 +155,21 @@
 <div class="logo"><img src="logo.png" alt="Logo" style="width:100%;max-width:300px;display:block;margin:0 auto;"></div>
 <h1>Welcome Granola Kid</h1>
 
-<div class="starting">
-  <span class="label">Starting Balance</span>
-  <div class="input-wrap">
-    <span class="dollar">$</span>
-    <input id="start" type="number" step="0.01" min="0" placeholder="0.00" inputmode="decimal">
-  </div>
-</div>
-
 <div class="summary">
   <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄</button>
-  <div class="balance" id="bal">$0.00</div>
+  <div class="bal-row">
+    <div class="bal-item">
+      <div class="amt" id="cashBal" style="color:#5c4a3a">$0.00</div>
+      <div class="lbl">💵 Cash Balance</div>
+    </div>
+    <div class="bal-item">
+      <div class="amt" id="totalBal" style="color:#5c4a3a">$0.00</div>
+      <div class="lbl">📊 Total Balance</div>
+    </div>
+  </div>
   <div class="row">
     <span class="inc">↑ $<span id="tinc">0.00</span></span>
+    <span class="pending">⏳ $<span id="tpend">0.00</span></span>
     <span class="exp">↓ $<span id="texp">0.00</span></span>
   </div>
 </div>
@@ -227,7 +226,6 @@
 </div>
 
 <script>
-const PIN = "0411";
 let pinEntry = "";
 let validatedPin = "";
 
@@ -267,8 +265,6 @@ function updateDots() {
 function initApp(json) {
 $("expDate").value = new Date().toISOString().split("T")[0];
 $("incDate").value = new Date().toISOString().split("T")[0];
-$("start").value = localStorage.getItem(SKEY) || "";
-$("start").oninput = () => { localStorage.setItem(SKEY, $("start").value); render(); };
 
 allData = [
   ...json.income.map(r => ({ ...r, type: "income" })),
@@ -314,7 +310,7 @@ render();
 
 const $ = id => document.getElementById(id);
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
-const SKEY = "startBal";
+const SKEY = "unused";
 let allData = [];
 
 function toggleForm() {
@@ -353,14 +349,21 @@ async function post(body) {
 
 function render() {
   const data = allData;
-  const startBal = parseFloat($("start").value) || 0;
-  const inc = data.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const exp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
-  const bal = startBal + inc - exp;
-  $("bal").textContent = `$${bal.toFixed(2)}`;
-  $("bal").style.color = bal >= 0 ? "" : "#c0694f";
-  $("tinc").textContent = inc.toFixed(2);
-  $("texp").textContent = exp.toFixed(2);
+  const incPaid = data.filter(e => e.type === "income" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const incPending = data.filter(e => e.type === "income" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const incTotal = incPaid + incPending;
+  const expPaid = data.filter(e => e.type === "expense" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
+  const expUnpaid = data.filter(e => e.type === "expense" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
+  const expTotal = expPaid + expUnpaid;
+  const cashBal = incPaid - expPaid;
+  const totalBal = incTotal - expTotal;
+  $("cashBal").textContent = `$${cashBal.toFixed(2)}`;
+  $("cashBal").style.color = cashBal >= 0 ? "#5c4a3a" : "#c0694f";
+  $("totalBal").textContent = `$${totalBal.toFixed(2)}`;
+  $("totalBal").style.color = totalBal >= 0 ? "#5c4a3a" : "#c0694f";
+  $("tinc").textContent = incTotal.toFixed(2);
+  $("tpend").textContent = incPending.toFixed(2);
+  $("texp").textContent = expTotal.toFixed(2);
   $("empty").style.display = data.length ? "none" : "block";
   $("list-card").style.display = data.length ? "block" : "none";
   $("chart-card").style.display = data.length ? "block" : "none";
