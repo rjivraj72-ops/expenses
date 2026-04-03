@@ -31,7 +31,10 @@
   .summary .bal-item { text-align: center; }
   .summary .bal-item .amt { font-size: 22px; font-weight: 700; }
   .summary .bal-item .lbl { font-size: 10px; color: #8a7968; }
-  .summary .row { display: flex; justify-content: center; gap: 16px; font-size: 12px; }
+  .summary .row { display: flex; justify-content: center; gap: 16px; font-size: 12px; flex-wrap: wrap; }
+  .summary .stat { text-align: center; }
+  .summary .stat .amt { font-size: 20px; font-weight: 700; }
+  .summary .stat .lbl { font-size: 10px; color: #8a7968; }
   .summary .inc { color: #5a8a5e; font-weight: 600; }
   .summary .exp { color: #c0694f; font-weight: 600; }
   .summary .pending { color: #c4a24e; font-weight: 600; }
@@ -168,9 +171,18 @@
     </div>
   </div>
   <div class="row">
-    <span class="inc">↑ $<span id="tinc">0.00</span></span>
-    <span class="pending">⏳ $<span id="tpend">0.00</span></span>
-    <span class="exp">↓ $<span id="texp">0.00</span></span>
+    <div class="stat inc">
+      <div class="amt">↑ $<span id="tinc">0.00</span></div>
+      <div class="lbl">Total Income</div>
+    </div>
+    <div class="stat pending">
+      <div class="amt">⏳ $<span id="tpend">0.00</span></div>
+      <div class="lbl">Pending</div>
+    </div>
+    <div class="stat exp">
+      <div class="amt">↓ $<span id="texp">0.00</span></div>
+      <div class="lbl">Total Expenses</div>
+    </div>
   </div>
 </div>
 </div>
@@ -266,6 +278,7 @@ function initApp(json) {
 $("expDate").value = new Date().toISOString().split("T")[0];
 $("incDate").value = new Date().toISOString().split("T")[0];
 
+capital = parseFloat(json.capital) || 0;
 allData = [
   ...json.income.map(r => ({ ...r, type: "income" })),
   ...json.expense.map(r => ({ ...r, type: "expense" }))
@@ -312,6 +325,7 @@ const $ = id => document.getElementById(id);
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
 const SKEY = "unused";
 let allData = [];
+let capital = 0;
 
 function toggleForm() {
   const isExp = $("tExp").checked;
@@ -330,6 +344,7 @@ async function fetchData() {
   try {
     const res = await fetch(API + "?pin=" + validatedPin, { redirect: "follow" });
     const json = await res.json();
+    capital = parseFloat(json.capital) || 0;
     allData = [
       ...json.income.map(r => ({ ...r, type: "income" })),
       ...json.expense.map(r => ({ ...r, type: "expense" }))
@@ -355,8 +370,8 @@ function render() {
   const expPaid = data.filter(e => e.type === "expense" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
   const expUnpaid = data.filter(e => e.type === "expense" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
   const expTotal = expPaid + expUnpaid;
-  const cashBal = incPaid - expPaid;
-  const totalBal = incTotal - expTotal;
+  const cashBal = capital + incPaid - expPaid;
+  const totalBal = capital + incTotal - expTotal;
   $("cashBal").textContent = `$${cashBal.toFixed(2)}`;
   $("cashBal").style.color = cashBal >= 0 ? "#5c4a3a" : "#c0694f";
   $("totalBal").textContent = `$${totalBal.toFixed(2)}`;
