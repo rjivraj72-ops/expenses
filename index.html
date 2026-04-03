@@ -82,6 +82,19 @@
   .receipt-link { display: inline-block; font-size: 12px; color: #8b6f4e; font-weight: 500; margin-top: 6px; text-decoration: none; }
   .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
+  .mgr-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
+  .ytd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .ytd-item { background: #faf7f4; border-radius: 8px; padding: 10px; text-align: center; }
+  .ytd-item .ytd-val { font-size: 18px; font-weight: 700; color: #5c4a3a; }
+  .ytd-item .ytd-lbl { font-size: 11px; color: #8a7968; margin-top: 2px; }
+  .ytd-item.profit .ytd-val { color: #5a8a5e; }
+  .ytd-item.loss .ytd-val { color: #c0694f; }
+  .pie-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
+  .pie-wrap canvas { max-width: 200px; max-height: 200px; }
+  .pie-legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: 11px; color: #5c4a3a; }
+  .pie-legend span { display: flex; align-items: center; gap: 4px; }
+  .pie-legend .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .export-btn { margin-top: 12px; background: #e8ddd2; color: #5c4a3a; font-size: 14px; padding: 10px; }
   .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
   .month-row { margin-bottom: 14px; }
@@ -234,6 +247,16 @@
 </div>
 <div class="loading" id="loading">Loading...</div>
 <div class="empty" id="empty" style="display:none">No entries yet</div>
+
+<div class="card" id="mgr-card" style="display:none">
+  <div class="mgr-title">🏢 The Manager's Office</div>
+  <div class="ytd-grid" id="ytdGrid"></div>
+  <div class="mgr-title" style="font-size:14px">Expenses by Category</div>
+  <div class="pie-wrap"><canvas id="pieChart" width="200" height="200"></canvas></div>
+  <div class="pie-legend" id="pieLegend"></div>
+  <button class="export-btn" onclick="exportCSV()">📥 Export to CSV</button>
+</div>
+
 <div class="footer">Made with 🌾 by Granola Kid</div>
 </div>
 
@@ -382,6 +405,7 @@ function render() {
   $("empty").style.display = data.length ? "none" : "block";
   $("list-card").style.display = data.length ? "block" : "none";
   $("chart-card").style.display = data.length ? "block" : "none";
+  $("mgr-card").style.display = data.length ? "block" : "none";
 
   const months = {};
   data.forEach(e => {
@@ -433,8 +457,69 @@ function render() {
       ${e.receipt ? `<a class="receipt-link" href="${esc(e.receipt)}" target="_blank">📎 View Receipt</a>` : ''}
     </div>`;
   }).join("");
+
+  // Manager's Office - YTD Summary
+  const yr = new Date().getFullYear().toString();
+  const ytdInc = data.filter(e => e.type === "income" && fmtDate(e.date).startsWith(yr)).reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const ytdExp = data.filter(e => e.type === "expense" && fmtDate(e.date).startsWith(yr)).reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
+  const ytdGst = data.filter(e => e.type === "expense" && fmtDate(e.date).startsWith(yr)).reduce((s, e) => s + parseFloat(e.gst || 0), 0);
+  const ytdProfit = ytdInc - ytdExp;
+  const profitClass = ytdProfit >= 0 ? "profit" : "loss";
+  $("ytdGrid").innerHTML = `
+    <div class="ytd-item"><div class="ytd-val">$${ytdInc.toFixed(2)}</div><div class="ytd-lbl">📈 YTD Revenue</div></div>
+    <div class="ytd-item"><div class="ytd-val">$${ytdExp.toFixed(2)}</div><div class="ytd-lbl">📉 YTD Expenses</div></div>
+    <div class="ytd-item ${profitClass}"><div class="ytd-val">${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}</div><div class="ytd-lbl">${ytdProfit >= 0 ? '🌟' : '⚠️'} YTD Profit</div></div>
+    <div class="ytd-item"><div class="ytd-val">$${ytdGst.toFixed(2)}</div><div class="ytd-lbl">🧾 GST Paid</div></div>`;
+
+  // Pie Chart - Expense by Category
+  const cats = {};
+  data.filter(e => e.type === "expense").forEach(e => {
+    const c = e.category || "Other";
+    cats[c] = (cats[c] || 0) + parseFloat(e.total || e.amount || 0);
+  });
+  const pieColors = ["#c0694f","#5a8a5e","#c4a24e","#8b6f4e","#6b8fa3","#a36b8f","#7a9a6b","#d4956a"];
+  const catEntries = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+  const pieTotal = catEntries.reduce((s, c) => s + c[1], 0) || 1;
+  const canvas = $("pieChart");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, 200, 200);
+  let startAngle = -Math.PI / 2;
+  catEntries.forEach(([cat, val], idx) => {
+    const slice = (val / pieTotal) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(100, 100);
+    ctx.arc(100, 100, 90, startAngle, startAngle + slice);
+    ctx.fillStyle = pieColors[idx % pieColors.length];
+    ctx.fill();
+    startAngle += slice;
+  });
+  // Center hole
+  ctx.beginPath();
+  ctx.arc(100, 100, 50, 0, Math.PI * 2);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+
+  $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) =>
+    `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${cat} $${val.toFixed(0)}</span>`
+  ).join("");
 }
 
+function exportCSV() {
+  const rows = [["Type","Date","Description/Source","Category/Customer","Amount","GST","Total","Paid"]];
+  allData.forEach(e => {
+    if (e.type === "income") {
+      rows.push(["Income", fmtDate(e.date), e.source || "", e.customer || "", e.amount || 0, "", "", e.paid || ""]);
+    } else {
+      rows.push(["Expense", fmtDate(e.date), e.description || "", e.category || "", e.amount || 0, e.gst || 0, e.total || 0, e.paid || ""]);
+    }
+  });
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `granola-kid-${new Date().toISOString().split("T")[0]}.csv`;
+  a.click();
+}
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 function fmtDate(d) { return d ? String(d).substring(0, 10) : ""; }
 
