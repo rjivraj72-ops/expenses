@@ -31,10 +31,10 @@
   .summary .bal-item { text-align: center; }
   .summary .bal-item .amt { font-size: 20px; font-weight: 700; }
   .summary .bal-item .lbl { font-size: 12px; color: #8a7968; }
-  .summary .row { display: flex; justify-content: center; gap: 12px; font-size: 12px; }
+  .summary .row { display: flex; justify-content: center; gap: 12px; font-size: 12px; align-items: flex-start; }
   .summary .stat { text-align: center; flex: 1; }
-  .summary .stat .amt { font-size: 20px; font-weight: 700; }
-  .summary .stat .lbl { font-size: 12px; color: #8a7968; }
+  .summary .stat .amt { font-size: 16px; font-weight: 700; line-height: 1.2; }
+  .summary .stat .lbl { font-size: 12px; color: #8a7968; line-height: 1.2; }
   .summary .inc { color: #5a8a5e; font-weight: 600; }
   .summary .exp { color: #c0694f; font-weight: 600; }
   .summary .pending { color: #c4a24e; font-weight: 600; }
@@ -185,16 +185,16 @@
   </div>
   <div class="row">
     <div class="stat inc">
-      <div class="amt">↑ $<span id="tinc">0.00</span></div>
-      <div class="lbl">Total Income</div>
+      <div class="amt">$<span id="tinc">0.00</span></div>
+      <div class="lbl">↑ Total Income</div>
     </div>
     <div class="stat pending">
-      <div class="amt">⏳ $<span id="tpend">0.00</span></div>
-      <div class="lbl">Pending</div>
+      <div class="amt">$<span id="tpend">0.00</span></div>
+      <div class="lbl">⏳ Pending</div>
     </div>
     <div class="stat exp">
-      <div class="amt">↓ $<span id="texp">0.00</span></div>
-      <div class="lbl">Total Expenses</div>
+      <div class="amt">$<span id="texp">0.00</span></div>
+      <div class="lbl">↓ Total Expenses</div>
     </div>
   </div>
 </div>
