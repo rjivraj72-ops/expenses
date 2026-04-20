@@ -183,25 +183,31 @@ async function saveOrder() {
 }
 
 function copyMsg() {
-  const msg = document.getElementById("preview").textContent;
+  let msg = "Hi Haley, here is the weekly order:\n\n";
+  orders.forEach(o => {
+    const items = Object.entries(o.items).map(([s, q]) => `${s} ×${q}`).join(", ");
+    msg += `${o.name}: ${items}\n`;
+  });
+  msg += "\n--- Total ---\n";
+  skus.forEach(s => { msg += `${s} - ${totals[s]}\n`; });
+  msg = msg.trim();
+
   if (navigator.share) {
     navigator.share({ text: msg }).then(() => {
       saveOrder();
-      showToast("✓ Order saved");
     }).catch(() => {});
   } else {
-    navigator.clipboard.writeText(msg).then(() => {
-      showToast("📋 Copied!");
-      saveOrder();
-    }).catch(() => {
-      // Fallback: select the preview text
-      const range = document.createRange();
-      range.selectNodeContents(document.getElementById("preview"));
-      window.getSelection().removeAllRanges();
-      window.getSelection().addRange(range);
-      showToast("Text selected — tap Copy from menu");
-      saveOrder();
-    });
+    const ta = document.createElement("textarea");
+    ta.value = msg;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand("copy"); showToast("📋 Copied!"); }
+    catch(e) { showToast("Select preview text and copy manually"); }
+    document.body.removeChild(ta);
+    saveOrder();
   }
 }
 
