@@ -25,17 +25,24 @@
   h1 { font-size: 24px; font-weight: 700; color: #5c4a3a; margin-bottom: 4px; }
   .subtitle { font-size: 13px; color: #8a7968; }
   .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(60,46,36,0.06), 0 1px 3px rgba(60,46,36,0.04); }
-  .sku-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 0.5px solid #e8ddd2; }
-  .sku-row:last-child { border-bottom: none; }
-  .sku-name { font-size: 15px; font-weight: 500; flex: 1; }
-  .tally { display: flex; align-items: center; gap: 8px; }
-  .tally-btn { width: 44px; height: 44px; border-radius: 50%; font-size: 22px; font-weight: 700; border: 1px solid #d4c8bc; background: #faf7f4; color: #3b2e24; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
-  .tally-btn:active { background: #8b6f4e; color: #fff; border-color: #8b6f4e; }
-  .sku-input { width: 60px; font-size: 20px; font-weight: 700; text-align: center; padding: 6px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; color: #3b2e24; -webkit-appearance: none; -moz-appearance: textfield; }
-  .sku-input::-webkit-outer-spin-button, .sku-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .sku-input:focus { outline: none; border-color: #8b6f4e; }
-  button { font-size: 16px; font-weight: 600; padding: 14px; border: none; border-radius: 10px; cursor: pointer; background: #8b6f4e; color: #fff; width: 100%; transform: scale(1); transition: transform 0.1s; }
+  .card-title { font-size: 15px; font-weight: 600; color: #5c4a3a; margin-bottom: 10px; }
+  input, select { font-size: 16px; padding: 12px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; width: 100%; color: #3b2e24; -webkit-appearance: none; margin-bottom: 8px; }
+  input:focus { outline: none; border-color: #8b6f4e; }
+  .sku-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .sku-item { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+  .sku-item input { width: 50px; text-align: center; padding: 8px; margin: 0; font-weight: 700; font-size: 16px; -moz-appearance: textfield; }
+  .sku-item input::-webkit-outer-spin-button, .sku-item input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .sku-label { font-size: 13px; flex: 1; }
+  button { font-size: 16px; font-weight: 600; padding: 12px; border: none; border-radius: 10px; cursor: pointer; background: #8b6f4e; color: #fff; width: 100%; transform: scale(1); transition: transform 0.1s; }
   button:active { transform: scale(0.95); }
+  .add-btn { background: #5a8a5e; margin-top: 4px; }
+  .total-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 15px; }
+  .total-row:last-child { border-bottom: none; }
+  .total-name { font-weight: 500; }
+  .total-qty { font-weight: 700; color: #5c4a3a; }
+  .order-log { font-size: 12px; color: #8a7968; margin-bottom: 10px; }
+  .order-log div { padding: 4px 0; border-bottom: 0.5px solid #e8ddd2; }
+  .order-log div:last-child { border-bottom: none; }
   .preview { background: #faf7f4; border-radius: 10px; padding: 12px; font-size: 14px; color: #3b2e24; white-space: pre-line; margin-bottom: 12px; line-height: 1.6; }
   .back-link { display: block; text-align: center; color: #8b6f4e; font-size: 13px; text-decoration: none; padding: 12px 0; }
   .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
@@ -47,6 +54,7 @@
   }
   @keyframes toastIn { to { opacity: 1; } }
   @keyframes toastOut { to { opacity: 0; } }
+  .reset-btn { background: #e8ddd2; color: #5c4a3a; font-size: 13px; padding: 10px; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -60,17 +68,29 @@
 </div>
 
 <div class="card">
-  <div class="sku-row"><span class="sku-name">🥣 Naked</span><div class="tally"><button class="tally-btn" onclick="adj('Naked',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="Naked" value="0"><button class="tally-btn" onclick="adj('Naked',1)">+</button></div></div>
-  <div class="sku-row"><span class="sku-name">🥜 GoNuts</span><div class="tally"><button class="tally-btn" onclick="adj('GoNuts',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="GoNuts" value="0"><button class="tally-btn" onclick="adj('GoNuts',1)">+</button></div></div>
-  <div class="sku-row"><span class="sku-name">🥥 CocoYummy</span><div class="tally"><button class="tally-btn" onclick="adj('CocoYummy',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="CocoYummy" value="0"><button class="tally-btn" onclick="adj('CocoYummy',1)">+</button></div></div>
-  <div class="sku-row"><span class="sku-name">🫐 CranCinny Bliss</span><div class="tally"><button class="tally-btn" onclick="adj('CranCinny Bliss',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="CranCinny Bliss" value="0"><button class="tally-btn" onclick="adj('CranCinny Bliss',1)">+</button></div></div>
-  <div class="sku-row"><span class="sku-name">🍫 Dark & Dreamy</span><div class="tally"><button class="tally-btn" onclick="adj('Dark &amp; Dreamy',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="Dark & Dreamy" value="0"><button class="tally-btn" onclick="adj('Dark &amp; Dreamy',1)">+</button></div></div>
-  <div class="sku-row"><span class="sku-name">📦 Bulk Container</span><div class="tally"><button class="tally-btn" onclick="adj('Bulk Container',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="Bulk Container" value="0"><button class="tally-btn" onclick="adj('Bulk Container',1)">+</button></div></div>
+  <div class="card-title">📦 Add Customer Order</div>
+  <input id="customer" placeholder="Customer Name" required>
+  <div class="sku-grid">
+    <div class="sku-item"><span class="sku-label">🥣 Naked</span><input type="number" min="0" inputmode="numeric" data-sku="Naked" value="0"></div>
+    <div class="sku-item"><span class="sku-label">🥜 GoNuts</span><input type="number" min="0" inputmode="numeric" data-sku="GoNuts" value="0"></div>
+    <div class="sku-item"><span class="sku-label">🥥 CocoYummy</span><input type="number" min="0" inputmode="numeric" data-sku="CocoYummy" value="0"></div>
+    <div class="sku-item"><span class="sku-label">🫐 CranCinny</span><input type="number" min="0" inputmode="numeric" data-sku="CranCinny Bliss" value="0"></div>
+    <div class="sku-item"><span class="sku-label">🍫 Dark&Dreamy</span><input type="number" min="0" inputmode="numeric" data-sku="Dark & Dreamy" value="0"></div>
+    <div class="sku-item"><span class="sku-label">📦 Bulk</span><input type="number" min="0" inputmode="numeric" data-sku="Bulk Container" value="0"></div>
+  </div>
+  <button class="add-btn" onclick="addOrder()">+ Add to Order</button>
 </div>
 
-<div class="card">
-  <div class="preview" id="preview">Enter quantities above to preview the message.</div>
-  <button id="sendBtn" onclick="sendOrder()">📱 Send to Haley & Rahim</button>
+<div class="card" id="totals-card" style="display:none">
+  <div class="card-title">📊 Running Total</div>
+  <div id="orderLog" class="order-log"></div>
+  <div id="totals"></div>
+  <button class="reset-btn" onclick="resetAll()">🔄 Start Over</button>
+</div>
+
+<div class="card" id="send-card" style="display:none">
+  <div class="preview" id="preview"></div>
+  <button onclick="sendOrder()">📱 Send to Haley & Rahim</button>
 </div>
 
 <a class="back-link" href="index.html">← Back to Granola Kid</a>
@@ -78,78 +98,90 @@
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
-const inputs = document.querySelectorAll(".sku-input");
-const preview = document.getElementById("preview");
+const skus = ["Naked","GoNuts","CocoYummy","CranCinny Bliss","Dark & Dreamy","Bulk Container"];
+const totals = {};
+const orders = [];
+skus.forEach(s => totals[s] = 0);
 
-inputs.forEach(inp => inp.addEventListener("input", updatePreview));
-
-function adj(sku, delta) {
-  const inp = document.querySelector(`[data-sku="${sku}"]`);
-  const val = Math.max(0, (parseInt(inp.value) || 0) + delta);
-  inp.value = val;
-  updatePreview();
-}
-
-function getVal(sku) {
-  const inp = document.querySelector(`[data-sku="${sku}"]`);
-  return parseInt(inp?.value) || 0;
-}
-
-function buildMessage() {
-  let msg = "Hi Haley, here is the weekly order:\n\n";
-  inputs.forEach(inp => {
-    const qty = inp.value || "0";
-    msg += `${inp.dataset.sku} - ${qty}\n`;
-  });
-  return msg.trim();
-}
-
-function updatePreview() {
-  preview.textContent = buildMessage();
-}
+function getInput(sku) { return document.querySelector(`[data-sku="${sku}"]`); }
 
 function showToast(msg) {
   const t = document.createElement("div");
-  t.className = "toast";
-  t.textContent = msg;
+  t.className = "toast"; t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2000);
 }
 
-async function sendOrder() {
-  const btn = document.getElementById("sendBtn");
-  btn.textContent = "Saving & Sending...";
-  btn.disabled = true;
+function addOrder() {
+  const name = document.getElementById("customer").value.trim();
+  if (!name) { showToast("Enter customer name"); return; }
 
-  // Save to Google Sheet
+  let hasQty = false;
+  const order = { name, items: {} };
+  skus.forEach(s => {
+    const qty = parseInt(getInput(s).value) || 0;
+    if (qty > 0) { totals[s] += qty; order.items[s] = qty; hasQty = true; }
+  });
+
+  if (!hasQty) { showToast("Enter at least one quantity"); return; }
+
+  orders.push(order);
+  document.getElementById("customer").value = "";
+  skus.forEach(s => getInput(s).value = "0");
+
+  render();
+  showToast(`✓ ${name} added`);
+}
+
+function render() {
+  const hasOrders = orders.length > 0;
+  document.getElementById("totals-card").style.display = hasOrders ? "block" : "none";
+  document.getElementById("send-card").style.display = hasOrders ? "block" : "none";
+
+  document.getElementById("orderLog").innerHTML = orders.map(o => {
+    const items = Object.entries(o.items).map(([s, q]) => `${s} ×${q}`).join(", ");
+    return `<div><strong>${o.name}:</strong> ${items}</div>`;
+  }).join("");
+
+  document.getElementById("totals").innerHTML = skus
+    .filter(s => totals0)
+    .map(s => `<div class="total-row"><span class="total-name">${s}</span><span class="total-qty">${totals[s]}</span></div>`)
+    .join("");
+
+  let msg = "Hi Haley, here is the weekly order:\n\n";
+  skus.forEach(s => { msg += `${s} - ${totals[s]}\n`; });
+  document.getElementById("preview").textContent = msg.trim();
+}
+
+function resetAll() {
+  if (!confirm("Start over? This clears all orders.")) return;
+  orders.length = 0;
+  skus.forEach(s => totals[s] = 0);
+  render();
+  showToast("Cleared");
+}
+
+async function sendOrder() {
+  const btn = event.target;
+  btn.textContent = "Saving & Sending..."; btn.disabled = true;
+
   await fetch(API, {
-    method: "POST",
-    redirect: "follow",
+    method: "POST", redirect: "follow",
     body: JSON.stringify({
-      pin: "040411",
-      action: "order",
+      pin: "040411", action: "order",
       date: new Date().toISOString().split("T")[0],
-      Naked: getVal("Naked"),
-      GoNuts: getVal("GoNuts"),
-      CocoYummy: getVal("CocoYummy"),
-      CranCinnyBliss: getVal("CranCinny Bliss"),
-      DarkDreamy: getVal("Dark & Dreamy"),
-      BulkContainer: getVal("Bulk Container")
+      Naked: totals["Naked"], GoNuts: totals["GoNuts"],
+      CocoYummy: totals["CocoYummy"], CranCinnyBliss: totals["CranCinny Bliss"],
+      DarkDreamy: totals["Dark & Dreamy"], BulkContainer: totals["Bulk Container"]
     })
   });
 
-  showToast("✓ Order saved to sheet");
-  btn.textContent = "📱 Send to Haley & Rahim";
-  btn.disabled = false;
+  showToast("✓ Order saved");
+  btn.textContent = "📱 Send to Haley & Rahim"; btn.disabled = false;
 
-  // Open iMessage
-  const msg = buildMessage();
-  const encoded = encodeURIComponent(msg);
-  const numbers = "6047279676,7789994602";
-  window.location.href = `sms:/open?addresses=${numbers}&body=${encoded}`;
+  const msg = document.getElementById("preview").textContent;
+  window.location.href = `sms:/open?addresses=6047279676,7789994602&body=${encodeURIComponent(msg)}`;
 }
-
-updatePreview();
 </script>
 </body>
 </html>
