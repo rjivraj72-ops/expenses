@@ -90,7 +90,9 @@
 
 <div class="card" id="send-card" style="display:none">
   <div class="preview" id="preview"></div>
-  <button onclick="sendOrder()">📱 Send to Haley & Rahim</button>
+  <button onclick="copyMsg()" style="background:#5a8a5e;margin-bottom:8px">📋 Copy Message</button>
+  <button onclick="sendTo('6047279676')">📱 Send to Haley</button>
+  <button onclick="sendTo('7789994602')" style="margin-top:8px">📱 Send to Rahim</button>
 </div>
 
 <a class="back-link" href="index.html">← Back to Granola Kid</a>
@@ -166,10 +168,7 @@ function resetAll() {
   showToast("Cleared");
 }
 
-async function sendOrder() {
-  const btn = event.target;
-  btn.textContent = "Saving & Sending..."; btn.disabled = true;
-
+async function saveOrder() {
   await fetch(API, {
     method: "POST", redirect: "follow",
     body: JSON.stringify({
@@ -180,21 +179,23 @@ async function sendOrder() {
       DarkDreamy: totals["Dark & Dreamy"], BulkContainer: totals["Bulk Container"]
     })
   });
+  showToast("✓ Order saved to sheet");
+}
 
-  showToast("✓ Order saved");
-  btn.textContent = "📱 Send to Haley & Rahim"; btn.disabled = false;
-
+function copyMsg() {
   const msg = document.getElementById("preview").textContent;
+  const ta = document.createElement("textarea");
+  ta.value = msg;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+  showToast("📋 Copied! Now tap Send below");
+  saveOrder();
+}
 
-  // Copy message to clipboard
-  navigator.clipboard.writeText(msg).then(() => {
-    showToast("📋 Message copied! Paste in iMessage");
-  }).catch(() => {});
-
-  // Open iMessage with recipients
-  setTimeout(() => {
-    window.location.href = "sms:6047279676,7789994602";
-  }, 500);
+function sendTo(num) {
+  window.location.href = "sms:" + num;
 }
 </script>
 </body>
