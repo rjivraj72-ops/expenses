@@ -28,7 +28,10 @@
   .sku-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 0.5px solid #e8ddd2; }
   .sku-row:last-child { border-bottom: none; }
   .sku-name { font-size: 15px; font-weight: 500; flex: 1; }
-  .sku-input { width: 80px; font-size: 18px; font-weight: 700; text-align: center; padding: 8px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; color: #3b2e24; -webkit-appearance: none; -moz-appearance: textfield; }
+  .tally { display: flex; align-items: center; gap: 8px; }
+  .tally-btn { width: 44px; height: 44px; border-radius: 50%; font-size: 22px; font-weight: 700; border: 1px solid #d4c8bc; background: #faf7f4; color: #3b2e24; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .tally-btn:active { background: #8b6f4e; color: #fff; border-color: #8b6f4e; }
+  .sku-input { width: 60px; font-size: 20px; font-weight: 700; text-align: center; padding: 6px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; color: #3b2e24; -webkit-appearance: none; -moz-appearance: textfield; }
   .sku-input::-webkit-outer-spin-button, .sku-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .sku-input:focus { outline: none; border-color: #8b6f4e; }
   button { font-size: 16px; font-weight: 600; padding: 14px; border: none; border-radius: 10px; cursor: pointer; background: #8b6f4e; color: #fff; width: 100%; transform: scale(1); transition: transform 0.1s; }
@@ -52,13 +55,17 @@
   <div class="subtitle">Weekly order for Haley · Due Monday 5pm PT</div>
 </div>
 
+<div class="card" style="text-align:center">
+  <a href="https://thegranolakid.myshopify.com/admin/orders" target="_blank" style="display:block;background:#5a8a5e;color:#fff;text-decoration:none;font-size:16px;font-weight:600;padding:14px;border-radius:10px">🛍️ Open Shopify Orders</a>
+</div>
+
 <div class="card">
-  <div class="sku-row"><span class="sku-name">🥣 Naked</span><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="Naked" placeholder="0"></div>
-  <div class="sku-row"><span class="sku-name">🥜 GoNuts</span><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="GoNuts" placeholder="0"></div>
-  <div class="sku-row"><span class="sku-name">🥥 CocoYummy</span><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="CocoYummy" placeholder="0"></div>
-  <div class="sku-row"><span class="sku-name">🫐 CranCinny Bliss</span><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="CranCinny Bliss" placeholder="0"></div>
-  <div class="sku-row"><span class="sku-name">🍫 Dark & Dreamy</span><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="Dark & Dreamy" placeholder="0"></div>
-  <div class="sku-row"><span class="sku-name">📦 Bulk Container</span><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="Bulk Container" placeholder="0"></div>
+  <div class="sku-row"><span class="sku-name">🥣 Naked</span><div class="tally"><button class="tally-btn" onclick="adj('Naked',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="Naked" value="0"><button class="tally-btn" onclick="adj('Naked',1)">+</button></div></div>
+  <div class="sku-row"><span class="sku-name">🥜 GoNuts</span><div class="tally"><button class="tally-btn" onclick="adj('GoNuts',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="GoNuts" value="0"><button class="tally-btn" onclick="adj('GoNuts',1)">+</button></div></div>
+  <div class="sku-row"><span class="sku-name">🥥 CocoYummy</span><div class="tally"><button class="tally-btn" onclick="adj('CocoYummy',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="CocoYummy" value="0"><button class="tally-btn" onclick="adj('CocoYummy',1)">+</button></div></div>
+  <div class="sku-row"><span class="sku-name">🫐 CranCinny Bliss</span><div class="tally"><button class="tally-btn" onclick="adj('CranCinny Bliss',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="CranCinny Bliss" value="0"><button class="tally-btn" onclick="adj('CranCinny Bliss',1)">+</button></div></div>
+  <div class="sku-row"><span class="sku-name">🍫 Dark & Dreamy</span><div class="tally"><button class="tally-btn" onclick="adj('Dark &amp; Dreamy',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="Dark & Dreamy" value="0"><button class="tally-btn" onclick="adj('Dark &amp; Dreamy',1)">+</button></div></div>
+  <div class="sku-row"><span class="sku-name">📦 Bulk Container</span><div class="tally"><button class="tally-btn" onclick="adj('Bulk Container',-1)">−</button><input class="sku-input" type="number" min="0" inputmode="numeric" data-sku="Bulk Container" value="0"><button class="tally-btn" onclick="adj('Bulk Container',1)">+</button></div></div>
 </div>
 
 <div class="card">
@@ -75,6 +82,13 @@ const inputs = document.querySelectorAll(".sku-input");
 const preview = document.getElementById("preview");
 
 inputs.forEach(inp => inp.addEventListener("input", updatePreview));
+
+function adj(sku, delta) {
+  const inp = document.querySelector(`[data-sku="${sku}"]`);
+  const val = Math.max(0, (parseInt(inp.value) || 0) + delta);
+  inp.value = val;
+  updatePreview();
+}
 
 function getVal(sku) {
   const inp = document.querySelector(`[data-sku="${sku}"]`);
