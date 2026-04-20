@@ -266,9 +266,43 @@
 <script>
 let pinEntry = "";
 let validatedPin = "";
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playTick() {
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.connect(g); g.connect(audioCtx.destination);
+  o.frequency.value = 1200;
+  g.gain.value = 0.1;
+  o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+  o.stop(audioCtx.currentTime + 0.05);
+}
+
+function playError() {
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.connect(g); g.connect(audioCtx.destination);
+  o.frequency.value = 300;
+  g.gain.value = 0.15;
+  o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+  o.stop(audioCtx.currentTime + 0.2);
+}
+
+function playSuccess() {
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.connect(g); g.connect(audioCtx.destination);
+  o.frequency.value = 800;
+  g.gain.value = 0.1;
+  o.start();
+  o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+  o.stop(audioCtx.currentTime + 0.2);
+}
 
 async function pinKey(n) {
   if (pinEntry.length >= 6) return;
+  playTick();
   pinEntry += n;
   updateDots();
   if (pinEntry.length === 6) {
@@ -276,11 +310,13 @@ async function pinKey(n) {
     const json = await res.json();
     if (!json.error) {
       validatedPin = pinEntry;
+      playSuccess();
       document.getElementById("pin-screen").style.display = "none";
       document.getElementById("app").style.display = "block";
       initApp(json);
     } else {
       document.getElementById("pinDots").classList.add("wrong");
+      playError();
       setTimeout(() => {
         pinEntry = "";
         updateDots();
@@ -291,6 +327,7 @@ async function pinKey(n) {
 }
 
 function pinDel() {
+  if (pinEntry.length > 0) playTick();
   pinEntry = pinEntry.slice(0, -1);
   updateDots();
 }
