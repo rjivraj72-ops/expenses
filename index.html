@@ -237,7 +237,7 @@
     <select id="incSource">
       <option>🛍️ DTC</option><option>🏢 Wholesale</option>
     </select>
-    <input id="incCustomer" placeholder="Customer / Order Number" required>
+    <input id="incCustomer" placeholder="Order Number (e.g. 1234)" required inputmode="numeric">
     <input id="incAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
     <input id="incDate" type="date">
     <div class="row">
@@ -381,7 +381,7 @@ $("incForm").onsubmit = async e => {
   await post({
     action: "add", type: "income",
     date: $("incDate").value, source: $("incSource").value,
-    customer: $("incCustomer").value, amount: parseFloat($("incAmount").value),
+    customer: "#" + $("incCustomer").value.replace(/^#/, ""), amount: parseFloat($("incAmount").value),
     paid: $("incPaid").value
   });
   $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0];
