@@ -185,7 +185,7 @@ async function sendOrder() {
   btn.textContent = "📱 Send to Haley & Rahim"; btn.disabled = false;
 
   const msg = document.getElementById("preview").textContent;
-  window.location.href = `sms:/open?addresses=6047279676,7789994602&body=${encodeURIComponent(msg)}`;
+  window.location.href = `sms:6047279676,7789994602&body=${encodeURIComponent(msg)}`;
 }
 </script>
 </body>
