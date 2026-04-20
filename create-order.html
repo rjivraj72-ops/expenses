@@ -36,6 +36,14 @@
   .preview { background: #faf7f4; border-radius: 10px; padding: 12px; font-size: 14px; color: #3b2e24; white-space: pre-line; margin-bottom: 12px; line-height: 1.6; }
   .back-link { display: block; text-align: center; color: #8b6f4e; font-size: 13px; text-decoration: none; padding: 12px 0; }
   .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
+  .toast {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    background: #5c4a3a; color: #fff; padding: 10px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 500; z-index: 300; opacity: 0;
+    animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards;
+  }
+  @keyframes toastIn { to { opacity: 1; } }
+  @keyframes toastOut { to { opacity: 0; } }
 </style>
 </head>
 <body>
@@ -62,10 +70,16 @@
 <div class="footer">Made with 🌾 by Granola Kid</div>
 
 <script>
+const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
 const inputs = document.querySelectorAll(".sku-input");
 const preview = document.getElementById("preview");
 
 inputs.forEach(inp => inp.addEventListener("input", updatePreview));
+
+function getVal(sku) {
+  const inp = document.querySelector(`[data-sku="${sku}"]`);
+  return parseInt(inp?.value) || 0;
+}
 
 function buildMessage() {
   let msg = "Hi Haley, here is the weekly order:\n\n";
@@ -80,7 +94,41 @@ function updatePreview() {
   preview.textContent = buildMessage();
 }
 
-function sendOrder() {
+function showToast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+async function sendOrder() {
+  const btn = document.getElementById("sendBtn");
+  btn.textContent = "Saving & Sending...";
+  btn.disabled = true;
+
+  // Save to Google Sheet
+  await fetch(API, {
+    method: "POST",
+    redirect: "follow",
+    body: JSON.stringify({
+      pin: "040411",
+      action: "order",
+      date: new Date().toISOString().split("T")[0],
+      Naked: getVal("Naked"),
+      GoNuts: getVal("GoNuts"),
+      CocoYummy: getVal("CocoYummy"),
+      CranCinnyBliss: getVal("CranCinny Bliss"),
+      DarkDreamy: getVal("Dark & Dreamy"),
+      BulkContainer: getVal("Bulk Container")
+    })
+  });
+
+  showToast("✓ Order saved to sheet");
+  btn.textContent = "📱 Send to Haley & Rahim";
+  btn.disabled = false;
+
+  // Open iMessage
   const msg = buildMessage();
   const encoded = encodeURIComponent(msg);
   const numbers = "6047279676,7789994602";
