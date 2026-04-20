@@ -95,6 +95,11 @@
   .pie-legend span { display: flex; align-items: center; gap: 4px; }
   .pie-legend .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
   .export-btn { margin-top: 12px; background: #e8ddd2; color: #5c4a3a; font-size: 14px; padding: 10px; }
+  .profit-row { margin-bottom: 10px; }
+  .profit-label { font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 2px; display: flex; justify-content: space-between; }
+  .profit-label .pval { font-weight: 700; }
+  .profit-label .pval.pos { color: #5a8a5e; }
+  .profit-label .pval.neg { color: #c0694f; }
   .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
   .month-row { margin-bottom: 14px; }
@@ -255,6 +260,10 @@
   <div class="pie-wrap"><canvas id="pieChart" width="200" height="200"></canvas></div>
   <div class="pie-legend" id="pieLegend"></div>
   <button class="export-btn" onclick="exportCSV()">📥 Export to CSV</button>
+  <div class="mgr-title" style="font-size:14px;margin-top:16px">💰 Profitability</div>
+  <div class="ytd-grid" id="profitGrid"></div>
+  <div class="mgr-title" style="font-size:14px">📅 Monthly Profit</div>
+  <div id="monthProfit"></div>
 </div>
 
 <div class="footer">
@@ -342,6 +351,7 @@ $("expDate").value = new Date().toISOString().split("T")[0];
 $("incDate").value = new Date().toISOString().split("T")[0];
 
 capital = parseFloat(json.capital) || 0;
+pricing = json.pricing || {};
 allData = [
   ...json.income.map(r => ({ ...r, type: "income" })),
   ...json.expense.map(r => ({ ...r, type: "expense" }))
@@ -389,6 +399,7 @@ const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrK
 const SKEY = "unused";
 let allData = [];
 let capital = 0;
+let pricing = {};
 
 function toggleForm() {
   const isExp = $("tExp").checked;
@@ -408,6 +419,7 @@ async function fetchData() {
     const res = await fetch(API + "?pin=" + validatedPin, { redirect: "follow" });
     const json = await res.json();
     capital = parseFloat(json.capital) || 0;
+    pricing = json.pricing || {};
     allData = [
       ...json.income.map(r => ({ ...r, type: "income" })),
       ...json.expense.map(r => ({ ...r, type: "expense" }))
@@ -542,6 +554,61 @@ function render() {
   $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) =>
     `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${cat} $${val.toFixed(0)}</span>`
   ).join("");
+
+  // Profitability
+  const p = pricing;
+  function estCogs(e) {
+    const amt = parseFloat(e.amount || 0);
+    const src = (e.source || "").toLowerCase();
+    if (src.includes("wholesale") || src.includes("ws")) {
+      const units = amt / (p.wsPrice || 9.30);
+      return units * (p.wsCogs || 5.42);
+    } else {
+      const units = amt / (p.dtcPrice || 13.29);
+      return units * (p.dtcCogs || 5.50);
+    }
+  }
+
+  const incData = data.filter(e => e.type === "income");
+  const dtcSales = incData.filter(e => !(e.source || "").toLowerCase().includes("wholesale"));
+  const wsSales = incData.filter(e => (e.source || "").toLowerCase().includes("wholesale"));
+
+  const dtcRev = dtcSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const dtcCost = dtcSales.reduce((s, e) => s + estCogs(e), 0);
+  const wsRev = wsSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const wsCost = wsSales.reduce((s, e) => s + estCogs(e), 0);
+  const totalRev = dtcRev + wsRev;
+  const totalCost = dtcCost + wsCost;
+  const grossProfit = totalRev - totalCost;
+  const marginPct = totalRev > 0 ? ((grossProfit / totalRev) * 100).toFixed(1) : "0.0";
+  const dtcMargin = dtcRev > 0 ? (((dtcRev - dtcCost) / dtcRev) * 100).toFixed(1) : "0.0";
+  const wsMargin = wsRev > 0 ? (((wsRev - wsCost) / wsRev) * 100).toFixed(1) : "0.0";
+
+  $("profitGrid").innerHTML = `
+    <div class="ytd-item ${grossProfit >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${grossProfit >= 0 ? '+' : ''}$${grossProfit.toFixed(2)}</div><div class="ytd-lbl">💰 Est. Gross Profit</div></div>
+    <div class="ytd-item"><div class="ytd-val">${marginPct}%</div><div class="ytd-lbl">📊 Blended Margin</div></div>
+    <div class="ytd-item"><div class="ytd-val">${dtcMargin}%</div><div class="ytd-lbl">🛍️ DTC Margin</div></div>
+    <div class="ytd-item"><div class="ytd-val">${wsMargin}%</div><div class="ytd-lbl">🏢 Wholesale Margin</div></div>`;
+
+  // Monthly Profit
+  const mProfit = {};
+  incData.forEach(e => {
+    const m = fmtDate(e.date).substring(0, 7) || "Unknown";
+    if (!mProfit[m]) mProfit[m] = { rev: 0, cogs: 0 };
+    mProfit[m].rev += parseFloat(e.amount || 0);
+    mProfit[m].cogs += estCogs(e);
+  });
+  const mSorted = Object.keys(mProfit).sort().reverse();
+  $("monthProfit").innerHTML = mSorted.map(m => {
+    const mp = mProfit[m];
+    const gp = mp.rev - mp.cogs;
+    const mg = mp.rev > 0 ? ((gp / mp.rev) * 100).toFixed(1) : "0.0";
+    const parts = m.split("-");
+    const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m;
+    return `<div class="profit-row">
+      <div class="profit-label"><span>${label}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div>
+    </div>`;
+  }).join("");
 }
 
 function exportCSV() {
