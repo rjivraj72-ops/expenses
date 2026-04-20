@@ -90,7 +90,7 @@
 
 <div class="card" id="send-card" style="display:none">
   <div class="preview" id="preview"></div>
-  <button onclick="copyMsg()" style="background:#5a8a5e;margin-bottom:8px">📋 Copy Message</button>
+  <button onclick="copyMsg()" style="background:#5a8a5e;margin-bottom:8px">📤 Share / Copy Message</button>
   <button onclick="sendTo('6047279676')">📱 Send to Haley</button>
   <button onclick="sendTo('7789994602')" style="margin-top:8px">📱 Send to Rahim</button>
 </div>
@@ -184,14 +184,25 @@ async function saveOrder() {
 
 function copyMsg() {
   const msg = document.getElementById("preview").textContent;
-  const ta = document.createElement("textarea");
-  ta.value = msg;
-  document.body.appendChild(ta);
-  ta.select();
-  document.execCommand("copy");
-  document.body.removeChild(ta);
-  showToast("📋 Copied! Now tap Send below");
-  saveOrder();
+  if (navigator.share) {
+    navigator.share({ text: msg }).then(() => {
+      saveOrder();
+      showToast("✓ Order saved");
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(msg).then(() => {
+      showToast("📋 Copied!");
+      saveOrder();
+    }).catch(() => {
+      // Fallback: select the preview text
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById("preview"));
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      showToast("Text selected — tap Copy from menu");
+      saveOrder();
+    });
+  }
 }
 
 function sendTo(num) {
