@@ -151,7 +151,7 @@ function render() {
   let msg = "Hi Haley, here is the weekly order:\n\n";
   orders.forEach(o => {
     const items = Object.entries(o.items).map(([s, q]) => `${s} ×${q}`).join(", ");
-    msg += `${o.name}: ${items}\n`;
+    msg += `${o.name}: ${items}\n\n`;
   });
   msg += "\n--- Total ---\n";
   skus.forEach(s => { msg += `${s} - ${totals[s]}\n`; });
@@ -184,7 +184,7 @@ function sendWhatsApp() {
   let msg = "Hi Haley, here is the weekly order:\n\n";
   orders.forEach(o => {
     const items = Object.entries(o.items).map(([s, q]) => `${s} ×${q}`).join(", ");
-    msg += `${o.name}: ${items}\n`;
+    msg += `${o.name}: ${items}\n\n`;
   });
   msg += "\n--- Total ---\n";
   skus.forEach(s => { msg += `${s} - ${totals[s]}\n`; });
