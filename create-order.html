@@ -43,7 +43,7 @@
   .order-log { font-size: 12px; color: #8a7968; margin-bottom: 10px; }
   .order-log div { padding: 4px 0; border-bottom: 0.5px solid #e8ddd2; }
   .order-log div:last-child { border-bottom: none; }
-  .preview { background: #faf7f4; border-radius: 10px; padding: 12px; font-size: 14px; color: #3b2e24; white-space: pre-line; margin-bottom: 12px; line-height: 1.6; }
+  .preview { background: #faf7f4; border-radius: 10px; padding: 12px; font-size: 14px; color: #3b2e24; white-space: pre-line; margin-bottom: 12px; line-height: 1.6; -webkit-user-select: all; user-select: all; }
   .back-link { display: block; text-align: center; color: #8b6f4e; font-size: 13px; text-decoration: none; padding: 12px 0; }
   .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
   .toast {
@@ -90,9 +90,7 @@
 
 <div class="card" id="send-card" style="display:none">
   <div class="preview" id="preview"></div>
-  <button onclick="copyMsg()" style="background:#5a8a5e;margin-bottom:8px">📤 Share / Copy Message</button>
-  <button onclick="sendTo('6047279676')">📱 Send to Haley</button>
-  <button onclick="sendTo('7789994602')" style="margin-top:8px">📱 Send to Rahim</button>
+  <button onclick="sendWhatsApp()" style="background:#25D366;margin-bottom:8px">💬 Send via WhatsApp</button>
 </div>
 
 <a class="back-link" href="index.html">← Back to Granola Kid</a>
@@ -182,7 +180,7 @@ async function saveOrder() {
   showToast("✓ Order saved to sheet");
 }
 
-function copyMsg() {
+function sendWhatsApp() {
   let msg = "Hi Haley, here is the weekly order:\n\n";
   orders.forEach(o => {
     const items = Object.entries(o.items).map(([s, q]) => `${s} ×${q}`).join(", ");
@@ -192,27 +190,8 @@ function copyMsg() {
   skus.forEach(s => { msg += `${s} - ${totals[s]}\n`; });
   msg = msg.trim();
 
-  if (navigator.share) {
-    navigator.share({ text: msg }).then(() => {
-      saveOrder();
-    }).catch(() => {});
-  } else {
-    const ta = document.createElement("textarea");
-    ta.value = msg;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    try { document.execCommand("copy"); showToast("📋 Copied!"); }
-    catch(e) { showToast("Select preview text and copy manually"); }
-    document.body.removeChild(ta);
-    saveOrder();
-  }
-}
-
-function sendTo(num) {
-  window.location.href = "sms:" + num;
+  saveOrder();
+  window.location.href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 </script>
 </body>
