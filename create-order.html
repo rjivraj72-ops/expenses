@@ -127,7 +127,7 @@ function addOrder() {
 
   orders.push(order);
   document.getElementById("customer").value = "";
-  skus.forEach(s => getInput(s).value = "0");
+  skus.forEach(s => getInput(s).value = "");
 
   render();
   showToast(`✓ ${name} added`);
