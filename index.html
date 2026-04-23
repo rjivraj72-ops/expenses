@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#5c4a3a">
@@ -100,6 +100,18 @@
   .profit-label .pval { font-weight: 700; }
   .profit-label .pval.pos { color: #5a8a5e; }
   .profit-label .pval.neg { color: #c0694f; }
+  .date-toggle { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+  .date-toggle button { flex: 0; width: auto; padding: 6px 12px; font-size: 12px; background: #e8ddd2; color: #5c4a3a; font-weight: 500; }
+  .date-toggle button.active { background: #8b6f4e; color: #fff; }
+  .date-range { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+  .date-range input { width: 130px; font-size: 13px; padding: 8px; }
+  .cat-detail { background: #faf7f4; border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 12px; color: #5c4a3a; }
+  .cat-detail div { padding: 4px 0; border-bottom: 0.5px solid #e8ddd2; display: flex; justify-content: space-between; }
+  .cat-detail div:last-child { border-bottom: none; }
+  .pending-list { margin-top: 8px; }
+  .pending-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
+  .pending-item:last-child { border-bottom: none; }
+  .pending-item button { width: auto; padding: 4px 10px; font-size: 11px; background: #5a8a5e; }
   .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
   .month-row { margin-bottom: 14px; }
@@ -255,10 +267,22 @@
 
 <div class="card" id="mgr-card" style="display:none">
   <div class="mgr-title">🏢 The Manager's Office</div>
+  <div class="date-toggle">
+    <button class="active" onclick="setRange('ytd')">YTD</button>
+    <button onclick="setRange('all')">All Time</button>
+    <button onclick="setRange('custom')">Custom</button>
+  </div>
+  <div class="date-range" id="dateRange" style="display:none">
+    <input type="date" id="mgrFrom" onchange="renderMgr()">
+    <input type="date" id="mgrTo" onchange="renderMgr()">
+  </div>
   <div class="ytd-grid" id="ytdGrid"></div>
-  <div class="mgr-title" style="font-size:14px">Expenses by Category</div>
-  <div class="pie-wrap"><canvas id="pieChart" width="200" height="200"></canvas></div>
+  <div class="mgr-title" style="font-size:14px">Expenses by Category <span style="font-size:11px;color:#8a7968">(tap slice for details)</span></div>
+  <div class="pie-wrap"><canvas id="pieChart" width="200" height="200" onclick="tapPie(event)"></canvas></div>
   <div class="pie-legend" id="pieLegend"></div>
+  <div id="catDetail"></div>
+  <div class="mgr-title" style="font-size:14px;margin-top:12px">⏳ Pending Payments <span style="font-size:11px;color:#8a7968">(tap to mark paid)</span></div>
+  <div id="pendingList" class="pending-list"></div>
   <button class="export-btn" onclick="exportCSV()">📥 Export to CSV</button>
   <div class="mgr-title" style="font-size:14px;margin-top:16px">💰 Profitability</div>
   <div class="ytd-grid" id="profitGrid"></div>
@@ -510,20 +534,51 @@ function render() {
     </div>`;
   }).join("");
 
-  // Manager's Office - YTD Summary
+  // Manager's Office
+  renderMgr();
+}
+
+let mgrRange = "ytd";
+let pieSlices = [];
+
+function setRange(r) {
+  mgrRange = r;
+  document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+  $("dateRange").style.display = r === "custom" ? "flex" : "none";
+  renderMgr();
+}
+
+function getMgrData() {
   const yr = new Date().getFullYear().toString();
-  const ytdInc = data.filter(e => e.type === "income" && fmtDate(e.date).startsWith(yr)).reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const ytdExp = data.filter(e => e.type === "expense" && fmtDate(e.date).startsWith(yr)).reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
-  const ytdGst = data.filter(e => e.type === "expense" && fmtDate(e.date).startsWith(yr)).reduce((s, e) => s + parseFloat(e.gst || 0), 0);
+  return allData.filter(e => {
+    const d = fmtDate(e.date);
+    if (mgrRange === "ytd") return d.startsWith(yr);
+    if (mgrRange === "all") return true;
+    const from = $("mgrFrom").value || "0000";
+    const to = $("mgrTo").value || "9999";
+    return d >= from && d <= to;
+  });
+}
+
+function renderMgr() {
+  const data = getMgrData();
+  const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  // YTD grid
+  const ytdInc = data.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const ytdExp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
+  const ytdGst = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.gst || 0), 0);
   const ytdProfit = ytdInc - ytdExp;
   const profitClass = ytdProfit >= 0 ? "profit" : "loss";
+  const rangeLabel = mgrRange === "ytd" ? "YTD" : mgrRange === "all" ? "All Time" : "Period";
   $("ytdGrid").innerHTML = `
-    <div class="ytd-item"><div class="ytd-val">$${ytdInc.toFixed(2)}</div><div class="ytd-lbl">📈 YTD Revenue</div></div>
-    <div class="ytd-item"><div class="ytd-val">$${ytdExp.toFixed(2)}</div><div class="ytd-lbl">📉 YTD Expenses</div></div>
-    <div class="ytd-item ${profitClass}"><div class="ytd-val">${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}</div><div class="ytd-lbl">${ytdProfit >= 0 ? '🌟' : '⚠️'} YTD Profit</div></div>
+    <div class="ytd-item"><div class="ytd-val">$${ytdInc.toFixed(2)}</div><div class="ytd-lbl">📈 ${rangeLabel} Revenue</div></div>
+    <div class="ytd-item"><div class="ytd-val">$${ytdExp.toFixed(2)}</div><div class="ytd-lbl">📉 ${rangeLabel} Expenses</div></div>
+    <div class="ytd-item ${profitClass}"><div class="ytd-val">${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}</div><div class="ytd-lbl">${ytdProfit >= 0 ? '🌟' : '⚠️'} ${rangeLabel} Profit</div></div>
     <div class="ytd-item"><div class="ytd-val">$${ytdGst.toFixed(2)}</div><div class="ytd-lbl">🧾 GST Paid</div></div>`;
 
-  // Pie Chart - Expense by Category
+  // Pie chart
   const cats = {};
   data.filter(e => e.type === "expense").forEach(e => {
     const c = e.category || "Other";
@@ -535,6 +590,7 @@ function render() {
   const canvas = $("pieChart");
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, 200, 200);
+  pieSlices = [];
   let startAngle = -Math.PI / 2;
   catEntries.forEach(([cat, val], idx) => {
     const slice = (val / pieTotal) * Math.PI * 2;
@@ -543,9 +599,9 @@ function render() {
     ctx.arc(100, 100, 90, startAngle, startAngle + slice);
     ctx.fillStyle = pieColors[idx % pieColors.length];
     ctx.fill();
+    pieSlices.push({ cat, val, start: startAngle, end: startAngle + slice, color: pieColors[idx % pieColors.length] });
     startAngle += slice;
   });
-  // Center hole
   ctx.beginPath();
   ctx.arc(100, 100, 50, 0, Math.PI * 2);
   ctx.fillStyle = "#fff";
@@ -554,6 +610,22 @@ function render() {
   $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) =>
     `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${cat} $${val.toFixed(0)}</span>`
   ).join("");
+  $("catDetail").innerHTML = "";
+
+  // Pending list
+  const pending = allData.filter(e => e.paid !== "yes");
+  $("pendingList").innerHTML = pending.length ? pending.map((e, idx) => {
+    const desc = e.type === "income" ? `${e.source || ""} · ${e.customer || ""}` : (e.description || "");
+    const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
+    const i = allData.indexOf(e);
+    return `<div class="pending-item">
+      <span>${esc(desc)} · ${fmtDate(e.date)}</span>
+      <span style="display:flex;align-items:center;gap:6px">
+        <strong>${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</strong>
+        <button onclick="event.stopPropagation();markPaid(${i})">✓ Paid</button>
+      </span>
+    </div>`;
+  }).join("") : '<div style="text-align:center;color:#8a7968;padding:12px;font-size:13px">All caught up! 🌟</div>';
 
   // Profitability
   const p = pricing;
@@ -561,18 +633,15 @@ function render() {
     const amt = parseFloat(e.amount || 0);
     const src = (e.source || "").toLowerCase();
     if (src.includes("wholesale") || src.includes("ws")) {
-      const units = amt / (p.wsPrice || 9.30);
-      return units * (p.wsCogs || 5.42);
+      return (amt / (p.wsPrice || 9.30)) * (p.wsCogs || 5.42);
     } else {
-      const units = amt / (p.dtcPrice || 13.29);
-      return units * (p.dtcCogs || 5.50);
+      return (amt / (p.dtcPrice || 13.29)) * (p.dtcCogs || 5.50);
     }
   }
 
   const incData = data.filter(e => e.type === "income");
   const dtcSales = incData.filter(e => !(e.source || "").toLowerCase().includes("wholesale"));
   const wsSales = incData.filter(e => (e.source || "").toLowerCase().includes("wholesale"));
-
   const dtcRev = dtcSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
   const dtcCost = dtcSales.reduce((s, e) => s + estCogs(e), 0);
   const wsRev = wsSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
@@ -609,6 +678,27 @@ function render() {
       <div class="profit-label"><span>${label}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div>
     </div>`;
   }).join("");
+}
+
+function tapPie(event) {
+  const canvas = $("pieChart");
+  const rect = canvas.getBoundingClientRect();
+  const x = (event.clientX - rect.left) * (200 / rect.width) - 100;
+  const y = (event.clientY - rect.top) * (200 / rect.height) - 100;
+  const dist = Math.sqrt(x * x + y * y);
+  if (dist < 50 || dist > 90) { $("catDetail").innerHTML = ""; return; }
+  let angle = Math.atan2(y, x);
+  if (angle < -Math.PI / 2) angle += Math.PI * 2;
+
+  const hit = pieSlices.find(s => angle >= s.start && angle < s.end);
+  if (!hit) return;
+
+  const data = getMgrData();
+  const entries = data.filter(e => e.type === "expense" && (e.category || "Other") === hit.cat);
+  $("catDetail").innerHTML = `<div class="cat-detail" style="border-left:3px solid ${hit.color}">
+    <div style="font-weight:700;margin-bottom:4px">${hit.cat} — $${hit.val.toFixed(2)}</div>
+    ${entries.map(e => `<div><span>${esc(e.description || "")} · ${fmtDate(e.date)}</span><span>$${parseFloat(e.total || e.amount || 0).toFixed(2)}</span></div>`).join("")}
+  </div>`;
 }
 
 function exportCSV() {
