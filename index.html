@@ -83,6 +83,14 @@
   .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
   .mgr-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
+  .mgr-section { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #e8ddd2; }
+  .mgr-section:last-child { border-bottom: none; }
+  .mgr-section .sec-label { font-size: 15px; font-weight: 600; color: #5c4a3a; }
+  .mgr-section .sec-arrow { font-size: 14px; color: #8a7968; transition: transform 0.2s; }
+  .mgr-section .sec-arrow.open { transform: rotate(90deg); }
+  .mgr-body { display: none; padding: 12px 0 4px; }
+  .mgr-body.open { display: block; }
+  .date-area { background: linear-gradient(135deg, #f0ebe4 0%, #e8ddd2 100%); border-radius: 10px; padding: 14px; margin-bottom: 14px; text-align: center; }
   .ytd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .ytd-item { background: #faf7f4; border-radius: 8px; padding: 10px; text-align: center; }
   .ytd-item .ytd-val { font-size: 18px; font-weight: 700; color: #5c4a3a; }
@@ -267,27 +275,40 @@
 
 <div class="card" id="mgr-card" style="display:none">
   <div class="mgr-title">🏢 The Manager's Office</div>
-  <div class="date-toggle">
-    <button class="active" onclick="setRange('ytd')">YTD</button>
-    <button onclick="setRange('all')">All Time</button>
-    <button onclick="setRange('custom')">Custom</button>
+  <div class="date-area">
+    <div style="font-size:12px;color:#8a7968;margin-bottom:6px">📅 Viewing</div>
+    <div class="date-toggle">
+      <button class="active" onclick="setRange('ytd')">YTD</button>
+      <button onclick="setRange('all')">All Time</button>
+      <button onclick="setRange('custom')">Custom</button>
+    </div>
+    <div class="date-range" id="dateRange" style="display:none">
+      <input type="date" id="mgrFrom" onchange="renderMgr()">
+      <input type="date" id="mgrTo" onchange="renderMgr()">
+    </div>
+    <div id="rangeSnap" style="font-size:20px;font-weight:700;color:#5c4a3a"></div>
   </div>
-  <div class="date-range" id="dateRange" style="display:none">
-    <input type="date" id="mgrFrom" onchange="renderMgr()">
-    <input type="date" id="mgrTo" onchange="renderMgr()">
+
+  <div class="mgr-section" onclick="toggleSec('secRevExp')"><span class="sec-label">📊 Revenue & Expenses</span><span class="sec-arrow" id="secRevExpArrow">▸</span></div>
+  <div class="mgr-body" id="secRevExp"><div class="ytd-grid" id="ytdGrid"></div></div>
+
+  <div class="mgr-section" onclick="toggleSec('secPie')"><span class="sec-label">🍩 Expenses by Category</span><span class="sec-arrow" id="secPieArrow">▸</span></div>
+  <div class="mgr-body" id="secPie">
+    <div class="pie-wrap"><canvas id="pieChart" width="200" height="200" onclick="tapPie(event)"></canvas></div>
+    <div class="pie-legend" id="pieLegend"></div>
+    <div id="catDetail"></div>
   </div>
-  <div class="ytd-grid" id="ytdGrid"></div>
-  <div class="mgr-title" style="font-size:14px">Expenses by Category <span style="font-size:11px;color:#8a7968">(tap slice for details)</span></div>
-  <div class="pie-wrap"><canvas id="pieChart" width="200" height="200" onclick="tapPie(event)"></canvas></div>
-  <div class="pie-legend" id="pieLegend"></div>
-  <div id="catDetail"></div>
-  <div class="mgr-title" style="font-size:14px;margin-top:12px">⏳ Pending Payments <span style="font-size:11px;color:#8a7968">(tap to mark paid)</span></div>
-  <div id="pendingList" class="pending-list"></div>
-  <button class="export-btn" onclick="exportCSV()">📥 Export to CSV</button>
-  <div class="mgr-title" style="font-size:14px;margin-top:16px">💰 Profitability</div>
-  <div class="ytd-grid" id="profitGrid"></div>
-  <div class="mgr-title" style="font-size:14px">📅 Monthly Profit</div>
-  <div id="monthProfit"></div>
+
+  <div class="mgr-section" onclick="toggleSec('secPending')"><span class="sec-label">⏳ Pending Payments</span><span class="sec-arrow open" id="secPendingArrow">▸</span></div>
+  <div class="mgr-body open" id="secPending"><div id="pendingList" class="pending-list"></div></div>
+
+  <div class="mgr-section" onclick="toggleSec('secProfit')"><span class="sec-label">💰 Profitability</span><span class="sec-arrow" id="secProfitArrow">▸</span></div>
+  <div class="mgr-body" id="secProfit"><div class="ytd-grid" id="profitGrid"></div></div>
+
+  <div class="mgr-section" onclick="toggleSec('secMonthly')"><span class="sec-label">📅 Monthly Profit</span><span class="sec-arrow" id="secMonthlyArrow">▸</span></div>
+  <div class="mgr-body" id="secMonthly"><div id="monthProfit"></div></div>
+
+  <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">📥 Export to CSV</button>
 </div>
 
 <div class="footer">
@@ -549,6 +570,13 @@ function setRange(r) {
   renderMgr();
 }
 
+function toggleSec(id) {
+  const body = $(id);
+  const arrow = $(id + "Arrow");
+  body.classList.toggle("open");
+  arrow.classList.toggle("open");
+}
+
 function getMgrData() {
   const yr = new Date().getFullYear().toString();
   return allData.filter(e => {
@@ -572,6 +600,8 @@ function renderMgr() {
   const ytdProfit = ytdInc - ytdExp;
   const profitClass = ytdProfit >= 0 ? "profit" : "loss";
   const rangeLabel = mgrRange === "ytd" ? "YTD" : mgrRange === "all" ? "All Time" : "Period";
+  $("rangeSnap").innerHTML = `${ytdProfit >= 0 ? '🌟' : '⚠️'} ${rangeLabel}: ${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}`;
+  $("rangeSnap").style.color = ytdProfit >= 0 ? "#5a8a5e" : "#c0694f";
   $("ytdGrid").innerHTML = `
     <div class="ytd-item"><div class="ytd-val">$${ytdInc.toFixed(2)}</div><div class="ytd-lbl">📈 ${rangeLabel} Revenue</div></div>
     <div class="ytd-item"><div class="ytd-val">$${ytdExp.toFixed(2)}</div><div class="ytd-lbl">📉 ${rangeLabel} Expenses</div></div>
