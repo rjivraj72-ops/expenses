@@ -302,9 +302,6 @@
     <div id="catDetail"></div>
   </div>
 
-  <div class="mgr-section" onclick="toggleSec('secPending')"><span class="sec-label">⏳ Pending Payments</span><span class="sec-arrow open" id="secPendingArrow">▸</span></div>
-  <div class="mgr-body open" id="secPending"><div id="pendingList" class="pending-list"></div></div>
-
   <div class="mgr-section" onclick="toggleSec('secProfit')"><span class="sec-label">💰 Profitability</span><span class="sec-arrow" id="secProfitArrow">▸</span></div>
   <div class="mgr-body" id="secProfit"><div class="ytd-grid" id="profitGrid"></div></div>
 
@@ -570,6 +567,11 @@ function setRange(r) {
   document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active"));
   event.target.classList.add("active");
   $("dateRange").style.display = r === "custom" ? "flex" : "none";
+  if (r === "custom") {
+    const yr = new Date().getFullYear();
+    if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`;
+    if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0];
+  }
   renderMgr();
 }
 
@@ -644,24 +646,6 @@ function renderMgr() {
     `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${cat} $${val.toFixed(0)}</span>`
   ).join("");
   $("catDetail").innerHTML = "";
-
-  // Pending list
-  const pending = allData.filter(e => e.paid !== "yes");
-  $("pendingList").innerHTML = pending.length ? pending.map((e, idx) => {
-    const desc = e.type === "income" ? `${e.source || ""} · ${e.customer || ""}` : (e.description || "");
-    const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
-    const i = allData.indexOf(e);
-    return `<div class="pending-item">
-      <div class="pending-desc">${esc(desc)}</div>
-      <div class="pending-top">
-        <span style="color:#8a7968">${fmtDate(e.date)}</span>
-        <span style="display:flex;align-items:center;gap:6px">
-          <strong>${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</strong>
-          <button onclick="event.stopPropagation();markPaid(${i})">Mark Paid</button>
-        </span>
-      </div>
-    </div>`;
-  }).join("") : '<div style="text-align:center;color:#8a7968;padding:12px;font-size:13px">All caught up! 🌟</div>';
 
   // Profitability
   const p = pricing;
