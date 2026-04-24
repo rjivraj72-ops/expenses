@@ -114,11 +114,14 @@
   .date-range { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
   .date-range input { width: 130px; font-size: 13px; padding: 8px; }
   .cat-detail { background: #faf7f4; border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 12px; color: #5c4a3a; }
-  .cat-detail div { padding: 4px 0; border-bottom: 0.5px solid #e8ddd2; display: flex; justify-content: space-between; }
+  .cat-detail div { padding: 4px 0; border-bottom: 0.5px solid #e8ddd2; display: flex; justify-content: space-between; gap: 8px; }
   .cat-detail div:last-child { border-bottom: none; }
+  .cat-detail div span:first-child { flex: 1; word-break: break-word; }
   .pending-list { margin-top: 8px; }
-  .pending-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
+  .pending-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
   .pending-item:last-child { border-bottom: none; }
+  .pending-item .pending-top { display: flex; justify-content: space-between; align-items: center; }
+  .pending-item .pending-desc { color: #5c4a3a; font-weight: 500; }
   .pending-item button { width: auto; padding: 4px 10px; font-size: 11px; background: #5a8a5e; }
   .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
   .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
@@ -649,11 +652,14 @@ function renderMgr() {
     const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
     const i = allData.indexOf(e);
     return `<div class="pending-item">
-      <span>${esc(desc)} · ${fmtDate(e.date)}</span>
-      <span style="display:flex;align-items:center;gap:6px">
-        <strong>${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</strong>
-        <button onclick="event.stopPropagation();markPaid(${i})">✓ Paid</button>
-      </span>
+      <div class="pending-desc">${esc(desc)}</div>
+      <div class="pending-top">
+        <span style="color:#8a7968">${fmtDate(e.date)}</span>
+        <span style="display:flex;align-items:center;gap:6px">
+          <strong>${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</strong>
+          <button onclick="event.stopPropagation();markPaid(${i})">Mark Paid</button>
+        </span>
+      </div>
     </div>`;
   }).join("") : '<div style="text-align:center;color:#8a7968;padding:12px;font-size:13px">All caught up! 🌟</div>';
 
