@@ -38,6 +38,9 @@
   .summary .inc { color: #5a8a5e; font-weight: 600; }
   .summary .exp { color: #c0694f; font-weight: 600; }
   .summary .pending { color: #c4a24e; font-weight: 600; }
+  .fulfilled-wrap { display: none; }
+  .fulfilled-wrap.show { display: block; }
+  .fulfilled-wrap label { font-size: 12px; color: #8a7968; display: block; margin-bottom: 2px; }
   .week-alert { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center; font-size: 14px; font-weight: 600; box-shadow: 0 2px 8px rgba(60,46,36,0.06); }
   .week-alert .wa-out { color: #c0694f; }
   .week-alert .wa-in { color: #5a8a5e; }
@@ -181,9 +184,9 @@
   .pin-dots.wrong { animation: shake 0.4s; }
   .pin-dots.wrong .dot.filled { background: #c0694f; border-color: #c0694f; }
   @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-  .pin-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 12px; }
+  .pin-pad { display: grid; grid-template-columns: repeat(3, 80px); gap: 14px; }
   .pin-pad button {
-    width: 72px; height: 72px; border-radius: 50%; font-size: 24px; font-weight: 600;
+    width: 80px; height: 80px; border-radius: 50%; font-size: 28px; font-weight: 600;
     border: 1px solid #d4c8bc; background: #fff; color: #3b2e24; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
   }
@@ -272,12 +275,16 @@
   </form>
 
   <form id="incForm" style="margin-top:10px;display:none">
-    <select id="incSource">
+    <select id="incSource" onchange="updateFulfilledVis()">
       <option>🛍️ DTC</option><option>🏢 Wholesale</option>
     </select>
     <input id="incCustomer" placeholder="Order Number (e.g. 1234)" required inputmode="numeric">
     <input id="incAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
     <input id="incDate" type="date">
+    <div class="fulfilled-wrap" id="fulfilledWrap">
+      <label>📦 Fulfilled / Shipped Date</label>
+      <input id="incFulfilled" type="date">
+    </div>
     <div class="row">
       <select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
       <button type="submit" id="incBtn">Add Income</button>
@@ -409,6 +416,12 @@ function updateDots() {
   dots.forEach((d, i) => d.classList.toggle("filled", i < pinEntry.length));
 }
 
+document.addEventListener("keydown", e => {
+  if (document.getElementById("pin-screen").style.display === "none") return;
+  if (e.key >= "0" && e.key <= "9") pinKey(parseInt(e.key));
+  else if (e.key === "Backspace") pinDel();
+});
+
 function initApp(json) {
 $("expDate").value = new Date().toISOString().split("T")[0];
 $("incDate").value = new Date().toISOString().split("T")[0];
@@ -446,9 +459,10 @@ $("incForm").onsubmit = async e => {
     action: "add", type: "income",
     date: $("incDate").value, source: $("incSource").value,
     customer: "#" + $("incCustomer").value.replace(/^#/, ""), amount: parseFloat($("incAmount").value),
-    paid: $("incPaid").value
+    paid: $("incPaid").value,
+    fulfilled: $("incFulfilled").value || ""
   });
-  $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0];
+  $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = "";
   $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false;
   showToast("✓ Income added — keep it up! 💰");
   celebrate();
@@ -470,6 +484,12 @@ function toggleForm() {
   const isExp = $("tExp").checked;
   $("expForm").style.display = isExp ? "flex" : "none";
   $("incForm").style.display = isExp ? "none" : "flex";
+  if (!isExp) updateFulfilledVis();
+}
+
+function updateFulfilledVis() {
+  const isWS = ($("incSource").value || "").toLowerCase().includes("wholesale");
+  $("fulfilledWrap").className = "fulfilled-wrap" + (isWS ? " show" : "");
 }
 
 function calcGst() {
@@ -589,8 +609,11 @@ function render() {
       if (due >= nowStr && due <= in7Str) weekOut += parseFloat(e.total || e.amount || 0);
     }
     if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) {
-      const due = new Date(new Date(d).getTime() + 14*86400000).toISOString().split("T")[0];
-      if (due >= nowStr && due <= in7Str) weekIn += parseFloat(e.amount || 0);
+      const fDate = fmtDate(e.fulfilled) || fmtDate(e.date);
+      if (fDate) {
+        const due = new Date(new Date(fDate).getTime() + 14*86400000).toISOString().split("T")[0];
+        if (due >= nowStr && due <= in7Str) weekIn += parseFloat(e.amount || 0);
+      }
     }
   });
   if (weekOut > 0 || weekIn > 0) {
@@ -933,6 +956,7 @@ function edit(i) {
       <input id="eCust" value="${esc(e.customer || "")}" placeholder="Customer / Order Number" required>
       <input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal">
       <input id="eDate" type="date" value="${fmtDate(e.date)}">
+      ${(e.source || "").toLowerCase().includes("wholesale") ? `<label style="font-size:12px;color:#8a7968">📦 Fulfilled Date</label><input id="eFulfilled" type="date" value="${fmtDate(e.fulfilled)}">` : ''}
       <select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`;
   }
 
@@ -956,6 +980,8 @@ function edit(i) {
     } else {
       body.source = $("eSrc").value;
       body.customer = $("eCust").value;
+      const ef = document.getElementById("eFulfilled");
+      if (ef) body.fulfilled = ef.value;
     }
     overlay.remove();
     await post(body);
