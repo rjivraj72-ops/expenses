@@ -38,6 +38,10 @@
   .summary .inc { color: #5a8a5e; font-weight: 600; }
   .summary .exp { color: #c0694f; font-weight: 600; }
   .summary .pending { color: #c4a24e; font-weight: 600; }
+  .week-alert { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center; font-size: 14px; font-weight: 600; box-shadow: 0 2px 8px rgba(60,46,36,0.06); }
+  .week-alert .wa-out { color: #c0694f; }
+  .week-alert .wa-in { color: #5a8a5e; }
+  .week-alert .wa-label { font-size: 11px; color: #8a7968; font-weight: 400; margin-top: 4px; }
   .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(60,46,36,0.06), 0 1px 3px rgba(60,46,36,0.04); }
   form { display: flex; flex-direction: column; gap: 10px; }
   input, select { font-size: 16px; padding: 12px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; width: 100%; color: #3b2e24; -webkit-appearance: none; }
@@ -236,6 +240,8 @@
   </div>
 </div>
 </div>
+
+<div class="week-alert" id="weekAlert" style="display:none"></div>
 
 <div class="card" id="chart-card" style="display:none">
   <div class="chart-title">📊 Monthly Breakdown</div>
@@ -569,6 +575,30 @@ function render() {
       ${e.receipt ? `<a class="receipt-link" href="${esc(e.receipt)}" target="_blank">📎 View Receipt</a>` : ''}
     </div>`;
   }).join("");
+
+  // Week Ahead Alert
+  const nowDate = new Date();
+  const nowStr = nowDate.toISOString().split("T")[0];
+  const in7Str = new Date(nowDate.getTime() + 7*86400000).toISOString().split("T")[0];
+  let weekOut = 0, weekIn = 0;
+  data.forEach(e => {
+    if (e.paid === "yes") return;
+    const d = fmtDate(e.date);
+    if (e.type === "expense" && (e.category || "").includes("Co-Packing")) {
+      const due = new Date(new Date(d).getTime() + 7*86400000).toISOString().split("T")[0];
+      if (due >= nowStr && due <= in7Str) weekOut += parseFloat(e.total || e.amount || 0);
+    }
+    if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) {
+      const due = new Date(new Date(d).getTime() + 14*86400000).toISOString().split("T")[0];
+      if (due >= nowStr && due <= in7Str) weekIn += parseFloat(e.amount || 0);
+    }
+  });
+  if (weekOut > 0 || weekIn > 0) {
+    $("weekAlert").style.display = "block";
+    $("weekAlert").innerHTML = `💰 This week: <span class="wa-out">-$${weekOut.toFixed(0)} out</span> · <span class="wa-in">+$${weekIn.toFixed(0)} in</span><div class="wa-label">Co-Packing (Net 7) · Wholesale (Net 14)</div>`;
+  } else {
+    $("weekAlert").style.display = "none";
+  }
 
   // Manager's Office
   renderMgr();
