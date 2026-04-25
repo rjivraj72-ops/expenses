@@ -108,6 +108,15 @@
   .profit-label .pval { font-weight: 700; }
   .profit-label .pval.pos { color: #5a8a5e; }
   .profit-label .pval.neg { color: #c0694f; }
+  .cw-alert { background: #fce8e3; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 13px; color: #c0694f; font-weight: 600; text-align: center; }
+  .cw-alert.ok { background: #e8f5e9; color: #5a8a5e; }
+  .cw-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
+  .cw-row:last-child { border-bottom: none; }
+  .cw-out { color: #c0694f; font-weight: 600; }
+  .cw-in { color: #5a8a5e; font-weight: 600; }
+  .cw-bar { display: flex; height: 20px; border-radius: 6px; overflow: hidden; margin: 4px 0 8px; }
+  .cw-bar-out { background: #c0694f; }
+  .cw-bar-in { background: #5a8a5e; }
   .date-toggle { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
   .date-toggle button { flex: 0; width: auto; padding: 6px 12px; font-size: 12px; background: #e8ddd2; color: #5c4a3a; font-weight: 500; }
   .date-toggle button.active { background: #8b6f4e; color: #fff; }
@@ -308,6 +317,9 @@
   <div class="mgr-section" onclick="toggleSec('secMonthly')"><span class="sec-label">📅 Monthly Profit</span><span class="sec-arrow" id="secMonthlyArrow">▸</span></div>
   <div class="mgr-body" id="secMonthly"><div id="monthProfit"></div></div>
 
+  <div class="mgr-section" onclick="toggleSec('secWave')"><span class="sec-label">🌊 Cash Wave</span><span class="sec-arrow" id="secWaveArrow">▸</span></div>
+  <div class="mgr-body" id="secWave"><div id="cashWave"></div></div>
+
   <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">📥 Export to CSV</button>
 </div>
 
@@ -397,6 +409,7 @@ $("incDate").value = new Date().toISOString().split("T")[0];
 
 capital = parseFloat(json.capital) || 0;
 pricing = json.pricing || {};
+cashWaveData = json.cashWave || [];
 allData = [
   ...json.income.map(r => ({ ...r, type: "income" })),
   ...json.expense.map(r => ({ ...r, type: "expense" }))
@@ -445,6 +458,7 @@ const SKEY = "unused";
 let allData = [];
 let capital = 0;
 let pricing = {};
+let cashWaveData = [];
 
 function toggleForm() {
   const isExp = $("tExp").checked;
@@ -465,6 +479,7 @@ async function fetchData() {
     const json = await res.json();
     capital = parseFloat(json.capital) || 0;
     pricing = json.pricing || {};
+    cashWaveData = json.cashWave || [];
     allData = [
       ...json.income.map(r => ({ ...r, type: "income" })),
       ...json.expense.map(r => ({ ...r, type: "expense" }))
@@ -698,6 +713,58 @@ function renderMgr() {
       <div class="profit-label"><span>${label}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div>
     </div>`;
   }).join("");
+
+  // Cash Wave
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+  const in7 = new Date(today.getTime() + 7*86400000).toISOString().split("T")[0];
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0];
+  const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split("T")[0];
+  const prevMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split("T")[0];
+
+  let wed7 = 0, spillover = 0;
+  const cwRows = cashWaveData.map(r => {
+    const d = fmtDate(r.date);
+    const mffDue = new Date(new Date(d).getTime() + 7*86400000).toISOString().split("T")[0];
+    const wsDue = new Date(new Date(d).getTime() + 15*86400000).toISOString().split("T")[0];
+    const mff = parseFloat(r.mff) || 0;
+    const ws = parseFloat(r.wholesale) || 0;
+    if (mffDue >= todayStr && mffDue <= in7) wed7 += mff;
+    if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= new Date(today.getFullYear(), today.getMonth(), 7).toISOString().split("T")[0]) spillover += mff;
+    return { date: d, mff, mffDue, ws, wsDue, notes: r.notes || "" };
+  }).sort((a, b) => b.date.localeCompare(a.date));
+
+  let cwHtml = "";
+  if (wed7 > 0) {
+    cwHtml += `<div class="cw-alert">⚠️ $${wed7.toFixed(2)} due to MFF in next 7 days</div>`;
+  } else {
+    cwHtml += `<div class="cw-alert ok">✅ No MFF payments due this week</div>`;
+  }
+  if (spillover > 0) {
+    cwHtml += `<div class="cw-alert">🔴 Month spillover: $${spillover.toFixed(2)} from last month due this week</div>`;
+  }
+
+  if (cwRows.length) {
+    cwHtml += cwRows.map(r => {
+      const total = r.mff + r.ws || 1;
+      const outW = (r.mff / total) * 100;
+      const inW = (r.ws / total) * 100;
+      return `<div>
+        <div class="cw-row">
+          <span>🗓️ ${r.date}</span>
+          <span><span class="cw-out">-$${r.mff.toFixed(0)}</span> → <span class="cw-in">+$${r.ws.toFixed(0)}</span></span>
+        </div>
+        <div class="cw-bar">
+          <div class="cw-bar-out" style="width:${outW}%"></div>
+          <div class="cw-bar-in" style="width:${inW}%"></div>
+        </div>
+        <div style="font-size:11px;color:#8a7968">Pay MFF: ${r.mffDue} · WS due: ${r.wsDue}${r.notes ? ' · ' + esc(r.notes) : ''}</div>
+      </div>`;
+    }).join("");
+  } else {
+    cwHtml += '<div style="text-align:center;color:#8a7968;padding:12px;font-size:13px">Add production runs to the Cash Wave tab in Google Sheets</div>';
+  }
+  $("cashWave").innerHTML = cwHtml;
 }
 
 function tapPie(event) {
