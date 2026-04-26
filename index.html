@@ -284,7 +284,19 @@ function render() {
  $("list-card").style.display = data.length ? "block" : "none";
  $("mgr-card").style.display = data.length ? "block" : "none";
  const visible = data.filter((e, i) => { e._idx = i; return e.paid !== "yes"; });
- $("list").innerHTML = visible.map(e => { const i = e._idx; const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || ""); const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`; const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0); return `<div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions"><span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span><button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button><button onclick="del(${i})">🗑️</button></div></div>${e.receipt ? `<a class="receipt-link" href="${esc(e.receipt)}" target="_blank">📎 View Receipt</a>` : ''}</div>`; }).join("");
+ $("list").innerHTML = visible.map(e => {
+   const i = e._idx;
+   const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || "");
+   const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`;
+   const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
+   let light = "";
+   if (e.paid !== "yes") {
+     let dueDate = null;
+     if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { dueDate = new Date(new Date(fmtDate(e.date)).getTime() + 7*86400000); }
+     else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fd = fmtDate(e.fulfilled) || fmtDate(e.date); if (fd) dueDate = new Date(new Date(fd).getTime() + 14*86400000); }
+     if (dueDate) { const diff = (dueDate - new Date()) / 86400000; light = diff < 0 ? "🔴" : diff <= 7 ? "🟡" : "🟢"; }
+   }
+   return `<div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${light ? light + ' ' : ''}${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions"><span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span><button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button><button onclick="del(${i})">🗑️</button></div></div>${e.receipt ? `<a class="receipt-link" href="${esc(e.receipt)}" target="_blank">📎 View Receipt</a>` : ''}</div>`; }).join("");
  const nowDate = new Date(); const dayOfWeek = nowDate.getDay(); const monOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
  const thisMonday = new Date(nowDate); thisMonday.setDate(thisMonday.getDate() + monOffset);
  const thisSunday = new Date(thisMonday); thisSunday.setDate(thisSunday.getDate() + 6);
