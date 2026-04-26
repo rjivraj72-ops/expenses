@@ -296,7 +296,7 @@ function render() {
      else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fd = fmtDate(e.fulfilled) || fmtDate(e.date); if (fd) dueDate = new Date(new Date(fd).getTime() + 14*86400000); }
      if (dueDate) { const diff = (dueDate - new Date()) / 86400000; light = diff < 0 ? "🔴" : diff <= 7 ? "🟡" : "🟢"; }
    }
-   return `<div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${light ? light + ' ' : ''}${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions"><span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span><button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button><button onclick="del(${i})">🗑️</button></div></div>${e.receipt ? `<a class="receipt-link" href="${esc(e.receipt)}" target="_blank">📎 View Receipt</a>` : ''}</div>`; }).join("");
+   return `<div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${light ? light + ' ' : ''}${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions"><span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span><button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button><button onclick="del(${i})">🗑️</button>${light === '🔴' && e.type === 'income' ? `<button onclick="remind(${i})">📧</button>` : ''}</div></div>${e.receipt ? `<a class="receipt-link" href="${esc(e.receipt)}" target="_blank">📎 View Receipt</a>` : ''}</div>`; }).join("");
  const nowDate = new Date(); const dayOfWeek = nowDate.getDay(); const monOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
  const thisMonday = new Date(nowDate); thisMonday.setDate(thisMonday.getDate() + monOffset);
  const thisSunday = new Date(thisMonday); thisSunday.setDate(thisSunday.getDate() + 6);
@@ -315,7 +315,7 @@ function render() {
  } else { $("weekAlert").style.display = "none"; }
  renderMgr();
 }
- let mgrRange = "ytd", pieSlices = [];
+let mgrRange = "ytd", pieSlices = [];
 function setRange(r) { mgrRange = r; document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active")); event.target.classList.add("active"); $("dateRange").style.display = r === "custom" ? "flex" : "none"; if (r === "custom") { const yr = new Date().getFullYear(); if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`; if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0]; } renderMgr(); }
 function toggleSec(id) { $(id).classList.toggle("open"); $(id + "Arrow").classList.toggle("open"); }
 function getMgrData() { const yr = new Date().getFullYear().toString(); return allData.filter(e => { const d = fmtDate(e.date); if (mgrRange === "ytd") return d.startsWith(yr); if (mgrRange === "all") return true; return d >= ($("mgrFrom").value || "0000") && d <= ($("mgrTo").value || "9999"); }); }
@@ -370,6 +370,18 @@ function celebrate() { const emojis = ["💰","🌟","🎉","💵","✨","🌾"]
 async function del(i) { event.stopPropagation(); if (!confirm("Delete this entry?")) return; const e = allData[i]; await post({ action: "delete", type: e.type, row: e.row }); fetchData(); }
 async function markPaid(i) { event.stopPropagation(); const e = allData[i]; await post({ action: "pay", type: e.type, row: e.row }); fetchData(); }
 async function cam(i) { event.stopPropagation(); const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = async () => { const file = inp.files[0]; const reader = new FileReader(); reader.onload = async () => { const base64 = reader.result.split(",")[1]; const e = allData[i]; await fetch(API, { method: "POST", body: JSON.stringify({ action: "receipt", type: e.type, row: e.row, data: base64, pin: validatedPin, mime: file.type, filename: `receipt_${fmtDate(e.date)}_${Date.now()}.${file.type.split("/")[1]}` })}); fetchData(); }; reader.readAsDataURL(file); }; inp.click(); }
+function remind(i) {
+ event.stopPropagation();
+ const e = allData[i];
+ const order = e.customer || "N/A";
+ const amt = parseFloat(e.amount || 0).toFixed(2);
+ const fd = fmtDate(e.fulfilled) || fmtDate(e.date);
+ const subj = encodeURIComponent(`Payment Reminder — Order ${order}`);
+ let body = `Hi,\n\nThis is a friendly reminder that payment of $${amt} for Order ${order} (fulfilled ${fd}) is now overdue (Net 14).\n\nPlease let us know the status at your earliest convenience.`;
+ if (e.receipt) body += `\n\nInvoice/Receipt: ${e.receipt}`;
+ body += `\n\nThank you!\n— Granola Kid`;
+ window.open(`mailto:?subject=${subj}&body=${encodeURIComponent(body)}`);
+}
 function edit(i) {
  const e = allData[i]; const overlay = document.createElement("div"); overlay.className = "edit-overlay"; overlay.onclick = ev => { if (ev.target === overlay) overlay.remove(); };
  let fields;
