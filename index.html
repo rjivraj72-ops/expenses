@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,984 +8,466 @@
 <meta name="theme-color" content="#5c4a3a">
 <title>Granola Kid</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
-    background: #f5f0eb; color: #3b2e24;
-    padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
-    -webkit-tap-highlight-color: transparent;
-    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  }
-  .header-area {
-    background: linear-gradient(180deg, #e8ddd2 0%, #f5f0eb 100%);
-    margin: -16px -16px 16px -16px; padding: 16px 16px 0;
-    border-radius: 0 0 20px 20px;
-  }
-  .logo { padding: 20px 0 4px; }
-  h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: #5c4a3a; }
-  .summary { text-align: center; padding-bottom: 16px; font-size: 14px; color: #8a7968; }
-  .summary .balance { font-size: 28px; font-weight: 700; color: #5c4a3a; margin: 4px 0 4px; }
-  .summary .balance-label { font-size: 11px; color: #8a7968; margin-bottom: 6px; }
-  .summary .bal-row { display: flex; justify-content: center; gap: 32px; margin-bottom: 14px; }
-  .summary .bal-item { text-align: center; }
-  .summary .bal-item .amt { font-size: 20px; font-weight: 700; }
-  .summary .bal-item .lbl { font-size: 12px; color: #8a7968; }
-  .summary .row { display: flex; justify-content: center; gap: 12px; font-size: 12px; align-items: flex-start; }
-  .summary .stat { text-align: center; flex: 1; }
-  .summary .stat .amt { font-size: 16px; font-weight: 700; line-height: 1.2; }
-  .summary .stat .lbl { font-size: 12px; color: #8a7968; line-height: 1.2; }
-  .summary .inc { color: #5a8a5e; font-weight: 600; }
-  .summary .exp { color: #c0694f; font-weight: 600; }
-  .summary .pending { color: #c4a24e; font-weight: 600; }
-  .fulfilled-wrap { display: none; }
-  .fulfilled-wrap.show { display: block; }
-  .fulfilled-wrap label { font-size: 12px; color: #8a7968; display: block; margin-bottom: 2px; }
-  .week-alert { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center; font-size: 14px; font-weight: 600; box-shadow: 0 2px 8px rgba(60,46,36,0.06); }
-  .week-alert .wa-out { color: #c0694f; }
-  .week-alert .wa-in { color: #5a8a5e; }
-  .week-alert .wa-label { font-size: 11px; color: #8a7968; font-weight: 400; margin-top: 4px; }
-  .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(60,46,36,0.06), 0 1px 3px rgba(60,46,36,0.04); }
-  form { display: flex; flex-direction: column; gap: 10px; }
-  input, select { font-size: 16px; padding: 12px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; width: 100%; color: #3b2e24; -webkit-appearance: none; }
-  input:focus, select:focus { outline: none; border-color: #8b6f4e; }
-  .row { display: flex; gap: 10px; }
-  .row > * { flex: 1; }
-  button { font-size: 16px; font-weight: 600; padding: 12px; border: none; border-radius: 10px; cursor: pointer; background: #8b6f4e; color: #fff; width: 100%; transform: scale(1); transition: transform 0.1s; }
-  button:active { transform: scale(0.95); }
-  .toggle { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid #d4c8bc; }
-  .toggle label { flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500; cursor: pointer; background: #faf7f4; color: #8a7968; transition: all 0.2s; }
-  .toggle input { display: none; }
-  .toggle input:checked + label { background: #8b6f4e; color: #fff; }
-  .entry { padding: 12px; margin-bottom: 6px; border-radius: 8px; cursor: pointer; }
-  .entry.inc-row { background: #f0f7f1; }
-  .entry.exp-row { background: #fdf5f2; }
-  .edit-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4); z-index: 100; display: flex;
-    align-items: flex-end; justify-content: center;
-  }
-  .edit-sheet {
-    background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0;
-    padding: 20px 16px env(safe-area-inset-bottom); animation: sheetUp 0.25s ease-out;
-  }
-  .edit-sheet h3 { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 12px; text-align: center; }
-  .edit-sheet form { display: flex; flex-direction: column; gap: 10px; }
-  .edit-btns { display: flex; gap: 10px; }
-  .edit-btns button { flex: 1; }
-  .edit-btns .cancel { background: #e8ddd2; color: #5c4a3a; }
-  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .entry-top { display: flex; justify-content: space-between; align-items: center; }
-  .entry-desc { font-size: 15px; font-weight: 500; }
-  .entry-amount { font-size: 16px; font-weight: 600; }
-  .entry-amount.inc { color: #5a8a5e; }
-  .entry-amount.exp { color: #c0694f; }
-  .entry-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 12px; color: #8a7968; }
-  .entry-actions { display: flex; gap: 8px; align-items: center; }
-  .entry-actions button { background: none !important; border: none !important; font-size: 14px; padding: 2px 6px; width: auto !important; color: #8a7968; font-weight: 400; min-width: 0; }
-  .entry-actions .paid-badge { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px; }
-  .paid-badge.yes { background: #e8f5e9; color: #5a8a5e; }
-  .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
-  .receipt-link { display: inline-block; font-size: 12px; color: #8b6f4e; font-weight: 500; margin-top: 6px; text-decoration: none; }
-  .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
-  .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
-  .mgr-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
-  .mgr-section { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #e8ddd2; }
-  .mgr-section:last-child { border-bottom: none; }
-  .mgr-section .sec-label { font-size: 15px; font-weight: 600; color: #5c4a3a; }
-  .mgr-section .sec-arrow { font-size: 14px; color: #8a7968; transition: transform 0.2s; }
-  .mgr-section .sec-arrow.open { transform: rotate(90deg); }
-  .mgr-body { display: none; padding: 12px 0 4px; }
-  .mgr-body.open { display: block; }
-  .date-area { background: linear-gradient(135deg, #f0ebe4 0%, #e8ddd2 100%); border-radius: 10px; padding: 14px; margin-bottom: 14px; text-align: center; }
-  .ytd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .ytd-item { background: #faf7f4; border-radius: 8px; padding: 10px; text-align: center; }
-  .ytd-item .ytd-val { font-size: 18px; font-weight: 700; color: #5c4a3a; }
-  .ytd-item .ytd-lbl { font-size: 11px; color: #8a7968; margin-top: 2px; }
-  .ytd-item.profit .ytd-val { color: #5a8a5e; }
-  .ytd-item.loss .ytd-val { color: #c0694f; }
-  .pie-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
-  .pie-wrap canvas { max-width: 200px; max-height: 200px; }
-  .pie-legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: 11px; color: #5c4a3a; }
-  .pie-legend span { display: flex; align-items: center; gap: 4px; }
-  .pie-legend .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
-  .export-btn { margin-top: 12px; background: #e8ddd2; color: #5c4a3a; font-size: 14px; padding: 10px; }
-  .profit-row { margin-bottom: 10px; }
-  .profit-label { font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 2px; display: flex; justify-content: space-between; }
-  .profit-label .pval { font-weight: 700; }
-  .profit-label .pval.pos { color: #5a8a5e; }
-  .profit-label .pval.neg { color: #c0694f; }
-  .cw-alert { background: #fce8e3; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 13px; color: #c0694f; font-weight: 600; text-align: center; }
-  .cw-alert.ok { background: #e8f5e9; color: #5a8a5e; }
-  .cw-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
-  .cw-row:last-child { border-bottom: none; }
-  .cw-out { color: #c0694f; font-weight: 600; }
-  .cw-in { color: #5a8a5e; font-weight: 600; }
-  .cw-bar { display: flex; height: 20px; border-radius: 6px; overflow: hidden; margin: 4px 0 8px; }
-  .cw-bar-out { background: #c0694f; }
-  .cw-bar-in { background: #5a8a5e; }
-  .date-toggle { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
-  .date-toggle button { flex: 0; width: auto; padding: 6px 12px; font-size: 12px; background: #e8ddd2; color: #5c4a3a; font-weight: 500; }
-  .date-toggle button.active { background: #8b6f4e; color: #fff; }
-  .date-range { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
-  .date-range input { width: 130px; font-size: 13px; padding: 8px; }
-  .cat-detail { background: #faf7f4; border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 12px; color: #5c4a3a; }
-  .cat-detail div { padding: 4px 0; border-bottom: 0.5px solid #e8ddd2; display: flex; justify-content: space-between; gap: 8px; }
-  .cat-detail div:last-child { border-bottom: none; }
-  .cat-detail div span:first-child { flex: 1; word-break: break-word; }
-  .pending-list { margin-top: 8px; }
-  .pending-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
-  .pending-item:last-child { border-bottom: none; }
-  .pending-item .pending-top { display: flex; justify-content: space-between; align-items: center; }
-  .pending-item .pending-desc { color: #5c4a3a; font-weight: 500; }
-  .pending-item button { width: auto; padding: 4px 10px; font-size: 11px; background: #5a8a5e; }
-  .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
-  .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
-  .month-row { margin-bottom: 14px; }
-  .month-label { font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 4px; display: flex; justify-content: space-between; }
-  .month-label .net { font-weight: 700; }
-  .month-label .net.pos { color: #5a8a5e; }
-  .month-label .net.neg { color: #c0694f; }
-  .bar-track { height: 24px; border-radius: 8px; background: #ede6df; overflow: hidden; display: flex; }
-  .bar-inc { height: 100%; background: #5a8a5e; border-radius: 8px 0 0 8px; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
-  .bar-exp { height: 100%; background: #c0694f; border-radius: 0 8px 8px 0; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
-  .bar-inc span, .bar-exp span { padding: 0 4px; white-space: nowrap; overflow: hidden; }
-  .celebrate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
-  .celebrate span { position: absolute; top: -30px; font-size: 24px; animation: fall 3s ease-in forwards; }
-  @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
-  .gst-info { font-size: 13px; color: #8a7968; text-align: right; padding: 2px 0; }
-  .refresh-btn {
-    background: none; border: none; font-size: 20px; padding: 4px 8px;
-    width: auto; color: #8a7968; cursor: pointer; position: absolute; right: 16px; top: 8px;
-  }
-  .refresh-btn.spinning { animation: spin 0.8s linear; }
-  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  .summary { position: relative; text-align: center; padding-bottom: 16px; font-size: 14px; color: #8a7968; }
-  .toast {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-    background: #5c4a3a; color: #fff; padding: 10px 20px; border-radius: 10px;
-    font-size: 14px; font-weight: 500; z-index: 300; opacity: 0;
-    animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards;
-  }
-  @keyframes toastIn { to { opacity: 1; } }
-  @keyframes toastOut { to { opacity: 0; } }
-  .pin-screen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #f5f0eb; z-index: 200; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 20px;
-  }
-  .pin-screen h2 { font-size: 22px; color: #5c4a3a; margin-bottom: 8px; }
-  .pin-dots { display: flex; gap: 12px; margin: 16px 0 24px; }
-  .pin-dots .dot {
-    width: 16px; height: 16px; border-radius: 50%;
-    border: 2px solid #d4c8bc; background: transparent; transition: all 0.2s;
-  }
-  .pin-dots .dot.filled { background: #8b6f4e; border-color: #8b6f4e; }
-  .pin-dots.wrong { animation: shake 0.4s; }
-  .pin-dots.wrong .dot.filled { background: #c0694f; border-color: #c0694f; }
-  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-  .pin-pad { display: grid; grid-template-columns: repeat(3, 80px); gap: 14px; }
-  .pin-pad button {
-    width: 80px; height: 80px; border-radius: 50%; font-size: 28px; font-weight: 600;
-    border: 1px solid #d4c8bc; background: #fff; color: #3b2e24; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .pin-pad button:active { background: #8b6f4e; color: #fff; border-color: #8b6f4e; }
-  .pin-pad .pin-empty { visibility: hidden; }
-  .pin-pad .pin-del { font-size: 20px; border: 1px solid #d4c8bc; background: #fff; }
+ * { margin: 0; padding: 0; box-sizing: border-box; }
+ body {
+   font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
+   background: #f5f0eb; color: #3b2e24;
+   padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+   -webkit-tap-highlight-color: transparent;
+   background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+ }
+ .header-area {
+   background: linear-gradient(180deg, #e8ddd2 0%, #f5f0eb 100%);
+   margin: -16px -16px 16px -16px; padding: 16px 16px 0;
+   border-radius: 0 0 20px 20px;
+ }
+ .logo { padding: 20px 0 4px; }
+ h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: #5c4a3a; }
+ .summary { text-align: center; padding-bottom: 16px; font-size: 14px; color: #8a7968; }
+ .summary .balance { font-size: 28px; font-weight: 700; color: #5c4a3a; margin: 4px 0 4px; }
+ .summary .balance-label { font-size: 11px; color: #8a7968; margin-bottom: 6px; }
+ .summary .bal-row { display: flex; justify-content: center; gap: 32px; margin-bottom: 14px; }
+ .summary .bal-item { text-align: center; }
+ .summary .bal-item .amt { font-size: 20px; font-weight: 700; }
+ .summary .bal-item .lbl { font-size: 12px; color: #8a7968; }
+ .summary .row { display: flex; justify-content: center; gap: 12px; font-size: 12px; align-items: flex-start; }
+ .summary .stat { text-align: center; flex: 1; }
+ .summary .stat .amt { font-size: 16px; font-weight: 700; line-height: 1.2; }
+ .summary .stat .lbl { font-size: 12px; color: #8a7968; line-height: 1.2; }
+ .summary .inc { color: #5a8a5e; font-weight: 600; }
+ .summary .exp { color: #c0694f; font-weight: 600; }
+ .summary .pending { color: #c4a24e; font-weight: 600; }
+ .fulfilled-wrap { display: none; }
+ .fulfilled-wrap.show { display: block; }
+ .fulfilled-wrap label { font-size: 12px; color: #8a7968; display: block; margin-bottom: 2px; }
+ .week-alert { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center; font-size: 14px; font-weight: 600; box-shadow: 0 2px 8px rgba(60,46,36,0.06); }
+ .week-alert .wa-out { color: #c0694f; }
+ .week-alert .wa-in { color: #5a8a5e; }
+ .week-alert .wa-label { font-size: 11px; color: #8a7968; font-weight: 400; margin-top: 4px; }
+ .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(60,46,36,0.06), 0 1px 3px rgba(60,46,36,0.04); }
+ form { display: flex; flex-direction: column; gap: 10px; }
+ input, select { font-size: 16px; padding: 12px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; width: 100%; color: #3b2e24; -webkit-appearance: none; }
+ input:focus, select:focus { outline: none; border-color: #8b6f4e; }
+ .row { display: flex; gap: 10px; }
+ .row > * { flex: 1; }
+ button { font-size: 16px; font-weight: 600; padding: 12px; border: none; border-radius: 10px; cursor: pointer; background: #8b6f4e; color: #fff; width: 100%; transform: scale(1); transition: transform 0.1s; }
+ button:active { transform: scale(0.95); }
+ .toggle { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid #d4c8bc; }
+ .toggle label { flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500; cursor: pointer; background: #faf7f4; color: #8a7968; transition: all 0.2s; }
+ .toggle input { display: none; }
+ .toggle input:checked + label { background: #8b6f4e; color: #fff; }
+ .entry { padding: 12px; margin-bottom: 6px; border-radius: 8px; cursor: pointer; }
+ .entry.inc-row { background: #f0f7f1; }
+ .entry.exp-row { background: #fdf5f2; }
+ .edit-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
+ .edit-sheet { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px 16px env(safe-area-inset-bottom); animation: sheetUp 0.25s ease-out; }
+ .edit-sheet h3 { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 12px; text-align: center; }
+ .edit-sheet form { display: flex; flex-direction: column; gap: 10px; }
+ .edit-btns { display: flex; gap: 10px; }
+ .edit-btns button { flex: 1; }
+ .edit-btns .cancel { background: #e8ddd2; color: #5c4a3a; }
+ @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+ .entry-top { display: flex; justify-content: space-between; align-items: center; }
+ .entry-desc { font-size: 15px; font-weight: 500; }
+ .entry-amount { font-size: 16px; font-weight: 600; }
+ .entry-amount.inc { color: #5a8a5e; }
+ .entry-amount.exp { color: #c0694f; }
+ .entry-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 12px; color: #8a7968; }
+ .entry-actions { display: flex; gap: 8px; align-items: center; }
+ .entry-actions button { background: none !important; border: none !important; font-size: 14px; padding: 2px 6px; width: auto !important; color: #8a7968; font-weight: 400; min-width: 0; }
+ .entry-actions .paid-badge { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px; }
+ .paid-badge.yes { background: #e8f5e9; color: #5a8a5e; }
+ .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
+ .receipt-link { display: inline-block; font-size: 12px; color: #8b6f4e; font-weight: 500; margin-top: 6px; text-decoration: none; }
+ .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
+ .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
+ .mgr-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
+ .mgr-section { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #e8ddd2; }
+ .mgr-section:last-child { border-bottom: none; }
+ .mgr-section .sec-label { font-size: 15px; font-weight: 600; color: #5c4a3a; }
+ .mgr-section .sec-arrow { font-size: 14px; color: #8a7968; transition: transform 0.2s; }
+ .mgr-section .sec-arrow.open { transform: rotate(90deg); }
+ .mgr-body { display: none; padding: 12px 0 4px; }
+ .mgr-body.open { display: block; }
+ .date-area { background: linear-gradient(135deg, #f0ebe4 0%, #e8ddd2 100%); border-radius: 10px; padding: 14px; margin-bottom: 14px; text-align: center; }
+ .ytd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+ .ytd-item { background: #faf7f4; border-radius: 8px; padding: 10px; text-align: center; }
+ .ytd-item .ytd-val { font-size: 18px; font-weight: 700; color: #5c4a3a; }
+ .ytd-item .ytd-lbl { font-size: 11px; color: #8a7968; margin-top: 2px; }
+ .ytd-item.profit .ytd-val { color: #5a8a5e; }
+ .ytd-item.loss .ytd-val { color: #c0694f; }
+ .pie-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
+ .pie-wrap canvas { max-width: 200px; max-height: 200px; }
+ .pie-legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: 11px; color: #5c4a3a; }
+ .pie-legend span { display: flex; align-items: center; gap: 4px; }
+ .pie-legend .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+ .export-btn { margin-top: 12px; background: #e8ddd2; color: #5c4a3a; font-size: 14px; padding: 10px; }
+ .profit-row { margin-bottom: 10px; }
+ .profit-label { font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 2px; display: flex; justify-content: space-between; }
+ .profit-label .pval { font-weight: 700; }
+ .profit-label .pval.pos { color: #5a8a5e; }
+ .profit-label .pval.neg { color: #c0694f; }
+ .cw-alert { background: #fce8e3; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 13px; color: #c0694f; font-weight: 600; text-align: center; }
+ .cw-alert.ok { background: #e8f5e9; color: #5a8a5e; }
+ .cw-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
+ .cw-row:last-child { border-bottom: none; }
+ .cw-out { color: #c0694f; font-weight: 600; }
+ .cw-in { color: #5a8a5e; font-weight: 600; }
+ .cw-bar { display: flex; height: 20px; border-radius: 6px; overflow: hidden; margin: 4px 0 8px; }
+ .cw-bar-out { background: #c0694f; }
+ .cw-bar-in { background: #5a8a5e; }
+ .date-toggle { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+ .date-toggle button { flex: 0; width: auto; padding: 6px 12px; font-size: 12px; background: #e8ddd2; color: #5c4a3a; font-weight: 500; }
+ .date-toggle button.active { background: #8b6f4e; color: #fff; }
+ .date-range { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+ .date-range input { width: 130px; font-size: 13px; padding: 8px; }
+ .cat-detail { background: #faf7f4; border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 12px; color: #5c4a3a; }
+ .cat-detail div { padding: 4px 0; border-bottom: 0.5px solid #e8ddd2; display: flex; justify-content: space-between; gap: 8px; }
+ .cat-detail div:last-child { border-bottom: none; }
+ .cat-detail div span:first-child { flex: 1; word-break: break-word; }
+ .pending-list { margin-top: 8px; }
+ .pending-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
+ .pending-item:last-child { border-bottom: none; }
+ .pending-item .pending-top { display: flex; justify-content: space-between; align-items: center; }
+ .pending-item .pending-desc { color: #5c4a3a; font-weight: 500; }
+ .pending-item button { width: auto; padding: 4px 10px; font-size: 11px; background: #5a8a5e; }
+ .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
+ .chart-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
+ .month-row { margin-bottom: 14px; }
+ .month-label { font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 4px; display: flex; justify-content: space-between; }
+ .month-label .net { font-weight: 700; }
+ .month-label .net.pos { color: #5a8a5e; }
+ .month-label .net.neg { color: #c0694f; }
+ .bar-track { height: 24px; border-radius: 8px; background: #ede6df; overflow: hidden; display: flex; }
+ .bar-inc { height: 100%; background: #5a8a5e; border-radius: 8px 0 0 8px; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
+ .bar-exp { height: 100%; background: #c0694f; border-radius: 0 8px 8px 0; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
+ .bar-inc span, .bar-exp span { padding: 0 4px; white-space: nowrap; overflow: hidden; }
+ .celebrate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+ .celebrate span { position: absolute; top: -30px; font-size: 24px; animation: fall 3s ease-in forwards; }
+ @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+ .gst-info { font-size: 13px; color: #8a7968; text-align: right; padding: 2px 0; }
+ .refresh-btn { background: none; border: none; font-size: 20px; padding: 4px 8px; width: auto; color: #8a7968; cursor: pointer; position: absolute; right: 16px; top: 8px; }
+ .refresh-btn.spinning { animation: spin 0.8s linear; }
+ @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+ .summary { position: relative; text-align: center; padding-bottom: 16px; font-size: 14px; color: #8a7968; }
+ .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #5c4a3a; color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards; }
+ @keyframes toastIn { to { opacity: 1; } }
+ @keyframes toastOut { to { opacity: 0; } }
+ .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f5f0eb; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+ .pin-screen h2 { font-size: 22px; color: #5c4a3a; margin-bottom: 8px; }
+ .pin-dots { display: flex; gap: 12px; margin: 16px 0 24px; }
+ .pin-dots .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #d4c8bc; background: transparent; transition: all 0.2s; }
+ .pin-dots .dot.filled { background: #8b6f4e; border-color: #8b6f4e; }
+ .pin-dots.wrong { animation: shake 0.4s; }
+ .pin-dots.wrong .dot.filled { background: #c0694f; border-color: #c0694f; }
+ @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+ .pin-pad { display: grid; grid-template-columns: repeat(3, 80px); gap: 14px; }
+ .pin-pad button { width: 80px; height: 80px; border-radius: 50%; font-size: 28px; font-weight: 600; border: 1px solid #d4c8bc; background: #fff; color: #3b2e24; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+ .pin-pad button:active { background: #8b6f4e; color: #fff; border-color: #8b6f4e; }
+ .pin-pad .pin-empty { visibility: hidden; }
+ .pin-pad .pin-del { font-size: 20px; border: 1px solid #d4c8bc; background: #fff; }
 </style>
 </head>
 <body>
 <div id="pin-screen" class="pin-screen">
-  <h2>🌾 Granola Kid</h2>
-  <p style="color:#8a7968;font-size:14px">Enter PIN to continue</p>
-  <div class="pin-dots" id="pinDots">
-    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-  </div>
-  <div class="pin-pad">
-    <button onclick="pinKey(1)">1</button><button onclick="pinKey(2)">2</button><button onclick="pinKey(3)">3</button>
-    <button onclick="pinKey(4)">4</button><button onclick="pinKey(5)">5</button><button onclick="pinKey(6)">6</button>
-    <button onclick="pinKey(7)">7</button><button onclick="pinKey(8)">8</button><button onclick="pinKey(9)">9</button>
-    <button class="pin-empty"></button><button onclick="pinKey(0)">0</button><button class="pin-del" onclick="pinDel()">⌫</button>
-  </div>
+ <h2>🌾 Granola Kid</h2>
+ <p style="color:#8a7968;font-size:14px">Enter PIN to continue</p>
+ <div class="pin-dots" id="pinDots">
+   <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+ </div>
+ <div class="pin-pad">
+   <button onclick="pinKey(1)">1</button><button onclick="pinKey(2)">2</button><button onclick="pinKey(3)">3</button>
+   <button onclick="pinKey(4)">4</button><button onclick="pinKey(5)">5</button><button onclick="pinKey(6)">6</button>
+   <button onclick="pinKey(7)">7</button><button onclick="pinKey(8)">8</button><button onclick="pinKey(9)">9</button>
+   <button class="pin-empty"></button><button onclick="pinKey(0)">0</button><button class="pin-del" onclick="pinDel()">⌫</button>
+ </div>
 </div>
-
 <div id="app" style="display:none">
 <div class="header-area">
 <div class="logo"><img src="logo.png" alt="Logo" style="width:100%;max-width:300px;display:block;margin:0 auto;"></div>
 <h1>Welcome Granola Kid</h1>
-
 <div class="summary">
-  <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄</button>
-  <div class="bal-row">
-    <div class="bal-item">
-      <div class="amt" id="cashBal" style="color:#5c4a3a">$0.00</div>
-      <div class="lbl">💵 Cash Balance</div>
-    </div>
-    <div class="bal-item">
-      <div class="amt" id="totalBal" style="color:#5c4a3a">$0.00</div>
-      <div class="lbl">📊 Total Balance</div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="stat inc">
-      <div class="amt">$<span id="tinc">0.00</span></div>
-      <div class="lbl">↑ Total Income</div>
-    </div>
-    <div class="stat pending">
-      <div class="amt">$<span id="tpend">0.00</span></div>
-      <div class="lbl">⏳ Pending</div>
-    </div>
-    <div class="stat exp">
-      <div class="amt">$<span id="texp">0.00</span></div>
-      <div class="lbl">↓ Total Expenses</div>
-    </div>
-  </div>
+ <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄</button>
+ <div class="bal-row">
+   <div class="bal-item"><div class="amt" id="cashBal" style="color:#5c4a3a">$0.00</div><div class="lbl">💵 Cash Balance</div></div>
+   <div class="bal-item"><div class="amt" id="totalBal" style="color:#5c4a3a">$0.00</div><div class="lbl">📊 Total Balance</div></div>
+ </div>
+ <div class="row">
+   <div class="stat inc"><div class="amt">$<span id="tinc">0.00</span></div><div class="lbl">↑ Total Income</div></div>
+   <div class="stat pending"><div class="amt">$<span id="tpend">0.00</span></div><div class="lbl">⏳ Pending</div></div>
+   <div class="stat exp"><div class="amt">$<span id="texp">0.00</span></div><div class="lbl">↓ Total Expenses</div></div>
+ </div>
 </div>
 </div>
-
 <div class="week-alert" id="weekAlert" style="display:none"></div>
-
 <div class="card" id="chart-card" style="display:none">
-  <div class="chart-title">📊 Monthly Breakdown</div>
-  <div id="chart"></div>
+ <div class="chart-title">📊 Monthly Breakdown</div>
+ <div id="chart"></div>
 </div>
-
 <div class="card">
-  <div class="toggle">
-    <input type="radio" name="type" id="tExp" value="expense" checked onchange="toggleForm()"><label for="tExp">Expense</label>
-    <input type="radio" name="type" id="tInc" value="income" onchange="toggleForm()"><label for="tInc">Income</label>
-  </div>
-
-  <form id="expForm" style="margin-top:10px">
-    <input id="expDesc" placeholder="Description" required>
-    <div class="row">
-      <input id="expAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal" oninput="calcGst()">
-      <select id="expCat">
-        <option>📦 Co-Packing</option><option>🌾 Ingredients</option><option>🏷️ Bags & Boxes</option>
-        <option>🚚 Shipping & Gas</option><option>💻 Tech & Office</option><option>📢 Ads & Promo</option><option>☕ Business Meal</option><option>💳 Debt Repayment</option>
-      </select>
-    </div>
-    <div class="gst-info">GST (5%): $<span id="gstAmt">0.00</span> · Total: $<span id="totalAmt">0.00</span></div>
-    <input id="expDate" type="date">
-    <div class="row">
-      <select id="expPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
-      <button type="submit" id="expBtn">Add Expense</button>
-    </div>
-  </form>
-
-  <form id="incForm" style="margin-top:10px;display:none">
-    <select id="incSource" onchange="updateFulfilledVis()">
-      <option>🛍️ DTC</option><option>🏢 Wholesale</option>
-    </select>
-    <input id="incCustomer" placeholder="Order Number (e.g. 1234)" required inputmode="numeric">
-    <input id="incAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
-    <input id="incDate" type="date">
-    <div class="fulfilled-wrap" id="fulfilledWrap">
-      <label>📦 Fulfilled / Shipped Date</label>
-      <input id="incFulfilled" type="date">
-    </div>
-    <div class="row">
-      <select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
-      <button type="submit" id="incBtn">Add Income</button>
-    </div>
-  </form>
+ <div class="toggle">
+   <input type="radio" name="type" id="tExp" value="expense" checked onchange="toggleForm()"><label for="tExp">Expense</label>
+   <input type="radio" name="type" id="tInc" value="income" onchange="toggleForm()"><label for="tInc">Income</label>
+ </div>
+ <form id="expForm" style="margin-top:10px">
+   <input id="expDesc" placeholder="Description" required>
+   <div class="row">
+     <input id="expAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal" oninput="calcGst()">
+     <select id="expCat">
+       <option>📦 Co-Packing</option><option>🌾 Ingredients</option><option>🏷️ Bags & Boxes</option>
+       <option>🚚 Shipping & Gas</option><option>💻 Tech & Office</option><option>📢 Ads & Promo</option><option>☕ Business Meal</option><option>💳 Debt Repayment</option>
+     </select>
+   </div>
+   <div class="gst-info">GST (5%): $<span id="gstAmt">0.00</span> · Total: $<span id="totalAmt">0.00</span></div>
+   <input id="expDate" type="date">
+   <div class="row">
+     <select id="expPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
+     <button type="submit" id="expBtn">Add Expense</button>
+   </div>
+ </form>
+ <form id="incForm" style="margin-top:10px;display:none">
+   <select id="incSource" onchange="updateFulfilledVis()">
+     <option>🛍️ DTC</option><option>🏢 Wholesale</option>
+   </select>
+   <input id="incCustomer" placeholder="Order Number (e.g. 1234)" required inputmode="numeric">
+   <input id="incAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
+   <input id="incDate" type="date">
+   <div class="fulfilled-wrap" id="fulfilledWrap">
+     <label>📦 Fulfilled / Shipped Date</label>
+     <input id="incFulfilled" type="date">
+   </div>
+   <div class="row">
+     <select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
+     <button type="submit" id="incBtn">Add Income</button>
+   </div>
+ </form>
 </div>
-
-<div class="card" id="list-card" style="display:none">
-  <div id="list"></div>
-</div>
+<div class="card" id="list-card" style="display:none"><div id="list"></div></div>
 <div class="loading" id="loading">Loading...</div>
 <div class="empty" id="empty" style="display:none">No entries yet</div>
-
 <div class="card" id="mgr-card" style="display:none">
-  <div class="mgr-title">🏢 The Manager's Office</div>
-  <div class="date-area">
-    <div style="font-size:12px;color:#8a7968;margin-bottom:6px">📅 Viewing</div>
-    <div class="date-toggle">
-      <button class="active" onclick="setRange('ytd')">YTD</button>
-      <button onclick="setRange('all')">All Time</button>
-      <button onclick="setRange('custom')">Custom</button>
-    </div>
-    <div class="date-range" id="dateRange" style="display:none">
-      <input type="date" id="mgrFrom" onchange="renderMgr()">
-      <input type="date" id="mgrTo" onchange="renderMgr()">
-    </div>
-    <div id="rangeSnap" style="font-size:20px;font-weight:700;color:#5c4a3a"></div>
-  </div>
-
-  <div class="mgr-section" onclick="toggleSec('secRevExp')"><span class="sec-label">📊 Revenue & Expenses</span><span class="sec-arrow" id="secRevExpArrow">▸</span></div>
-  <div class="mgr-body" id="secRevExp"><div class="ytd-grid" id="ytdGrid"></div></div>
-
-  <div class="mgr-section" onclick="toggleSec('secPie')"><span class="sec-label">🍩 Expenses by Category</span><span class="sec-arrow" id="secPieArrow">▸</span></div>
-  <div class="mgr-body" id="secPie">
-    <div class="pie-wrap"><canvas id="pieChart" width="200" height="200" onclick="tapPie(event)"></canvas></div>
-    <div class="pie-legend" id="pieLegend"></div>
-    <div id="catDetail"></div>
-  </div>
-
-  <div class="mgr-section" onclick="toggleSec('secProfit')"><span class="sec-label">💰 Profitability</span><span class="sec-arrow" id="secProfitArrow">▸</span></div>
-  <div class="mgr-body" id="secProfit"><div class="ytd-grid" id="profitGrid"></div></div>
-
-  <div class="mgr-section" onclick="toggleSec('secMonthly')"><span class="sec-label">📅 Monthly Profit</span><span class="sec-arrow" id="secMonthlyArrow">▸</span></div>
-  <div class="mgr-body" id="secMonthly"><div id="monthProfit"></div></div>
-
-  <div class="mgr-section" onclick="toggleSec('secWave')"><span class="sec-label">🌊 Cash Wave</span><span class="sec-arrow" id="secWaveArrow">▸</span></div>
-  <div class="mgr-body" id="secWave"><div id="cashWave"></div></div>
-
-  <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">📥 Export to CSV</button>
+ <div class="mgr-title">🏢 The Manager's Office</div>
+ <div class="date-area">
+   <div style="font-size:12px;color:#8a7968;margin-bottom:6px">📅 Viewing</div>
+   <div class="date-toggle">
+     <button class="active" onclick="setRange('ytd')">YTD</button>
+     <button onclick="setRange('all')">All Time</button>
+     <button onclick="setRange('custom')">Custom</button>
+   </div>
+   <div class="date-range" id="dateRange" style="display:none">
+     <input type="date" id="mgrFrom" onchange="renderMgr()">
+     <input type="date" id="mgrTo" onchange="renderMgr()">
+   </div>
+   <div id="rangeSnap" style="font-size:20px;font-weight:700;color:#5c4a3a"></div>
+ </div>
+ <div class="mgr-section" onclick="toggleSec('secRevExp')"><span class="sec-label">📊 Revenue & Expenses</span><span class="sec-arrow" id="secRevExpArrow">▸</span></div>
+ <div class="mgr-body" id="secRevExp"><div class="ytd-grid" id="ytdGrid"></div></div>
+ <div class="mgr-section" onclick="toggleSec('secPie')"><span class="sec-label">🍩 Expenses by Category</span><span class="sec-arrow" id="secPieArrow">▸</span></div>
+ <div class="mgr-body" id="secPie">
+   <div class="pie-wrap"><canvas id="pieChart" width="200" height="200" onclick="tapPie(event)"></canvas></div>
+   <div class="pie-legend" id="pieLegend"></div>
+   <div id="catDetail"></div>
+ </div>
+ <div class="mgr-section" onclick="toggleSec('secProfit')"><span class="sec-label">💰 Profitability</span><span class="sec-arrow" id="secProfitArrow">▸</span></div>
+ <div class="mgr-body" id="secProfit"><div class="ytd-grid" id="profitGrid"></div></div>
+ <div class="mgr-section" onclick="toggleSec('secMonthly')"><span class="sec-label">📅 Monthly Profit</span><span class="sec-arrow" id="secMonthlyArrow">▸</span></div>
+ <div class="mgr-body" id="secMonthly"><div id="monthProfit"></div></div>
+ <div class="mgr-section" onclick="toggleSec('secWave')"><span class="sec-label">🌊 Cash Wave</span><span class="sec-arrow" id="secWaveArrow">▸</span></div>
+ <div class="mgr-body" id="secWave"><div id="cashWave"></div></div>
+ <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">📥 Export to CSV</button>
 </div>
-
 <div class="footer">
-  <a href="create-order.html" style="display:block;background:#8b6f4e;color:#fff;text-decoration:none;font-size:16px;font-weight:600;padding:14px;border-radius:10px;margin-bottom:12px">📋 Production Order</a>
-  <div>Made with 🌾 by Granola Kid</div>
+ <a href="create-order.html" style="display:block;background:#8b6f4e;color:#fff;text-decoration:none;font-size:16px;font-weight:600;padding:14px;border-radius:10px;margin-bottom:12px">📋 Production Order</a>
+ <div>Made with 🌾 by Granola Kid</div>
 </div>
 </div>
-
 <script>
 let pinEntry = "";
 let validatedPin = "";
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playTick() {
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.connect(g); g.connect(audioCtx.destination);
-  o.frequency.value = 1200;
-  g.gain.value = 0.1;
-  o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-  o.stop(audioCtx.currentTime + 0.05);
-}
-
-function playError() {
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.connect(g); g.connect(audioCtx.destination);
-  o.frequency.value = 300;
-  g.gain.value = 0.15;
-  o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-  o.stop(audioCtx.currentTime + 0.2);
-}
-
-function playSuccess() {
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.connect(g); g.connect(audioCtx.destination);
-  o.frequency.value = 800;
-  g.gain.value = 0.1;
-  o.start();
-  o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15);
-  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-  o.stop(audioCtx.currentTime + 0.2);
-}
-
+function playTick() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 1200; g.gain.value = 0.1; o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05); o.stop(audioCtx.currentTime + 0.05); }
+function playError() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 300; g.gain.value = 0.15; o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); o.stop(audioCtx.currentTime + 0.2); }
+function playSuccess() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 800; g.gain.value = 0.1; o.start(); o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); o.stop(audioCtx.currentTime + 0.2); }
 async function pinKey(n) {
-  if (pinEntry.length >= 6) return;
-  playTick();
-  pinEntry += n;
-  updateDots();
-  if (pinEntry.length === 6) {
-    const res = await fetch(API + "?pin=" + pinEntry, { redirect: "follow" });
-    const json = await res.json();
-    if (!json.error) {
-      validatedPin = pinEntry;
-      playSuccess();
-      document.getElementById("pin-screen").style.display = "none";
-      document.getElementById("app").style.display = "block";
-      initApp(json);
-    } else {
-      document.getElementById("pinDots").classList.add("wrong");
-      playError();
-      setTimeout(() => {
-        pinEntry = "";
-        updateDots();
-        document.getElementById("pinDots").classList.remove("wrong");
-      }, 500);
-    }
-  }
+ if (pinEntry.length >= 6) return;
+ playTick();
+ pinEntry += n;
+ updateDots();
+ if (pinEntry.length === 6) {
+   const res = await fetch(API + "?pin=" + pinEntry, { redirect: "follow" });
+   const json = await res.json();
+   if (!json.error) {
+     validatedPin = pinEntry;
+     playSuccess();
+     document.getElementById("pin-screen").style.display = "none";
+     document.getElementById("app").style.display = "block";
+     initApp(json);
+   } else {
+     document.getElementById("pinDots").classList.add("wrong");
+     playError();
+     setTimeout(() => { pinEntry = ""; updateDots(); document.getElementById("pinDots").classList.remove("wrong"); }, 500);
+   }
+ }
 }
-
-function pinDel() {
-  if (pinEntry.length > 0) playTick();
-  pinEntry = pinEntry.slice(0, -1);
-  updateDots();
-}
-
-function updateDots() {
-  const dots = document.querySelectorAll("#pinDots .dot");
-  dots.forEach((d, i) => d.classList.toggle("filled", i < pinEntry.length));
-}
-
+function pinDel() { if (pinEntry.length > 0) playTick(); pinEntry = pinEntry.slice(0, -1); updateDots(); }
+function updateDots() { const dots = document.querySelectorAll("#pinDots .dot"); dots.forEach((d, i) => d.classList.toggle("filled", i < pinEntry.length)); }
 document.addEventListener("keydown", e => {
-  if (document.getElementById("pin-screen").style.display === "none") return;
-  if (e.key >= "0" && e.key <= "9") pinKey(parseInt(e.key));
-  else if (e.key === "Backspace") pinDel();
+ if (document.getElementById("pin-screen").style.display === "none") return;
+ if (e.key >= "0" && e.key <= "9") pinKey(parseInt(e.key));
+ else if (e.key === "Backspace") pinDel();
 });
-
 function initApp(json) {
 $("expDate").value = new Date().toISOString().split("T")[0];
 $("incDate").value = new Date().toISOString().split("T")[0];
-
 capital = parseFloat(json.capital) || 0;
 pricing = json.pricing || {};
 cashWaveData = json.cashWave || [];
-allData = [
-  ...json.income.map(r => ({ ...r, type: "income" })),
-  ...json.expense.map(r => ({ ...r, type: "expense" }))
-].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
+allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
 $("loading").style.display = "none";
 render();
-
 $("expForm").onsubmit = async e => {
-  e.preventDefault();
-  $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true;
-  await post({
-    action: "add", type: "expense",
-    date: $("expDate").value, description: $("expDesc").value,
-    category: $("expCat").value, amount: parseFloat($("expAmount").value),
-    paid: $("expPaid").value
-  });
-  $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0];
-  $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00";
-  $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false;
-  showToast("✓ Expense added");
-  fetchData();
+ e.preventDefault();
+ $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true;
+ await post({ action: "add", type: "expense", date: $("expDate").value, description: $("expDesc").value, category: $("expCat").value, amount: parseFloat($("expAmount").value), paid: $("expPaid").value });
+ $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0];
+ $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00";
+ $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false;
+ showToast("✓ Expense added"); fetchData();
 };
-
 $("incForm").onsubmit = async e => {
-  e.preventDefault();
-  $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true;
-  await post({
-    action: "add", type: "income",
-    date: $("incDate").value, source: $("incSource").value,
-    customer: "#" + $("incCustomer").value.replace(/^#/, ""), amount: parseFloat($("incAmount").value),
-    paid: $("incPaid").value,
-    fulfilled: $("incFulfilled").value || ""
-  });
-  $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = "";
-  $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false;
-  showToast("✓ Income added — keep it up! 💰");
-  celebrate();
-  fetchData();
+ e.preventDefault();
+ $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true;
+ await post({ action: "add", type: "income", date: $("incDate").value, source: $("incSource").value, customer: "#" + $("incCustomer").value.replace(/^#/, ""), amount: parseFloat($("incAmount").value), paid: $("incPaid").value, fulfilled: $("incFulfilled").value || "" });
+ $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = "";
+ $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false;
+ showToast("✓ Income added — keep it up! 💰"); celebrate(); fetchData();
 };
-
 render();
 }
-
 const $ = id => document.getElementById(id);
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
 const SKEY = "unused";
-let allData = [];
-let capital = 0;
-let pricing = {};
-let cashWaveData = [];
-
-function toggleForm() {
-  const isExp = $("tExp").checked;
-  $("expForm").style.display = isExp ? "flex" : "none";
-  $("incForm").style.display = isExp ? "none" : "flex";
-  if (!isExp) updateFulfilledVis();
-}
-
-function updateFulfilledVis() {
-  const isWS = ($("incSource").value || "").toLowerCase().includes("wholesale");
-  $("fulfilledWrap").className = "fulfilled-wrap" + (isWS ? " show" : "");
-}
-
-function calcGst() {
-  const amt = parseFloat($("expAmount").value) || 0;
-  const gst = Math.round(amt * 0.05 * 100) / 100;
-  $("gstAmt").textContent = gst.toFixed(2);
-  $("totalAmt").textContent = (amt + gst).toFixed(2);
-}
-
+let allData = [], capital = 0, pricing = {}, cashWaveData = [];
+function toggleForm() { const isExp = $("tExp").checked; $("expForm").style.display = isExp ? "flex" : "none"; $("incForm").style.display = isExp ? "none" : "flex"; if (!isExp) updateFulfilledVis(); }
+function updateFulfilledVis() { const isWS = ($("incSource").value || "").toLowerCase().includes("wholesale"); $("fulfilledWrap").className = "fulfilled-wrap" + (isWS ? " show" : ""); }
+function calcGst() { const amt = parseFloat($("expAmount").value) || 0; const gst = Math.round(amt * 0.05 * 100) / 100; $("gstAmt").textContent = gst.toFixed(2); $("totalAmt").textContent = (amt + gst).toFixed(2); }
 async function fetchData() {
-  try {
-    const res = await fetch(API + "?pin=" + validatedPin, { redirect: "follow" });
-    const json = await res.json();
-    capital = parseFloat(json.capital) || 0;
-    pricing = json.pricing || {};
-    cashWaveData = json.cashWave || [];
-    allData = [
-      ...json.income.map(r => ({ ...r, type: "income" })),
-      ...json.expense.map(r => ({ ...r, type: "expense" }))
-    ].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
-    $("loading").style.display = "none";
-    render();
-  } catch (err) {
-    $("loading").textContent = "Error loading data. Tap to retry.";
-    $("loading").onclick = () => { $("loading").textContent = "Loading..."; $("loading").onclick = null; fetchData(); };
-  }
+ try {
+   const res = await fetch(API + "?pin=" + validatedPin, { redirect: "follow" });
+   const json = await res.json();
+   capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || [];
+   allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
+   $("loading").style.display = "none"; render();
+ } catch (err) { $("loading").textContent = "Error loading data. Tap to retry."; $("loading").onclick = () => { $("loading").textContent = "Loading..."; $("loading").onclick = null; fetchData(); }; }
 }
-
-async function post(body) {
-  body.pin = validatedPin;
-  await fetch(API, { method: "POST", redirect: "follow", body: JSON.stringify(body) });
-}
-
+async function post(body) { body.pin = validatedPin; await fetch(API, { method: "POST", redirect: "follow", body: JSON.stringify(body) }); }
 function render() {
-  const data = allData;
-  const incPaid = data.filter(e => e.type === "income" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const incPending = data.filter(e => e.type === "income" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const incTotal = incPaid + incPending;
-  const expPaid = data.filter(e => e.type === "expense" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
-  const expUnpaid = data.filter(e => e.type === "expense" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
-  const expTotal = expPaid + expUnpaid;
-  const cashBal = capital + incPaid - expPaid;
-  const totalBal = capital + incTotal - expTotal;
-  $("cashBal").textContent = `$${cashBal.toFixed(2)}`;
-  $("cashBal").style.color = cashBal >= 0 ? "#5c4a3a" : "#c0694f";
-  $("totalBal").textContent = `$${totalBal.toFixed(2)}`;
-  $("totalBal").style.color = totalBal >= 0 ? "#5c4a3a" : "#c0694f";
-  $("tinc").textContent = incTotal.toFixed(2);
-  $("tpend").textContent = incPending.toFixed(2);
-  $("texp").textContent = expTotal.toFixed(2);
-  $("empty").style.display = data.length ? "none" : "block";
-  $("list-card").style.display = data.length ? "block" : "none";
-  $("chart-card").style.display = data.length ? "block" : "none";
-  $("mgr-card").style.display = data.length ? "block" : "none";
-
-  const months = {};
-  data.forEach(e => {
-    const d = fmtDate(e.date).substring(0, 7) || "Unknown";
-    if (!months[d]) months[d] = { inc: 0, exp: 0 };
-    if (e.type === "income") months[d].inc += parseFloat(e.amount || 0);
-    else months[d].exp += parseFloat(e.total || e.amount || 0);
-  });
-  const sorted = Object.keys(months).sort().reverse();
-  const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  $("chart").innerHTML = sorted.map(m => {
-    const d = months[m], total = d.inc + d.exp || 1;
-    const incW = (d.inc / total) * 100, expW = (d.exp / total) * 100;
-    const net = d.inc - d.exp;
-    const parts = m.split("-");
-    const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m;
-    return `<div class="month-row">
-      <div class="month-label"><span>${label}</span><span class="net ${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '🌟' : '⚠️'} ${net >= 0 ? '+' : ''}$${net.toFixed(2)}</span></div>
-      <div class="bar-track">
-        <div class="bar-inc" style="width:${incW}%">${d.inc > 0 ? `<span>$${d.inc.toFixed(0)}</span>` : ''}</div>
-        <div class="bar-exp" style="width:${expW}%">${d.exp > 0 ? `<span>$${d.exp.toFixed(0)}</span>` : ''}</div>
-      </div>
-    </div>`;
-  }).join("");
-
-  const visible = data.filter((e, i) => {
-    e._idx = i;
-    return e.paid !== "yes";
-  });
-
-  $("list").innerHTML = visible.map(e => {
-    const i = e._idx;
-    const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || "");
-    const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`;
-    const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
-    return `<div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}" onclick="edit(${i})">
-      <div class="entry-top">
-        <span class="entry-desc">${desc}</span>
-        <span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span>
-      </div>
-      <div class="entry-bottom">
-        <span>${meta}</span>
-        <div class="entry-actions">
-          <span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span>
-          <button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button>
-          <button onclick="del(${i})">🗑️</button>
-        </div>
-      </div>
-      ${e.receipt ? `<a class="receipt-link" href="${esc(e.receipt)}" target="_blank">📎 View Receipt</a>` : ''}
-    </div>`;
-  }).join("");
-
-  // Week Ahead Alert
-  const nowDate = new Date();
-  const nowStr = nowDate.toISOString().split("T")[0];
-  const in7Str = new Date(nowDate.getTime() + 7*86400000).toISOString().split("T")[0];
-  let weekOut = 0, weekIn = 0;
-  data.forEach(e => {
-    if (e.paid === "yes") return;
-    const d = fmtDate(e.date);
-    if (e.type === "expense" && (e.category || "").includes("Co-Packing")) {
-      const due = new Date(new Date(d).getTime() + 7*86400000).toISOString().split("T")[0];
-      if (due >= nowStr && due <= in7Str) weekOut += parseFloat(e.total || e.amount || 0);
-    }
-    if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) {
-      const fDate = fmtDate(e.fulfilled) || fmtDate(e.date);
-      if (fDate) {
-        const due = new Date(new Date(fDate).getTime() + 14*86400000).toISOString().split("T")[0];
-        if (due >= nowStr && due <= in7Str) weekIn += parseFloat(e.amount || 0);
-      }
-    }
-  });
-  if (weekOut > 0 || weekIn > 0) {
-    $("weekAlert").style.display = "block";
-    $("weekAlert").innerHTML = `💰 This week: <span class="wa-out">-$${weekOut.toFixed(0)} out</span> · <span class="wa-in">+$${weekIn.toFixed(0)} in</span><div class="wa-label">Co-Packing (Net 7) · Wholesale (Net 14)</div>`;
-  } else {
-    $("weekAlert").style.display = "none";
-  }
-
-  // Manager's Office
-  renderMgr();
+ const data = allData;
+ const incPaid = data.filter(e => e.type === "income" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+ const incPending = data.filter(e => e.type === "income" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+ const incTotal = incPaid + incPending;
+ const expPaid = data.filter(e => e.type === "expense" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
+ const expUnpaid = data.filter(e => e.type === "expense" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
+ const expTotal = expPaid + expUnpaid;
+ const cashBal = capital + incPaid - expPaid;
+ const totalBal = capital + incTotal - expTotal;
+ $("cashBal").textContent = `$${cashBal.toFixed(2)}`; $("cashBal").style.color = cashBal >= 0 ? "#5c4a3a" : "#c0694f";
+ $("totalBal").textContent = `$${totalBal.toFixed(2)}`; $("totalBal").style.color = totalBal >= 0 ? "#5c4a3a" : "#c0694f";
+ $("tinc").textContent = incTotal.toFixed(2); $("tpend").textContent = incPending.toFixed(2); $("texp").textContent = expTotal.toFixed(2);
+ $("empty").style.display = data.length ? "none" : "block";
+ $("list-card").style.display = data.length ? "block" : "none";
+ $("chart-card").style.display = data.length ? "block" : "none";
+ $("mgr-card").style.display = data.length ? "block" : "none";
+ const months = {};
+ data.forEach(e => { const d = fmtDate(e.date).substring(0, 7) || "Unknown"; if (!months[d]) months[d] = { inc: 0, exp: 0 }; if (e.type === "income") months[d].inc += parseFloat(e.amount || 0); else months[d].exp += parseFloat(e.total || e.amount || 0); });
+ const sorted = Object.keys(months).sort().reverse();
+ const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+ $("chart").innerHTML = sorted.map(m => { const d = months[m], total = d.inc + d.exp || 1; const incW = (d.inc / total) * 100, expW = (d.exp / total) * 100; const net = d.inc - d.exp; const parts = m.split("-"); const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m; return `<div class="month-row"><div class="month-label"><span>${label}</span><span class="net ${net >= 0 ? 'pos' : 'neg'}">${net >= 0 ? '🌟' : '⚠️'} ${net >= 0 ? '+' : ''}$${net.toFixed(2)}</span></div><div class="bar-track"><div class="bar-inc" style="width:${incW}%">${d.inc > 0 ? `<span>$${d.inc.toFixed(0)}</span>` : ''}</div><div class="bar-exp" style="width:${expW}%">${d.exp > 0 ? `<span>$${d.exp.toFixed(0)}</span>` : ''}</div></div></div>`; }).join("");
+ const visible = data.filter((e, i) => { e._idx = i; return e.paid !== "yes"; });
+ $("list").innerHTML = visible.map(e => { const i = e._idx; const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || ""); const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`; const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0); return `<div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions"><span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span><button onclick="cam(${i})">${e.receipt ? '🖼️' : '📷'}</button><button onclick="del(${i})">🗑️</button></div></div>${e.receipt ? `<a class="receipt-link" href="${esc(e.receipt)}" target="_blank">📎 View Receipt</a>` : ''}</div>`; }).join("");
+ // Week Ahead Alert (Monday to Sunday)
+ const nowDate = new Date(); const dayOfWeek = nowDate.getDay(); const monOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+ const thisMonday = new Date(nowDate); thisMonday.setDate(thisMonday.getDate() + monOffset);
+ const thisSunday = new Date(thisMonday); thisSunday.setDate(thisSunday.getDate() + 6);
+ const monStr = thisMonday.toISOString().split("T")[0]; const sunStr = thisSunday.toISOString().split("T")[0];
+ let weekOut = 0, weekIn = 0;
+ data.forEach(e => { if (e.paid === "yes") return; const d = fmtDate(e.date); if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { const due = new Date(new Date(d).getTime() + 7*86400000).toISOString().split("T")[0]; if (due >= monStr && due <= sunStr) weekOut += parseFloat(e.total || e.amount || 0); } if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fDate = fmtDate(e.fulfilled) || fmtDate(e.date); if (fDate) { const due = new Date(new Date(fDate).getTime() + 14*86400000).toISOString().split("T")[0]; if (due >= monStr && due <= sunStr) weekIn += parseFloat(e.amount || 0); } } });
+ if (weekOut > 0 || weekIn > 0) { $("weekAlert").style.display = "block"; $("weekAlert").innerHTML = `💰 This week: <span class="wa-out">-$${weekOut.toFixed(0)} out</span> · <span class="wa-in">+$${weekIn.toFixed(0)} in</span><div class="wa-label">Mon ${monStr.substring(5)} → Sun ${sunStr.substring(5)} · Co-Packing (Net 7) · Wholesale (Net 14)</div>`; } else { $("weekAlert").style.display = "none"; }
+ renderMgr();
 }
-
-let mgrRange = "ytd";
-let pieSlices = [];
-
-function setRange(r) {
-  mgrRange = r;
-  document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
-  $("dateRange").style.display = r === "custom" ? "flex" : "none";
-  if (r === "custom") {
-    const yr = new Date().getFullYear();
-    if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`;
-    if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0];
-  }
-  renderMgr();
-}
-
-function toggleSec(id) {
-  const body = $(id);
-  const arrow = $(id + "Arrow");
-  body.classList.toggle("open");
-  arrow.classList.toggle("open");
-}
-
-function getMgrData() {
-  const yr = new Date().getFullYear().toString();
-  return allData.filter(e => {
-    const d = fmtDate(e.date);
-    if (mgrRange === "ytd") return d.startsWith(yr);
-    if (mgrRange === "all") return true;
-    const from = $("mgrFrom").value || "0000";
-    const to = $("mgrTo").value || "9999";
-    return d >= from && d <= to;
-  });
-}
-
+ let mgrRange = "ytd", pieSlices = [];
+function setRange(r) { mgrRange = r; document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active")); event.target.classList.add("active"); $("dateRange").style.display = r === "custom" ? "flex" : "none"; if (r === "custom") { const yr = new Date().getFullYear(); if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`; if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0]; } renderMgr(); }
+function toggleSec(id) { $(id).classList.toggle("open"); $(id + "Arrow").classList.toggle("open"); }
+function getMgrData() { const yr = new Date().getFullYear().toString(); return allData.filter(e => { const d = fmtDate(e.date); if (mgrRange === "ytd") return d.startsWith(yr); if (mgrRange === "all") return true; return d >= ($("mgrFrom").value || "0000") && d <= ($("mgrTo").value || "9999"); }); }
 function renderMgr() {
-  const data = getMgrData();
-  const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-  // YTD grid
-  const ytdInc = data.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const ytdExp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
-  const ytdGst = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.gst || 0), 0);
-  const ytdProfit = ytdInc - ytdExp;
-  const profitClass = ytdProfit >= 0 ? "profit" : "loss";
-  const rangeLabel = mgrRange === "ytd" ? "YTD" : mgrRange === "all" ? "All Time" : "Period";
-  $("rangeSnap").innerHTML = `${ytdProfit >= 0 ? '🌟' : '⚠️'} ${rangeLabel}: ${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}`;
-  $("rangeSnap").style.color = ytdProfit >= 0 ? "#5a8a5e" : "#c0694f";
-  $("ytdGrid").innerHTML = `
-    <div class="ytd-item"><div class="ytd-val">$${ytdInc.toFixed(2)}</div><div class="ytd-lbl">📈 ${rangeLabel} Revenue</div></div>
-    <div class="ytd-item"><div class="ytd-val">$${ytdExp.toFixed(2)}</div><div class="ytd-lbl">📉 ${rangeLabel} Expenses</div></div>
-    <div class="ytd-item ${profitClass}"><div class="ytd-val">${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}</div><div class="ytd-lbl">${ytdProfit >= 0 ? '🌟' : '⚠️'} ${rangeLabel} Profit</div></div>
-    <div class="ytd-item"><div class="ytd-val">$${ytdGst.toFixed(2)}</div><div class="ytd-lbl">🧾 GST Paid</div></div>`;
-
-  // Pie chart
-  const cats = {};
-  data.filter(e => e.type === "expense").forEach(e => {
-    const c = e.category || "Other";
-    cats[c] = (cats[c] || 0) + parseFloat(e.total || e.amount || 0);
-  });
-  const pieColors = ["#c0694f","#5a8a5e","#c4a24e","#8b6f4e","#6b8fa3","#a36b8f","#7a9a6b","#d4956a"];
-  const catEntries = Object.entries(cats).sort((a, b) => b[1] - a[1]);
-  const pieTotal = catEntries.reduce((s, c) => s + c[1], 0) || 1;
-  const canvas = $("pieChart");
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, 200, 200);
-  pieSlices = [];
-  let startAngle = -Math.PI / 2;
-  catEntries.forEach(([cat, val], idx) => {
-    const slice = (val / pieTotal) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.moveTo(100, 100);
-    ctx.arc(100, 100, 90, startAngle, startAngle + slice);
-    ctx.fillStyle = pieColors[idx % pieColors.length];
-    ctx.fill();
-    pieSlices.push({ cat, val, start: startAngle, end: startAngle + slice, color: pieColors[idx % pieColors.length] });
-    startAngle += slice;
-  });
-  ctx.beginPath();
-  ctx.arc(100, 100, 50, 0, Math.PI * 2);
-  ctx.fillStyle = "#fff";
-  ctx.fill();
-
-  $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) =>
-    `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${cat} $${val.toFixed(0)}</span>`
-  ).join("");
-  $("catDetail").innerHTML = "";
-
-  // Profitability
-  const p = pricing;
-  function estCogs(e) {
-    const amt = parseFloat(e.amount || 0);
-    const src = (e.source || "").toLowerCase();
-    if (src.includes("wholesale") || src.includes("ws")) {
-      return (amt / (p.wsPrice || 9.30)) * (p.wsCogs || 5.42);
-    } else {
-      return (amt / (p.dtcPrice || 13.29)) * (p.dtcCogs || 5.50);
-    }
-  }
-
-  const incData = data.filter(e => e.type === "income");
-  const dtcSales = incData.filter(e => !(e.source || "").toLowerCase().includes("wholesale"));
-  const wsSales = incData.filter(e => (e.source || "").toLowerCase().includes("wholesale"));
-  const dtcRev = dtcSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const dtcCost = dtcSales.reduce((s, e) => s + estCogs(e), 0);
-  const wsRev = wsSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const wsCost = wsSales.reduce((s, e) => s + estCogs(e), 0);
-  const totalRev = dtcRev + wsRev;
-  const totalCost = dtcCost + wsCost;
-  const grossProfit = totalRev - totalCost;
-  const marginPct = totalRev > 0 ? ((grossProfit / totalRev) * 100).toFixed(1) : "0.0";
-  const dtcMargin = dtcRev > 0 ? (((dtcRev - dtcCost) / dtcRev) * 100).toFixed(1) : "0.0";
-  const wsMargin = wsRev > 0 ? (((wsRev - wsCost) / wsRev) * 100).toFixed(1) : "0.0";
-
-  $("profitGrid").innerHTML = `
-    <div class="ytd-item ${grossProfit >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${grossProfit >= 0 ? '+' : ''}$${grossProfit.toFixed(2)}</div><div class="ytd-lbl">💰 Est. Gross Profit</div></div>
-    <div class="ytd-item"><div class="ytd-val">${marginPct}%</div><div class="ytd-lbl">📊 Blended Margin</div></div>
-    <div class="ytd-item"><div class="ytd-val">${dtcMargin}%</div><div class="ytd-lbl">🛍️ DTC Margin</div></div>
-    <div class="ytd-item"><div class="ytd-val">${wsMargin}%</div><div class="ytd-lbl">🏢 Wholesale Margin</div></div>`;
-
-  // Monthly Profit
-  const mProfit = {};
-  incData.forEach(e => {
-    const m = fmtDate(e.date).substring(0, 7) || "Unknown";
-    if (!mProfit[m]) mProfit[m] = { rev: 0, cogs: 0 };
-    mProfit[m].rev += parseFloat(e.amount || 0);
-    mProfit[m].cogs += estCogs(e);
-  });
-  const mSorted = Object.keys(mProfit).sort().reverse();
-  $("monthProfit").innerHTML = mSorted.map(m => {
-    const mp = mProfit[m];
-    const gp = mp.rev - mp.cogs;
-    const mg = mp.rev > 0 ? ((gp / mp.rev) * 100).toFixed(1) : "0.0";
-    const parts = m.split("-");
-    const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m;
-    return `<div class="profit-row">
-      <div class="profit-label"><span>${label}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div>
-    </div>`;
-  }).join("");
-
-  // Cash Wave
-  const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
-  const in7 = new Date(today.getTime() + 7*86400000).toISOString().split("T")[0];
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0];
-  const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split("T")[0];
-  const prevMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split("T")[0];
-
-  let wed7 = 0, spillover = 0;
-  const cwRows = cashWaveData.map(r => {
-    const d = fmtDate(r.date);
-    const mffDue = new Date(new Date(d).getTime() + 7*86400000).toISOString().split("T")[0];
-    const wsDue = new Date(new Date(d).getTime() + 15*86400000).toISOString().split("T")[0];
-    const mff = parseFloat(r.mff) || 0;
-    const ws = parseFloat(r.wholesale) || 0;
-    if (mffDue >= todayStr && mffDue <= in7) wed7 += mff;
-    if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= new Date(today.getFullYear(), today.getMonth(), 7).toISOString().split("T")[0]) spillover += mff;
-    return { date: d, mff, mffDue, ws, wsDue, notes: r.notes || "" };
-  }).sort((a, b) => b.date.localeCompare(a.date));
-
-  let cwHtml = "";
-  if (wed7 > 0) {
-    cwHtml += `<div class="cw-alert">⚠️ $${wed7.toFixed(2)} due to MFF in next 7 days</div>`;
-  } else {
-    cwHtml += `<div class="cw-alert ok">✅ No MFF payments due this week</div>`;
-  }
-  if (spillover > 0) {
-    cwHtml += `<div class="cw-alert">🔴 Month spillover: $${spillover.toFixed(2)} from last month due this week</div>`;
-  }
-
-  if (cwRows.length) {
-    cwHtml += cwRows.map(r => {
-      const total = r.mff + r.ws || 1;
-      const outW = (r.mff / total) * 100;
-      const inW = (r.ws / total) * 100;
-      return `<div>
-        <div class="cw-row">
-          <span>🗓️ ${r.date}</span>
-          <span><span class="cw-out">-$${r.mff.toFixed(0)}</span> → <span class="cw-in">+$${r.ws.toFixed(0)}</span></span>
-        </div>
-        <div class="cw-bar">
-          <div class="cw-bar-out" style="width:${outW}%"></div>
-          <div class="cw-bar-in" style="width:${inW}%"></div>
-        </div>
-        <div style="font-size:11px;color:#8a7968">Pay MFF: ${r.mffDue} · WS due: ${r.wsDue}${r.notes ? ' · ' + esc(r.notes) : ''}</div>
-      </div>`;
-    }).join("");
-  } else {
-    cwHtml += '<div style="text-align:center;color:#8a7968;padding:12px;font-size:13px">Add production runs to the Cash Wave tab in Google Sheets</div>';
-  }
-  $("cashWave").innerHTML = cwHtml;
+ const data = getMgrData();
+ const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+ const ytdInc = data.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+ const ytdExp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
+ const ytdGst = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.gst || 0), 0);
+ const ytdProfit = ytdInc - ytdExp; const profitClass = ytdProfit >= 0 ? "profit" : "loss";
+ const rangeLabel = mgrRange === "ytd" ? "YTD" : mgrRange === "all" ? "All Time" : "Period";
+ $("rangeSnap").innerHTML = `${ytdProfit >= 0 ? '🌟' : '⚠️'} ${rangeLabel}: ${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}`;
+ $("rangeSnap").style.color = ytdProfit >= 0 ? "#5a8a5e" : "#c0694f";
+ $("ytdGrid").innerHTML = `<div class="ytd-item"><div class="ytd-val">$${ytdInc.toFixed(2)}</div><div class="ytd-lbl">📈 ${rangeLabel} Revenue</div></div><div class="ytd-item"><div class="ytd-val">$${ytdExp.toFixed(2)}</div><div class="ytd-lbl">📉 ${rangeLabel} Expenses</div></div><div class="ytd-item ${profitClass}"><div class="ytd-val">${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}</div><div class="ytd-lbl">${ytdProfit >= 0 ? '🌟' : '⚠️'} ${rangeLabel} Profit</div></div><div class="ytd-item"><div class="ytd-val">$${ytdGst.toFixed(2)}</div><div class="ytd-lbl">🧾 GST Paid</div></div>`;
+ const cats = {}; data.filter(e => e.type === "expense").forEach(e => { const c = e.category || "Other"; cats[c] = (cats[c] || 0) + parseFloat(e.total || e.amount || 0); });
+ const pieColors = ["#c0694f","#5a8a5e","#c4a24e","#8b6f4e","#6b8fa3","#a36b8f","#7a9a6b","#d4956a"];
+ const catEntries = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+ const pieTotal = catEntries.reduce((s, c) => s + c[1], 0) || 1;
+ const canvas = $("pieChart"); const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, 200, 200); pieSlices = [];
+ let startAngle = -Math.PI / 2;
+ catEntries.forEach(([cat, val], idx) => { const slice = (val / pieTotal) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(100, 100); ctx.arc(100, 100, 90, startAngle, startAngle + slice); ctx.fillStyle = pieColors[idx % pieColors.length]; ctx.fill(); pieSlices.push({ cat, val, start: startAngle, end: startAngle + slice, color: pieColors[idx % pieColors.length] }); startAngle += slice; });
+ ctx.beginPath(); ctx.arc(100, 100, 50, 0, Math.PI * 2); ctx.fillStyle = "#fff"; ctx.fill();
+ $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) => `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${cat} $${val.toFixed(0)}</span>`).join("");
+ $("catDetail").innerHTML = "";
+ const p = pricing;
+ function estCogs(e) { const amt = parseFloat(e.amount || 0); const src = (e.source || "").toLowerCase(); if (src.includes("wholesale") || src.includes("ws")) { return (amt / (p.wsPrice || 9.30)) * (p.wsCogs || 5.42); } else { return (amt / (p.dtcPrice || 13.29)) * (p.dtcCogs || 5.50); } }
+ const incData = data.filter(e => e.type === "income");
+ const dtcSales = incData.filter(e => !(e.source || "").toLowerCase().includes("wholesale"));
+ const wsSales = incData.filter(e => (e.source || "").toLowerCase().includes("wholesale"));
+ const dtcRev = dtcSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+ const dtcCost = dtcSales.reduce((s, e) => s + estCogs(e), 0);
+ const wsRev = wsSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+ const wsCost = wsSales.reduce((s, e) => s + estCogs(e), 0);
+ const totalRev = dtcRev + wsRev; const totalCost = dtcCost + wsCost;
+ const grossProfit = totalRev - totalCost;
+ const marginPct = totalRev > 0 ? ((grossProfit / totalRev) * 100).toFixed(1) : "0.0";
+ const dtcMargin = dtcRev > 0 ? (((dtcRev - dtcCost) / dtcRev) * 100).toFixed(1) : "0.0";
+ const wsMargin = wsRev > 0 ? (((wsRev - wsCost) / wsRev) * 100).toFixed(1) : "0.0";
+ $("profitGrid").innerHTML = `<div class="ytd-item ${grossProfit >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${grossProfit >= 0 ? '+' : ''}$${grossProfit.toFixed(2)}</div><div class="ytd-lbl">💰 Est. Gross Profit</div></div><div class="ytd-item"><div class="ytd-val">${marginPct}%</div><div class="ytd-lbl">📊 Blended Margin</div></div><div class="ytd-item"><div class="ytd-val">${dtcMargin}%</div><div class="ytd-lbl">🛍️ DTC Margin</div></div><div class="ytd-item"><div class="ytd-val">${wsMargin}%</div><div class="ytd-lbl">🏢 Wholesale Margin</div></div>`;
+ const mProfit = {}; incData.forEach(e => { const m = fmtDate(e.date).substring(0, 7) || "Unknown"; if (!mProfit[m]) mProfit[m] = { rev: 0, cogs: 0 }; mProfit[m].rev += parseFloat(e.amount || 0); mProfit[m].cogs += estCogs(e); });
+ $("monthProfit").innerHTML = Object.keys(mProfit).sort().reverse().map(m => { const mp = mProfit[m]; const gp = mp.rev - mp.cogs; const mg = mp.rev > 0 ? ((gp / mp.rev) * 100).toFixed(1) : "0.0"; const parts = m.split("-"); const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m; return `<div class="profit-row"><div class="profit-label"><span>${label}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div></div>`; }).join("");
+ const today = new Date(); const todayStr = today.toISOString().split("T")[0];
+ const in7 = new Date(today.getTime() + 7*86400000).toISOString().split("T")[0];
+ const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0];
+ const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split("T")[0];
+ const prevMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split("T")[0];
+ let wed7 = 0, spillover = 0;
+ const cwRows = cashWaveData.map(r => { const d = fmtDate(r.date); const mffDue = new Date(new Date(d).getTime() + 7*86400000).toISOString().split("T")[0]; const wsDue = new Date(new Date(d).getTime() + 15*86400000).toISOString().split("T")[0]; const mff = parseFloat(r.mff) || 0; const ws = parseFloat(r.wholesale) || 0; if (mffDue >= todayStr && mffDue <= in7) wed7 += mff; if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= new Date(today.getFullYear(), today.getMonth(), 7).toISOString().split("T")[0]) spillover += mff; return { date: d, mff, mffDue, ws, wsDue, notes: r.notes || "" }; }).sort((a, b) => b.date.localeCompare(a.date));
+ let cwHtml = "";
+ if (wed7 > 0) { cwHtml += `<div class="cw-alert">⚠️ $${wed7.toFixed(2)} due to MFF in next 7 days</div>`; } else { cwHtml += `<div class="cw-alert ok">✅ No MFF payments due this week</div>`; }
+ if (spillover > 0) { cwHtml += `<div class="cw-alert">🔴 Month spillover: $${spillover.toFixed(2)} from last month due this week</div>`; }
+ if (cwRows.length) { cwHtml += cwRows.map(r => { const total = r.mff + r.ws || 1; const outW = (r.mff / total) * 100; const inW = (r.ws / total) * 100; return `<div><div class="cw-row"><span>🗓️ ${r.date}</span><span><span class="cw-out">-$${r.mff.toFixed(0)}</span> → <span class="cw-in">+$${r.ws.toFixed(0)}</span></span></div><div class="cw-bar"><div class="cw-bar-out" style="width:${outW}%"></div><div class="cw-bar-in" style="width:${inW}%"></div></div><div style="font-size:11px;color:#8a7968">Pay MFF: ${r.mffDue} · WS due: ${r.wsDue}${r.notes ? ' · ' + esc(r.notes) : ''}</div></div>`; }).join(""); } else { cwHtml += '<div style="text-align:center;color:#8a7968;padding:12px;font-size:13px">Add production runs to the Cash Wave tab in Google Sheets</div>'; }
+ $("cashWave").innerHTML = cwHtml;
 }
-
-function tapPie(event) {
-  const canvas = $("pieChart");
-  const rect = canvas.getBoundingClientRect();
-  const x = (event.clientX - rect.left) * (200 / rect.width) - 100;
-  const y = (event.clientY - rect.top) * (200 / rect.height) - 100;
-  const dist = Math.sqrt(x * x + y * y);
-  if (dist < 50 || dist > 90) { $("catDetail").innerHTML = ""; return; }
-  let angle = Math.atan2(y, x);
-  if (angle < -Math.PI / 2) angle += Math.PI * 2;
-
-  const hit = pieSlices.find(s => angle >= s.start && angle < s.end);
-  if (!hit) return;
-
-  const data = getMgrData();
-  const entries = data.filter(e => e.type === "expense" && (e.category || "Other") === hit.cat);
-  $("catDetail").innerHTML = `<div class="cat-detail" style="border-left:3px solid ${hit.color}">
-    <div style="font-weight:700;margin-bottom:4px">${hit.cat} — $${hit.val.toFixed(2)}</div>
-    ${entries.map(e => `<div><span>${esc(e.description || "")} · ${fmtDate(e.date)}</span><span>$${parseFloat(e.total || e.amount || 0).toFixed(2)}</span></div>`).join("")}
-  </div>`;
-}
-
-function exportCSV() {
-  const rows = [["Type","Date","Description/Source","Category/Customer","Amount","GST","Total","Paid"]];
-  allData.forEach(e => {
-    if (e.type === "income") {
-      rows.push(["Income", fmtDate(e.date), e.source || "", e.customer || "", e.amount || 0, "", "", e.paid || ""]);
-    } else {
-      rows.push(["Expense", fmtDate(e.date), e.description || "", e.category || "", e.amount || 0, e.gst || 0, e.total || 0, e.paid || ""]);
-    }
-  });
-  const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `granola-kid-${new Date().toISOString().split("T")[0]}.csv`;
-  a.click();
-}
+function tapPie(event) { const canvas = $("pieChart"); const rect = canvas.getBoundingClientRect(); const x = (event.clientX - rect.left) * (200 / rect.width) - 100; const y = (event.clientY - rect.top) * (200 / rect.height) - 100; const dist = Math.sqrt(x * x + y * y); if (dist < 50 || dist > 90) { $("catDetail").innerHTML = ""; return; } let angle = Math.atan2(y, x); if (angle < -Math.PI / 2) angle += Math.PI * 2; const hit = pieSlices.find(s => angle >= s.start && angle < s.end); if (!hit) return; const data = getMgrData(); const entries = data.filter(e => e.type === "expense" && (e.category || "Other") === hit.cat); $("catDetail").innerHTML = `<div class="cat-detail" style="border-left:3px solid ${hit.color}"><div style="font-weight:700;margin-bottom:4px">${hit.cat} — $${hit.val.toFixed(2)}</div>${entries.map(e => `<div><span>${esc(e.description || "")} · ${fmtDate(e.date)}</span><span>$${parseFloat(e.total || e.amount || 0).toFixed(2)}</span></div>`).join("")}</div>`; }
+function exportCSV() { const rows = [["Type","Date","Description/Source","Category/Customer","Amount","GST","Total","Paid"]]; allData.forEach(e => { if (e.type === "income") { rows.push(["Income", fmtDate(e.date), e.source || "", e.customer || "", e.amount || 0, "", "", e.paid || ""]); } else { rows.push(["Expense", fmtDate(e.date), e.description || "", e.category || "", e.amount || 0, e.gst || 0, e.total || 0, e.paid || ""]); } }); const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n"); const blob = new Blob([csv], { type: "text/csv" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `granola-kid-${new Date().toISOString().split("T")[0]}.csv`; a.click(); }
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 function fmtDate(d) { return d ? String(d).substring(0, 10) : ""; }
-
-function showToast(msg) {
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2000);
-}
-
-function refreshData() {
-  $("refreshBtn").classList.add("spinning");
-  fetchData().then(() => {
-    $("refreshBtn").classList.remove("spinning");
-    showToast("✓ Refreshed");
-  });
-}
-
-function celebrate() {
-  const emojis = ["💰","🌟","🎉","💵","✨","🌾"];
-  const div = document.createElement("div");
-  div.className = "celebrate";
-  for (let i = 0; i < 20; i++) {
-    const s = document.createElement("span");
-    s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-    s.style.left = Math.random() * 100 + "%";
-    s.style.animationDelay = Math.random() * 1 + "s";
-    s.style.fontSize = (32 + Math.random() * 24) + "px";
-    div.appendChild(s);
-  }
-  document.body.appendChild(div);
-  setTimeout(() => div.remove(), 4500);
-}
-
-async function del(i) {
-  event.stopPropagation();
-  if (!confirm("Delete this entry?")) return;
-  const e = allData[i];
-  await post({ action: "delete", type: e.type, row: e.row });
-  fetchData();
-}
-
-async function markPaid(i) {
-  event.stopPropagation();
-  const e = allData[i];
-  await post({ action: "pay", type: e.type, row: e.row });
-  fetchData();
-}
-
-async function cam(i) {
-  event.stopPropagation();
-  const inp = document.createElement("input");
-  inp.type = "file"; inp.accept = "image/*";
-  inp.onchange = async () => {
-    const file = inp.files[0];
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result.split(",")[1];
-      const e = allData[i];
-      await fetch(API, { method: "POST", body: JSON.stringify({
-        action: "receipt", type: e.type, row: e.row, data: base64, pin: validatedPin,
-        mime: file.type, filename: `receipt_${fmtDate(e.date)}_${Date.now()}.${file.type.split("/")[1]}`
-      })});
-      fetchData();
-    };
-    reader.readAsDataURL(file);
-  };
-  inp.click();
-}
-
+function showToast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+function refreshData() { $("refreshBtn").classList.add("spinning"); fetchData().then(() => { $("refreshBtn").classList.remove("spinning"); showToast("✓ Refreshed"); }); }
+function celebrate() { const emojis = ["💰","🌟","🎉","💵","✨","🌾"]; const div = document.createElement("div"); div.className = "celebrate"; for (let i = 0; i < 20; i++) { const s = document.createElement("span"); s.textContent = emojis[Math.floor(Math.random() * emojis.length)]; s.style.left = Math.random() * 100 + "%"; s.style.animationDelay = Math.random() * 1 + "s"; s.style.fontSize = (32 + Math.random() * 24) + "px"; div.appendChild(s); } document.body.appendChild(div); setTimeout(() => div.remove(), 4500); }
+async function del(i) { event.stopPropagation(); if (!confirm("Delete this entry?")) return; const e = allData[i]; await post({ action: "delete", type: e.type, row: e.row }); fetchData(); }
+async function markPaid(i) { event.stopPropagation(); const e = allData[i]; await post({ action: "pay", type: e.type, row: e.row }); fetchData(); }
+async function cam(i) { event.stopPropagation(); const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = async () => { const file = inp.files[0]; const reader = new FileReader(); reader.onload = async () => { const base64 = reader.result.split(",")[1]; const e = allData[i]; await fetch(API, { method: "POST", body: JSON.stringify({ action: "receipt", type: e.type, row: e.row, data: base64, pin: validatedPin, mime: file.type, filename: `receipt_${fmtDate(e.date)}_${Date.now()}.${file.type.split("/")[1]}` })}); fetchData(); }; reader.readAsDataURL(file); }; inp.click(); }
 function edit(i) {
-  const e = allData[i];
-  const overlay = document.createElement("div");
-  overlay.className = "edit-overlay";
-  overlay.onclick = ev => { if (ev.target === overlay) overlay.remove(); };
-
-  let fields;
-  if (e.type === "expense") {
-    fields = `
-      <input id="eDesc" value="${esc(e.description || "")}" placeholder="Description" required>
-      <div class="row">
-        <input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal">
-        <select id="eCat">
-          ${["📦 Co-Packing","🌾 Ingredients","🏷️ Bags & Boxes","🚚 Shipping & Gas","💻 Tech & Office","📢 Ads & Promo","☕ Business Meal","💳 Debt Repayment"]
-            .map(c => `<option${(e.category||"").includes(c.substring(2)) ? " selected" : ""}>${c}</option>`).join("")}
-        </select>
-      </div>
-      <input id="eDate" type="date" value="${fmtDate(e.date)}">
-      <select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`;
-  } else {
-    fields = `
-      <select id="eSrc">
-        <option${(e.source||"").includes("DTC") ? " selected" : ""}>🛍️ DTC</option>
-        <option${(e.source||"").includes("Wholesale") ? " selected" : ""}>🏢 Wholesale</option>
-      </select>
-      <input id="eCust" value="${esc(e.customer || "")}" placeholder="Customer / Order Number" required>
-      <input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal">
-      <input id="eDate" type="date" value="${fmtDate(e.date)}">
-      ${(e.source || "").toLowerCase().includes("wholesale") ? `<label style="font-size:12px;color:#8a7968">📦 Fulfilled Date</label><input id="eFulfilled" type="date" value="${fmtDate(e.fulfilled)}">` : ''}
-      <select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`;
-  }
-
-  overlay.innerHTML = `<div class="edit-sheet">
-    <h3>Edit ${e.type === "income" ? "Income" : "Expense"}</h3>
-    <form id="editForm">${fields}
-      <div class="edit-btns">
-        <button type="button" class="cancel" onclick="this.closest('.edit-overlay').remove()">Cancel</button>
-        <button type="submit">Save</button>
-      </div>
-    </form>
-  </div>`;
-  document.body.appendChild(overlay);
-
-  $("editForm").onsubmit = async ev => {
-    ev.preventDefault();
-    const body = { action: "edit", type: e.type, row: e.row, date: $("eDate").value, amount: parseFloat($("eAmt").value), paid: $("ePaid").value };
-    if (e.type === "expense") {
-      body.description = $("eDesc").value;
-      body.category = $("eCat").value;
-    } else {
-      body.source = $("eSrc").value;
-      body.customer = $("eCust").value;
-      const ef = document.getElementById("eFulfilled");
-      if (ef) body.fulfilled = ef.value;
-    }
-    overlay.remove();
-    await post(body);
-    fetchData();
-  };
+ const e = allData[i]; const overlay = document.createElement("div"); overlay.className = "edit-overlay"; overlay.onclick = ev => { if (ev.target === overlay) overlay.remove(); };
+ let fields;
+ if (e.type === "expense") { fields = `<input id="eDesc" value="${esc(e.description || "")}" placeholder="Description" required><div class="row"><input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal"><select id="eCat">${["📦 Co-Packing","🌾 Ingredients","🏷️ Bags & Boxes","🚚 Shipping & Gas","💻 Tech & Office","📢 Ads & Promo","☕ Business Meal","💳 Debt Repayment"].map(c => `<option${(e.category||"").includes(c.substring(2)) ? " selected" : ""}>${c}</option>`).join("")}</select></div><input id="eDate" type="date" value="${fmtDate(e.date)}"><select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`; }
+ else { fields = `<select id="eSrc"><option${(e.source||"").includes("DTC") ? " selected" : ""}>🛍️ DTC</option><option${(e.source||"").includes("Wholesale") ? " selected" : ""}>🏢 Wholesale</option></select><input id="eCust" value="${esc(e.customer || "")}" placeholder="Customer / Order Number" required><input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal"><input id="eDate" type="date" value="${fmtDate(e.date)}">${(e.source || "").toLowerCase().includes("wholesale") ? `<label style="font-size:12px;color:#8a7968">📦 Fulfilled Date</label><input id="eFulfilled" type="date" value="${fmtDate(e.fulfilled)}">` : ''}<select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`; }
+ overlay.innerHTML = `<div class="edit-sheet"><h3>Edit ${e.type === "income" ? "Income" : "Expense"}</h3><form id="editForm">${fields}<div class="edit-btns"><button type="button" class="cancel" onclick="this.closest('.edit-overlay').remove()">Cancel</button><button type="submit">Save</button></div></form></div>`;
+ document.body.appendChild(overlay);
+ $("editForm").onsubmit = async ev => { ev.preventDefault(); const body = { action: "edit", type: e.type, row: e.row, date: $("eDate").value, amount: parseFloat($("eAmt").value), paid: $("ePaid").value }; if (e.type === "expense") { body.description = $("eDesc").value; body.category = $("eCat").value; } else { body.source = $("eSrc").value; body.customer = $("eCust").value; const ef = document.getElementById("eFulfilled"); if (ef) body.fulfilled = ef.value; } overlay.remove(); await post(body); fetchData(); };
 }
 </script>
 </body>
