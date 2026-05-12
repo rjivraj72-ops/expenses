@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#5c4a3a" id="metaTheme">
@@ -275,7 +275,7 @@
    <div class="row"><select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select><button type="submit" id="incBtn">Add Income</button></div>
  </form>
 </div>
-<input class="search-bar" id="searchBar" placeholder="🔍 Search entries..." style="display:none" oninput="renderList()">
+<input class="search-bar" id="searchBar" placeholder="🔍 Search... (today, last week, co-packing, etc)" style="display:none" oninput="renderList()">
 <div class="card" id="list-card" style="display:none"><div id="list"></div></div>
 <div class="loading" id="loading">Loading...</div>
 <div class="empty" id="empty" style="display:none">No entries yet — add your first one above</div>
@@ -325,11 +325,13 @@ async function pinKey(n) {
 function pinDel() { if (pinEntry.length > 0) { haptic(); playTick(); } pinEntry = pinEntry.slice(0, -1); updateDots(); }
 function updateDots() { document.querySelectorAll("#pinDots .dot").forEach((d, i) => d.classList.toggle("filled", i < pinEntry.length)); }
 document.addEventListener("keydown", e => { if (document.getElementById("pin-screen").style.display === "none") return; if (e.key >= "0" && e.key <= "9") pinKey(parseInt(e.key)); else if (e.key === "Backspace") pinDel(); });
+document.addEventListener("touchstart", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
 const $ = id => document.getElementById(id);
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
 let allData = [], capital = 0, pricing = {}, cashWaveData = [];
 let prevCashBal = 0, prevTotalBal = 0, prevIncTotal = 0, prevPendTotal = 0, prevExpTotal = 0;
 let swipeHandled = false;
+
 $("darkToggle").textContent = window._gkDark ? "☀️" : "🌙";
 function toggleDark() {
  haptic();
@@ -469,14 +471,38 @@ function render() {
  } else { $("weekAlert").style.display = "none"; }
  renderMgr();
 }
+function getDateRange(query) {
+ const now = new Date(); const todayStr = now.toISOString().split("T")[0];
+ const dayMs = 86400000;
+ if (query === "today") return { from: todayStr, to: todayStr };
+ if (query === "yesterday") { const y = new Date(now.getTime() - dayMs); return { from: y.toISOString().split("T")[0], to: y.toISOString().split("T")[0] }; }
+ const dow = now.getDay(); const monOff = dow === 0 ? -6 : 1 - dow;
+ const thisMon = new Date(now); thisMon.setDate(thisMon.getDate() + monOff);
+ const thisSun = new Date(thisMon); thisSun.setDate(thisSun.getDate() + 6);
+ if (query === "this week") return { from: thisMon.toISOString().split("T")[0], to: thisSun.toISOString().split("T")[0] };
+ if (query === "last week") { const lm = new Date(thisMon.getTime() - 7 * dayMs); const ls = new Date(lm); ls.setDate(ls.getDate() + 6); return { from: lm.toISOString().split("T")[0], to: ls.toISOString().split("T")[0] }; }
+ if (query === "this month") { const ms = new Date(now.getFullYear(), now.getMonth(), 1); const me = new Date(now.getFullYear(), now.getMonth() + 1, 0); return { from: ms.toISOString().split("T")[0], to: me.toISOString().split("T")[0] }; }
+ if (query === "last month") { const ms = new Date(now.getFullYear(), now.getMonth() - 1, 1); const me = new Date(now.getFullYear(), now.getMonth(), 0); return { from: ms.toISOString().split("T")[0], to: me.toISOString().split("T")[0] }; }
+ const mNames = ["january","february","march","april","may","june","july","august","september","october","november","december"];
+ const mShort = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+ let mIdx = mNames.indexOf(query); if (mIdx === -1) mIdx = mShort.indexOf(query);
+ if (mIdx !== -1) { const yr = mIdx <= now.getMonth() ? now.getFullYear() : now.getFullYear() - 1; const ms = new Date(yr, mIdx, 1); const me = new Date(yr, mIdx + 1, 0); return { from: ms.toISOString().split("T")[0], to: me.toISOString().split("T")[0] }; }
+ return null;
+}
 function renderList() {
  const query = ($("searchBar").value || "").toLowerCase().trim();
+ const dateRange = query ? getDateRange(query) : null;
  const visible = [];
  allData.forEach((e, idx) => {
    if (e.paid === "yes") return;
    if (query) {
-     const haystack = [e.description, e.source, e.customer, e.category, String(e.amount), String(e.total)].join(" ").toLowerCase();
-     if (!haystack.includes(query)) return;
+     if (dateRange) {
+       const d = fmtDate(e.date);
+       if (d < dateRange.from || d > dateRange.to) return;
+     } else {
+       const haystack = [e.description || "", e.source || "", e.customer || "", e.category || "", e.type || "", fmtDate(e.date), String(e.amount || ""), String(e.total || "")].join(" ").toLowerCase();
+       if (!haystack.includes(query)) return;
+     }
    }
    visible.push({ entry: e, origIdx: idx });
  });
