@@ -356,10 +356,14 @@ function animateValue(el, from, to, duration, prefix) {
  }
  requestAnimationFrame(step);
 }
+function localDateStr(d) {
+ const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0");
+ return `${y}-${m}-${day}`;
+}
 function dateLabel(dateStr) {
- const today = new Date(); const todayStr = today.toISOString().split("T")[0];
+ const today = new Date(); const todayStr = localDateStr(today);
  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
- const yesterdayStr = yesterday.toISOString().split("T")[0];
+ const yesterdayStr = localDateStr(yesterday);
  if (dateStr === todayStr) return "Today";
  if (dateStr === yesterdayStr) return "Yesterday";
  const d = new Date(dateStr + "T12:00:00"); if (isNaN(d.getTime())) return dateStr;
@@ -370,8 +374,8 @@ function dateLabel(dateStr) {
  return label;
 }
 function initApp(json) {
- $("expDate").value = new Date().toISOString().split("T")[0];
- $("incDate").value = new Date().toISOString().split("T")[0];
+ $("expDate").value = localDateStr(new Date());
+ $("incDate").value = localDateStr(new Date());
  capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || [];
  allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
  $("loading").style.display = "none"; render();
@@ -379,7 +383,7 @@ function initApp(json) {
    e.preventDefault(); haptic(); $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true;
    try {
      await post({ action: "add", type: "expense", date: $("expDate").value, description: $("expDesc").value, category: $("expCat").value, amount: parseFloat($("expAmount").value), paid: $("expPaid").value });
-     $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0]; $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00";
+     $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = localDateStr(new Date()); $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00";
      showToast("✓ Expense added"); fetchData();
    } catch { showToast("Error adding expense — try again"); }
    $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false;
@@ -389,7 +393,7 @@ function initApp(json) {
    e.preventDefault(); haptic(); $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true;
    try {
      await post({ action: "add", type: "income", date: $("incDate").value, source: $("incSource").value, customer: $("incCustomer").value.trim(), amount: parseFloat($("incAmount").value), paid: $("incPaid").value, fulfilled: $("incFulfilled").value || "" });
-     $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = "";
+     $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = localDateStr(new Date()); $("incFulfilled").value = "";
      showToast("✓ Income added — keep it up!"); celebrate(); fetchData();
    } catch { showToast("Error adding income — try again"); }
    $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false;
@@ -456,12 +460,12 @@ function render() {
  const nowDate = new Date(); const dayOfWeek = nowDate.getDay(); const monOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
  const thisMonday = new Date(nowDate); thisMonday.setDate(thisMonday.getDate() + monOffset);
  const thisSunday = new Date(thisMonday); thisSunday.setDate(thisSunday.getDate() + 6);
- const monStr = thisMonday.toISOString().split("T")[0]; const sunStr = thisSunday.toISOString().split("T")[0];
+ const monStr = localDateStr(thisMonday); const sunStr = localDateStr(thisSunday);
  let weekOut = 0, weekIn = 0, overdueOut = 0, overdueIn = 0;
- const todayWk = new Date().toISOString().split("T")[0];
+ const todayWk = localDateStr(new Date());
  data.forEach(e => { if (e.paid === "yes") return; const d = fmtDate(e.date); if (!d) return;
-   if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { const due = new Date(new Date(d).getTime() + 7*86400000); if (isNaN(due.getTime())) return; const dueStr = due.toISOString().split("T")[0]; if (dueStr >= monStr && dueStr <= sunStr) weekOut += parseFloat(e.total || e.amount || 0); else if (dueStr < todayWk) overdueOut += parseFloat(e.total || e.amount || 0); }
-   if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fDate = fmtDate(e.fulfilled) || fmtDate(e.date); if (!fDate) return; const due = new Date(new Date(fDate).getTime() + 14*86400000); if (isNaN(due.getTime())) return; const dueStr = due.toISOString().split("T")[0]; if (dueStr >= monStr && dueStr <= sunStr) weekIn += parseFloat(e.amount || 0); else if (dueStr < todayWk) overdueIn += parseFloat(e.amount || 0); }
+   if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { const due = new Date(d + "T12:00:00"); due.setDate(due.getDate() + 7); if (isNaN(due.getTime())) return; const dueStr = localDateStr(due); if (dueStr >= monStr && dueStr <= sunStr) weekOut += parseFloat(e.total || e.amount || 0); else if (dueStr < todayWk) overdueOut += parseFloat(e.total || e.amount || 0); }
+   if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fDate = fmtDate(e.fulfilled) || fmtDate(e.date); if (!fDate) return; const due = new Date(fDate + "T12:00:00"); due.setDate(due.getDate() + 14); if (isNaN(due.getTime())) return; const dueStr = localDateStr(due); if (dueStr >= monStr && dueStr <= sunStr) weekIn += parseFloat(e.amount || 0); else if (dueStr < todayWk) overdueIn += parseFloat(e.amount || 0); }
  });
  if (weekOut > 0 || weekIn > 0 || overdueOut > 0 || overdueIn > 0) {
    let html = `💰 This week: <span class="wa-out">-$${weekOut.toFixed(0)} out</span> · <span class="wa-in">+$${weekIn.toFixed(0)} in</span>`;
@@ -472,21 +476,20 @@ function render() {
  renderMgr();
 }
 function getDateRange(query) {
- const now = new Date(); const todayStr = now.toISOString().split("T")[0];
- const dayMs = 86400000;
+ const now = new Date(); const todayStr = localDateStr(now);
  if (query === "today") return { from: todayStr, to: todayStr };
- if (query === "yesterday") { const y = new Date(now.getTime() - dayMs); return { from: y.toISOString().split("T")[0], to: y.toISOString().split("T")[0] }; }
+ if (query === "yesterday") { const y = new Date(now); y.setDate(y.getDate() - 1); return { from: localDateStr(y), to: localDateStr(y) }; }
  const dow = now.getDay(); const monOff = dow === 0 ? -6 : 1 - dow;
  const thisMon = new Date(now); thisMon.setDate(thisMon.getDate() + monOff);
  const thisSun = new Date(thisMon); thisSun.setDate(thisSun.getDate() + 6);
- if (query === "this week") return { from: thisMon.toISOString().split("T")[0], to: thisSun.toISOString().split("T")[0] };
- if (query === "last week") { const lm = new Date(thisMon.getTime() - 7 * dayMs); const ls = new Date(lm); ls.setDate(ls.getDate() + 6); return { from: lm.toISOString().split("T")[0], to: ls.toISOString().split("T")[0] }; }
- if (query === "this month") { const ms = new Date(now.getFullYear(), now.getMonth(), 1); const me = new Date(now.getFullYear(), now.getMonth() + 1, 0); return { from: ms.toISOString().split("T")[0], to: me.toISOString().split("T")[0] }; }
- if (query === "last month") { const ms = new Date(now.getFullYear(), now.getMonth() - 1, 1); const me = new Date(now.getFullYear(), now.getMonth(), 0); return { from: ms.toISOString().split("T")[0], to: me.toISOString().split("T")[0] }; }
+ if (query === "this week") return { from: localDateStr(thisMon), to: localDateStr(thisSun) };
+ if (query === "last week") { const lm = new Date(thisMon); lm.setDate(lm.getDate() - 7); const ls = new Date(lm); ls.setDate(ls.getDate() + 6); return { from: localDateStr(lm), to: localDateStr(ls) }; }
+ if (query === "this month") { return { from: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-01`, to: localDateStr(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }; }
+ if (query === "last month") { const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1); return { from: localDateStr(lm), to: localDateStr(new Date(now.getFullYear(), now.getMonth(), 0)) }; }
  const mNames = ["january","february","march","april","may","june","july","august","september","october","november","december"];
  const mShort = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
  let mIdx = mNames.indexOf(query); if (mIdx === -1) mIdx = mShort.indexOf(query);
- if (mIdx !== -1) { const yr = mIdx <= now.getMonth() ? now.getFullYear() : now.getFullYear() - 1; const ms = new Date(yr, mIdx, 1); const me = new Date(yr, mIdx + 1, 0); return { from: ms.toISOString().split("T")[0], to: me.toISOString().split("T")[0] }; }
+ if (mIdx !== -1) { const yr = mIdx <= now.getMonth() ? now.getFullYear() : now.getFullYear() - 1; return { from: localDateStr(new Date(yr, mIdx, 1)), to: localDateStr(new Date(yr, mIdx + 1, 0)) }; }
  return null;
 }
 function renderList() {
@@ -516,8 +519,8 @@ function renderList() {
    let light = "";
    if (e.paid !== "yes") {
      let dueDate = null;
-     if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { dueDate = new Date(new Date(fmtDate(e.date)).getTime() + 7*86400000); }
-     else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fd = fmtDate(e.fulfilled) || fmtDate(e.date); if (fd) dueDate = new Date(new Date(fd).getTime() + 14*86400000); }
+     if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { dueDate = new Date(fmtDate(e.date) + "T12:00:00"); dueDate.setDate(dueDate.getDate() + 7); }
+     else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fd = fmtDate(e.fulfilled) || fmtDate(e.date); if (fd) { dueDate = new Date(fd + "T12:00:00"); dueDate.setDate(dueDate.getDate() + 14); } }
      if (dueDate && !isNaN(dueDate.getTime())) { const diff = (dueDate - new Date()) / 86400000; light = diff < 0 ? "🔴" : diff <= 7 ? "🟡" : "🟢"; }
    }
    const receiptUrl = safeUrl(e.receipt);
@@ -560,7 +563,7 @@ function initSwipe() {
  });
 }
 let mgrRange = "ytd", pieSlices = [];
-function setRange(r, el) { mgrRange = r; document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active")); el.classList.add("active"); $("dateRange").style.display = r === "custom" ? "flex" : "none"; if (r === "custom") { const yr = new Date().getFullYear(); if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`; if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0]; } renderMgr(); }
+function setRange(r, el) { mgrRange = r; document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active")); el.classList.add("active"); $("dateRange").style.display = r === "custom" ? "flex" : "none"; if (r === "custom") { const yr = new Date().getFullYear(); if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`; if (!$("mgrTo").value) $("mgrTo").value = localDateStr(new Date()); } renderMgr(); }
 function toggleSec(id) { haptic(); $(id).classList.toggle("open"); $(id + "Arrow").classList.toggle("open"); }
 function getMgrData() { const yr = new Date().getFullYear().toString(); return allData.filter(e => { const d = fmtDate(e.date); if (mgrRange === "ytd") return d.startsWith(yr); if (mgrRange === "all") return true; return d >= ($("mgrFrom").value || "0000") && d <= ($("mgrTo").value || "9999"); }); }
 function renderMgr() {
@@ -593,19 +596,20 @@ function renderMgr() {
  $("profitGrid").innerHTML = `<div class="ytd-item ${grossProfit >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${grossProfit >= 0 ? '+' : ''}$${grossProfit.toFixed(2)}</div><div class="ytd-lbl">💰 Est. Gross Profit</div></div><div class="ytd-item"><div class="ytd-val">${marginPct}%</div><div class="ytd-lbl">📊 Blended Margin</div></div><div class="ytd-item"><div class="ytd-val">${dtcMargin}%</div><div class="ytd-lbl">🛍️ DTC Margin</div></div><div class="ytd-item"><div class="ytd-val">${wsMargin}%</div><div class="ytd-lbl">🏢 Wholesale Margin</div></div>`;
  const mProfit = {}; incData.forEach(e => { const m = fmtDate(e.date).substring(0, 7) || "Unknown"; if (!mProfit[m]) mProfit[m] = { rev: 0, cogs: 0 }; mProfit[m].rev += parseFloat(e.amount || 0); mProfit[m].cogs += estCogs(e); });
  $("monthProfit").innerHTML = Object.keys(mProfit).sort().reverse().map(m => { const mp = mProfit[m]; const gp = mp.rev - mp.cogs; const mg = mp.rev > 0 ? ((gp / mp.rev) * 100).toFixed(1) : "0.0"; const parts = m.split("-"); const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m; return `<div class="profit-row"><div class="profit-label"><span>${esc(label)}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div></div>`; }).join("");
- const today = new Date(); const todayStr = today.toISOString().split("T")[0]; const in7 = new Date(today.getTime() + 7*86400000).toISOString().split("T")[0];
- const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0];
- const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split("T")[0];
- const prevMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split("T")[0];
+ const today = new Date(); const todayStr = localDateStr(today); const in7d = new Date(today); in7d.setDate(in7d.getDate() + 7); const in7 = localDateStr(in7d);
+ const monthStart = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-01`;
+ const prevMonthEnd = localDateStr(new Date(today.getFullYear(), today.getMonth(), 0));
+ const prevMonthStart = localDateStr(new Date(today.getFullYear(), today.getMonth() - 1, 1));
  let wed7 = 0, spillover = 0;
  const cwRows = cashWaveData.map(r => {
    const d = fmtDate(r.date); if (!d) return null;
-   const baseDate = new Date(d); if (isNaN(baseDate.getTime())) return null;
-   const mffDue = new Date(baseDate.getTime() + 7*86400000).toISOString().split("T")[0];
-   const wsDue = new Date(baseDate.getTime() + 15*86400000).toISOString().split("T")[0];
+   const baseDate = new Date(d + "T12:00:00"); if (isNaN(baseDate.getTime())) return null;
+   const mffDueD = new Date(baseDate); mffDueD.setDate(mffDueD.getDate() + 7); const mffDue = localDateStr(mffDueD);
+   const wsDueD = new Date(baseDate); wsDueD.setDate(wsDueD.getDate() + 15); const wsDue = localDateStr(wsDueD);
    const mff = parseFloat(r.mff) || 0; const ws = parseFloat(r.wholesale) || 0;
    if (mffDue >= todayStr && mffDue <= in7) wed7 += mff;
-   if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= new Date(today.getFullYear(), today.getMonth(), 7).toISOString().split("T")[0]) spillover += mff;
+   const spillEnd = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-07`;
+   if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= spillEnd) spillover += mff;
    return { date: d, mff, mffDue, ws, wsDue, notes: r.notes || "" };
  }).filter(Boolean).sort((a, b) => b.date.localeCompare(a.date));
  let cwHtml = wed7 > 0 ? `<div class="cw-alert">⚠️ $${wed7.toFixed(2)} due to MFF in next 7 days</div>` : `<div class="cw-alert ok">✅ No MFF payments due this week</div>`;
@@ -614,10 +618,17 @@ function renderMgr() {
  $("cashWave").innerHTML = cwHtml;
 }
 function tapPie(event) { const canvas = $("pieChart"); const rect = canvas.getBoundingClientRect(); const x = (event.clientX - rect.left) * (200 / rect.width) - 100; const y = (event.clientY - rect.top) * (200 / rect.height) - 100; const dist = Math.sqrt(x * x + y * y); if (dist < 50 || dist > 90) { $("catDetail").innerHTML = ""; return; } let angle = Math.atan2(y, x); if (angle < -Math.PI / 2) angle += Math.PI * 2; const hit = pieSlices.find(s => angle >= s.start && angle < s.end); if (!hit) return; const data = getMgrData(); const entries = data.filter(e => e.type === "expense" && (e.category || "Other") === hit.cat); $("catDetail").innerHTML = `<div class="cat-detail" style="border-left:3px solid ${hit.color}"><div style="font-weight:700;margin-bottom:4px">${esc(hit.cat)} — $${hit.val.toFixed(2)}</div>${entries.map(e => `<div><span>${esc(e.description || "")} · ${fmtDate(e.date)}</span><span>$${parseFloat(e.total || e.amount || 0).toFixed(2)}</span></div>`).join("")}</div>`; }
-function exportCSV() { const rows = [["Type","Date","Description/Source","Category/Customer","Amount","GST","Total","Paid"]]; allData.forEach(e => { if (e.type === "income") rows.push(["Income", fmtDate(e.date), e.source || "", e.customer || "", e.amount || 0, "", "", e.paid || ""]); else rows.push(["Expense", fmtDate(e.date), e.description || "", e.category || "", e.amount || 0, e.gst || 0, e.total || 0, e.paid || ""]); }); const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n"); const blob = new Blob([csv], { type: "text/csv" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `granola-kid-${new Date().toISOString().split("T")[0]}.csv`; a.click(); URL.revokeObjectURL(a.href); }
+function exportCSV() { const rows = [["Type","Date","Description/Source","Category/Customer","Amount","GST","Total","Paid"]]; allData.forEach(e => { if (e.type === "income") rows.push(["Income", fmtDate(e.date), e.source || "", e.customer || "", e.amount || 0, "", "", e.paid || ""]); else rows.push(["Expense", fmtDate(e.date), e.description || "", e.category || "", e.amount || 0, e.gst || 0, e.total || 0, e.paid || ""]); }); const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n"); const blob = new Blob([csv], { type: "text/csv" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `granola-kid-${localDateStr(new Date())}.csv`; a.click(); URL.revokeObjectURL(a.href); }
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 function safeUrl(url) { if (!url) return ""; try { const u = new URL(url); return (u.protocol === "https:" || u.protocol === "http:") ? url : ""; } catch { return ""; } }
-function fmtDate(d) { return d ? String(d).substring(0, 10) : ""; }
+function fmtDate(d) {
+ if (!d) return "";
+ const s = String(d);
+ if (s.length === 10) return s;
+ const dt = new Date(s);
+ if (isNaN(dt.getTime())) return s.substring(0, 10);
+ return localDateStr(dt);
+}
 function showToast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
 let refreshing = false;
 function refreshData() { if (refreshing) return; refreshing = true; haptic(); $("refreshBtn").classList.add("spinning"); fetchData().then(() => { $("refreshBtn").classList.remove("spinning"); showToast("✓ Refreshed"); }).catch(() => { $("refreshBtn").classList.remove("spinning"); showToast("Error refreshing"); }).finally(() => { refreshing = false; }); }
