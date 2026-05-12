@@ -5,109 +5,151 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#5c4a3a">
+<meta name="theme-color" content="#5c4a3a" id="metaTheme">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.json">
 <title>Granola Kid</title>
+<script>
+(function() {
+  var themes = [
+    { name:"Sunday",
+      light:{ accent:"#8b6f4e", dark:"#5c4a3a", text:"#3b2e24", muted:"#8a7968", bg:"#f5f0eb", input:"#faf7f4", border:"#d4c8bc", header:"#e8ddd2", divider:"#e8ddd2", card:"#ffffff" },
+      dark: { accent:"#b08a60", dark:"#e0d8d0", text:"#e0d8d0", muted:"#9a8a78", bg:"#1c1916", input:"#2e2a26", border:"#3a3430", header:"#2a2420", divider:"#3a3430", card:"#262220" }},
+    { name:"Monday",
+      light:{ accent:"#5a7a5e", dark:"#3a5c3e", text:"#2a3b2c", muted:"#6a8a6e", bg:"#eef5ef", input:"#f4faf4", border:"#b8d4ba", header:"#d0e8d3", divider:"#d0e8d3", card:"#ffffff" },
+      dark: { accent:"#70a074", dark:"#d0e0d2", text:"#d0e0d2", muted:"#7a9a7e", bg:"#161c17", input:"#262e28", border:"#304a32", header:"#202e22", divider:"#304a32", card:"#202622" }},
+    { name:"Tuesday",
+      light:{ accent:"#5a7a9e", dark:"#3a5472", text:"#2a3542", muted:"#6889a0", bg:"#eef2f8", input:"#f4f8fc", border:"#b8c8d8", header:"#d0dce8", divider:"#d0dce8", card:"#ffffff" },
+      dark: { accent:"#70a0c0", dark:"#d0d8e0", text:"#d0d8e0", muted:"#7890a8", bg:"#161a1e", input:"#262a30", border:"#303848", header:"#202830", divider:"#303848", card:"#202428" }},
+    { name:"Wednesday",
+      light:{ accent:"#8a5e8b", dark:"#5c3a5c", text:"#3b2a3b", muted:"#8a6889", bg:"#f4eff5", input:"#faf4fa", border:"#d0bcd0", header:"#e6d0e6", divider:"#e6d0e6", card:"#ffffff" },
+      dark: { accent:"#a878aa", dark:"#e0d0e0", text:"#e0d0e0", muted:"#9a789a", bg:"#1c161c", input:"#2e262e", border:"#3a2e3a", header:"#2a202a", divider:"#3a2e3a", card:"#262026" }},
+    { name:"Thursday",
+      light:{ accent:"#b07040", dark:"#7a4a28", text:"#42301e", muted:"#a0805a", bg:"#f8f1ea", input:"#fcf7f1", border:"#d8c4b0", header:"#eadaca", divider:"#eadaca", card:"#ffffff" },
+      dark: { accent:"#c88850", dark:"#e0d8c8", text:"#e0d8c8", muted:"#b09068", bg:"#1e1812", input:"#302a20", border:"#3e3420", header:"#2e2818", divider:"#3e3420", card:"#282218" }},
+    { name:"Friday",
+      light:{ accent:"#a06070", dark:"#6e3a48", text:"#3e2830", muted:"#a07080", bg:"#f8eff2", input:"#fcf4f7", border:"#d8bcc4", header:"#ecd4da", divider:"#ecd4da", card:"#ffffff" },
+      dark: { accent:"#c07888", dark:"#e0d0d4", text:"#e0d0d4", muted:"#b08088", bg:"#1e1618", input:"#302628", border:"#3e2e32", header:"#2e2028", divider:"#3e2e32", card:"#282022" }},
+    { name:"Saturday",
+      light:{ accent:"#8a8040", dark:"#5c5428", text:"#3e3820", muted:"#908060", bg:"#f6f5eb", input:"#fbfaf3", border:"#d0ceb8", header:"#e6e4ce", divider:"#e6e4ce", card:"#ffffff" },
+      dark: { accent:"#a8a050", dark:"#e0e0d0", text:"#e0e0d0", muted:"#a0a070", bg:"#1c1c14", input:"#2e2e20", border:"#3a3a28", header:"#2a2a18", divider:"#3a3a28", card:"#262618" }}
+  ];
+  var t = themes[new Date().getDay()];
+  var stored = localStorage.getItem("gk-dark");
+  var isDark = stored !== null ? stored === "1" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+  var mode = isDark ? t.dark : t.light;
+  var r = document.documentElement;
+  if (isDark) r.classList.add("dark");
+  Object.keys(mode).forEach(function(k) { r.style.setProperty("--" + k, mode[k]); });
+  document.getElementById("metaTheme").setAttribute("content", isDark ? t.dark.header : t.light.dark);
+  window._gkTheme = t; window._gkDark = isDark;
+})();
+</script>
 <style>
  * { margin: 0; padding: 0; box-sizing: border-box; }
  body {
    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
-   background: #f5f0eb; color: #3b2e24;
+   background: var(--bg); color: var(--text);
    padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
    -webkit-tap-highlight-color: transparent; overflow-x: hidden;
    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
  }
- .header-area { background: linear-gradient(180deg, #e8ddd2 0%, #f5f0eb 100%); margin: -16px -16px 16px -16px; padding: 16px 16px 0; border-radius: 0 0 20px 20px; }
+ .header-area { background: linear-gradient(180deg, var(--header) 0%, var(--bg) 100%); margin: -16px -16px 16px -16px; padding: 16px 16px 0; border-radius: 0 0 20px 20px; }
  .logo { padding: 20px 0 4px; }
- h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: #5c4a3a; }
- .summary { text-align: center; padding-bottom: 16px; font-size: 14px; color: #8a7968; }
- .summary .balance { font-size: 28px; font-weight: 700; color: #5c4a3a; margin: 4px 0 4px; }
- .summary .balance-label { font-size: 11px; color: #8a7968; margin-bottom: 6px; }
+ h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: var(--dark); }
+ .summary { position: relative; text-align: center; padding-bottom: 16px; font-size: 14px; color: var(--muted); }
  .summary .bal-row { display: flex; justify-content: center; gap: 32px; margin-bottom: 14px; }
  .summary .bal-item { text-align: center; }
  .summary .bal-item .amt { font-size: 20px; font-weight: 700; }
- .summary .bal-item .lbl { font-size: 12px; color: #8a7968; }
+ .summary .bal-item .lbl { font-size: 12px; color: var(--muted); }
  .summary .row { display: flex; justify-content: center; gap: 12px; font-size: 12px; align-items: flex-start; }
  .summary .stat { text-align: center; flex: 1; }
  .summary .stat .amt { font-size: 16px; font-weight: 700; line-height: 1.2; }
- .summary .stat .lbl { font-size: 12px; color: #8a7968; line-height: 1.2; }
+ .summary .stat .lbl { font-size: 12px; color: var(--muted); line-height: 1.2; }
  .summary .inc { color: #5a8a5e; font-weight: 600; }
  .summary .exp { color: #c0694f; font-weight: 600; }
  .summary .pending { color: #c4a24e; font-weight: 600; }
  .fulfilled-wrap { display: none; }
  .fulfilled-wrap.show { display: block; }
- .fulfilled-wrap label { font-size: 12px; color: #8a7968; display: block; margin-bottom: 2px; }
- .week-alert { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center; font-size: 14px; font-weight: 600; box-shadow: 0 2px 8px rgba(60,46,36,0.06); }
+ .fulfilled-wrap label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 2px; }
+ .week-alert { background: var(--card); border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center; font-size: 14px; font-weight: 600; box-shadow: 0 2px 8px rgba(60,46,36,0.06); }
  .week-alert .wa-out { color: #c0694f; }
  .week-alert .wa-in { color: #5a8a5e; }
- .week-alert .wa-label { font-size: 11px; color: #8a7968; font-weight: 400; margin-top: 4px; }
- .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(60,46,36,0.06), 0 1px 3px rgba(60,46,36,0.04); }
+ .week-alert .wa-label { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 4px; }
+ .card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(60,46,36,0.06), 0 1px 3px rgba(60,46,36,0.04); }
  form { display: flex; flex-direction: column; gap: 10px; }
- input, select { font-size: 16px; padding: 12px; border: 1px solid #d4c8bc; border-radius: 10px; background: #faf7f4; width: 100%; color: #3b2e24; -webkit-appearance: none; }
- input:focus, select:focus { outline: none; border-color: #8b6f4e; }
+ input, select { font-size: 16px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--input); width: 100%; color: var(--text); -webkit-appearance: none; }
+ input:focus, select:focus { outline: none; border-color: var(--accent); }
  .row { display: flex; gap: 10px; }
  .row > * { flex: 1; }
- button { font-size: 16px; font-weight: 600; padding: 12px; border: none; border-radius: 10px; cursor: pointer; background: #8b6f4e; color: #fff; width: 100%; transform: scale(1); transition: transform 0.1s; }
+ button { font-size: 16px; font-weight: 600; padding: 12px; border: none; border-radius: 10px; cursor: pointer; background: var(--accent); color: #fff; width: 100%; transform: scale(1); transition: transform 0.1s; }
  button:active { transform: scale(0.95); }
- .toggle { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid #d4c8bc; }
- .toggle label { flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500; cursor: pointer; background: #faf7f4; color: #8a7968; transition: all 0.2s; }
+ .toggle { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+ .toggle label { flex: 1; text-align: center; padding: 10px; font-size: 15px; font-weight: 500; cursor: pointer; background: var(--input); color: var(--muted); transition: all 0.2s; }
  .toggle input { display: none; }
- .toggle input:checked + label { background: #8b6f4e; color: #fff; }
- .entry { padding: 12px; margin-bottom: 6px; border-radius: 8px; cursor: pointer; }
+ .toggle input:checked + label { background: var(--accent); color: #fff; }
+ .swipe-entry { position: relative; overflow: hidden; border-radius: 8px; margin-bottom: 6px; }
+ .swipe-action { position: absolute; top: 0; bottom: 0; width: 100px; display: flex; align-items: center; font-weight: 600; font-size: 12px; padding: 0 14px; opacity: 0; transition: opacity 0.15s; color: #fff; }
+ .swipe-action-left { left: 0; background: #5a8a5e; }
+ .swipe-action-right { right: 0; background: #c0694f; justify-content: flex-end; }
+ .swipe-entry.swiping-right .swipe-action-left { opacity: 1; }
+ .swipe-entry.swiping-left .swipe-action-right { opacity: 1; }
+ .entry { padding: 12px; border-radius: 8px; cursor: pointer; position: relative; z-index: 1; }
  .entry.inc-row { background: #f0f7f1; }
  .entry.exp-row { background: #fdf5f2; }
+ html.dark .entry.inc-row { background: #1e2e1f; }
+ html.dark .entry.exp-row { background: #2e1e1a; }
  .edit-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
- .edit-sheet { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px 16px env(safe-area-inset-bottom); animation: sheetUp 0.25s ease-out; }
- .edit-sheet h3 { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 12px; text-align: center; }
+ .edit-sheet { background: var(--card); width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px 16px env(safe-area-inset-bottom); animation: sheetUp 0.25s ease-out; }
+ .edit-sheet h3 { font-size: 17px; font-weight: 600; color: var(--dark); margin-bottom: 12px; text-align: center; }
  .edit-sheet form { display: flex; flex-direction: column; gap: 10px; }
  .edit-btns { display: flex; gap: 10px; }
  .edit-btns button { flex: 1; }
- .edit-btns .cancel { background: #e8ddd2; color: #5c4a3a; }
+ .edit-btns .cancel { background: var(--header); color: var(--dark); }
  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
  .entry-top { display: flex; justify-content: space-between; align-items: center; }
  .entry-desc { font-size: 15px; font-weight: 500; }
  .entry-amount { font-size: 16px; font-weight: 600; }
  .entry-amount.inc { color: #5a8a5e; }
  .entry-amount.exp { color: #c0694f; }
- .entry-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 12px; color: #8a7968; }
+ .entry-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 12px; color: var(--muted); }
  .entry-actions { display: flex; gap: 8px; align-items: center; }
- .entry-actions button { background: none !important; border: none !important; font-size: 14px; padding: 2px 6px; width: auto !important; color: #8a7968; font-weight: 400; min-width: 0; }
+ .entry-actions button { background: none !important; border: none !important; font-size: 14px; padding: 2px 6px; width: auto !important; color: var(--muted); font-weight: 400; min-width: 0; }
  .entry-actions .paid-badge { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px; }
  .paid-badge.yes { background: #e8f5e9; color: #5a8a5e; }
  .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
- .receipt-link { display: inline-block; font-size: 12px; color: #8b6f4e; font-weight: 500; margin-top: 6px; text-decoration: none; }
- .empty { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
- .footer { text-align: center; color: #c4b5a5; font-size: 12px; padding: 20px 0 10px; }
- .mgr-title { font-size: 17px; font-weight: 600; color: #5c4a3a; margin-bottom: 14px; text-align: center; }
- .mgr-section { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #e8ddd2; }
+ .receipt-link { display: inline-block; font-size: 12px; color: var(--accent); font-weight: 500; margin-top: 6px; text-decoration: none; }
+ .empty { text-align: center; color: var(--muted); padding: 32px 0; font-size: 15px; }
+ .footer { text-align: center; color: var(--muted); font-size: 12px; padding: 20px 0 10px; }
+ .mgr-title { font-size: 17px; font-weight: 600; color: var(--dark); margin-bottom: 14px; text-align: center; }
+ .mgr-section { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid var(--divider); }
  .mgr-section:last-child { border-bottom: none; }
- .mgr-section .sec-label { font-size: 15px; font-weight: 600; color: #5c4a3a; }
- .mgr-section .sec-arrow { font-size: 14px; color: #8a7968; transition: transform 0.2s; }
+ .mgr-section .sec-label { font-size: 15px; font-weight: 600; color: var(--dark); }
+ .mgr-section .sec-arrow { font-size: 14px; color: var(--muted); transition: transform 0.2s; }
  .mgr-section .sec-arrow.open { transform: rotate(90deg); }
  .mgr-body { display: none; padding: 12px 0 4px; }
  .mgr-body.open { display: block; }
- .date-area { background: linear-gradient(135deg, #f0ebe4 0%, #e8ddd2 100%); border-radius: 10px; padding: 14px; margin-bottom: 14px; text-align: center; }
+ .date-area { background: linear-gradient(135deg, var(--input) 0%, var(--header) 100%); border-radius: 10px; padding: 14px; margin-bottom: 14px; text-align: center; }
  .ytd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
- .ytd-item { background: #faf7f4; border-radius: 8px; padding: 10px; text-align: center; }
- .ytd-item .ytd-val { font-size: 18px; font-weight: 700; color: #5c4a3a; }
- .ytd-item .ytd-lbl { font-size: 11px; color: #8a7968; margin-top: 2px; }
+ .ytd-item { background: var(--input); border-radius: 8px; padding: 10px; text-align: center; }
+ .ytd-item .ytd-val { font-size: 18px; font-weight: 700; color: var(--dark); }
+ .ytd-item .ytd-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
  .ytd-item.profit .ytd-val { color: #5a8a5e; }
  .ytd-item.loss .ytd-val { color: #c0694f; }
  .pie-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
  .pie-wrap canvas { max-width: 200px; max-height: 200px; }
- .pie-legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: 11px; color: #5c4a3a; }
+ .pie-legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: 11px; color: var(--dark); }
  .pie-legend span { display: flex; align-items: center; gap: 4px; }
  .pie-legend .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
- .export-btn { margin-top: 12px; background: #e8ddd2; color: #5c4a3a; font-size: 14px; padding: 10px; }
+ .export-btn { margin-top: 12px; background: var(--header); color: var(--dark); font-size: 14px; padding: 10px; }
  .profit-row { margin-bottom: 10px; }
- .profit-label { font-size: 13px; font-weight: 600; color: #5c4a3a; margin-bottom: 2px; display: flex; justify-content: space-between; }
+ .profit-label { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 2px; display: flex; justify-content: space-between; }
  .profit-label .pval { font-weight: 700; }
  .profit-label .pval.pos { color: #5a8a5e; }
  .profit-label .pval.neg { color: #c0694f; }
  .cw-alert { background: #fce8e3; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 13px; color: #c0694f; font-weight: 600; text-align: center; }
  .cw-alert.ok { background: #e8f5e9; color: #5a8a5e; }
- .cw-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
+ .cw-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--divider); font-size: 13px; }
  .cw-row:last-child { border-bottom: none; }
  .cw-out { color: #c0694f; font-weight: 600; }
  .cw-in { color: #5a8a5e; font-weight: 600; }
@@ -115,56 +157,67 @@
  .cw-bar-out { background: #c0694f; }
  .cw-bar-in { background: #5a8a5e; }
  .date-toggle { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
- .date-toggle button { flex: 0; width: auto; padding: 6px 12px; font-size: 12px; background: #e8ddd2; color: #5c4a3a; font-weight: 500; }
- .date-toggle button.active { background: #8b6f4e; color: #fff; }
+ .date-toggle button { flex: 0; width: auto; padding: 6px 12px; font-size: 12px; background: var(--header); color: var(--dark); font-weight: 500; }
+ .date-toggle button.active { background: var(--accent); color: #fff; }
  .date-range { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
  .date-range input { width: 130px; font-size: 13px; padding: 8px; }
- .cat-detail { background: #faf7f4; border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 12px; color: #5c4a3a; }
- .cat-detail div { padding: 4px 0; border-bottom: 0.5px solid #e8ddd2; display: flex; justify-content: space-between; gap: 8px; }
+ .cat-detail { background: var(--input); border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 12px; color: var(--dark); }
+ .cat-detail div { padding: 4px 0; border-bottom: 0.5px solid var(--divider); display: flex; justify-content: space-between; gap: 8px; }
  .cat-detail div:last-child { border-bottom: none; }
  .cat-detail div span:first-child { flex: 1; word-break: break-word; }
  .pending-list { margin-top: 8px; }
- .pending-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-bottom: 0.5px solid #e8ddd2; font-size: 13px; }
+ .pending-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-bottom: 0.5px solid var(--divider); font-size: 13px; }
  .pending-item:last-child { border-bottom: none; }
  .pending-item .pending-top { display: flex; justify-content: space-between; align-items: center; }
- .pending-item .pending-desc { color: #5c4a3a; font-weight: 500; }
+ .pending-item .pending-desc { color: var(--dark); font-weight: 500; }
  .pending-item button { width: auto; padding: 4px 10px; font-size: 11px; background: #5a8a5e; }
- .loading { text-align: center; color: #8a7968; padding: 32px 0; font-size: 15px; }
+ .loading { text-align: center; color: var(--muted); padding: 32px 0; font-size: 15px; }
  .celebrate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
  .celebrate span { position: absolute; top: -30px; font-size: 24px; animation: fall 3s ease-in forwards; }
  @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
- .gst-info { font-size: 13px; color: #8a7968; text-align: right; padding: 2px 0; }
- .refresh-btn { background: none; border: none; font-size: 20px; padding: 4px 8px; width: auto; color: #8a7968; cursor: pointer; position: absolute; right: 16px; top: 8px; }
+ .gst-info { font-size: 13px; color: var(--muted); text-align: right; padding: 2px 0; }
+ .hdr-btns { position: absolute; right: 16px; top: 8px; display: flex; gap: 4px; }
+ .hdr-btns button { background: none; border: none; font-size: 20px; padding: 4px 6px; width: auto; color: var(--muted); cursor: pointer; }
  .refresh-btn.spinning { animation: spin 0.8s linear; }
  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
- .summary { position: relative; text-align: center; padding-bottom: 16px; font-size: 14px; color: #8a7968; }
- .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #5c4a3a; color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards; }
+ .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--dark); color: var(--bg); padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards; }
  @keyframes toastIn { to { opacity: 1; } }
  @keyframes toastOut { to { opacity: 0; } }
+ .sticky-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: var(--card); padding: 6px 16px; padding-top: calc(6px + env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transform: translateY(-100%); transition: transform 0.25s ease; }
+ .sticky-bar.visible { transform: translateY(0); }
+ .sticky-bar .sb-title { font-weight: 700; font-size: 14px; color: var(--dark); }
+ .sticky-bar .sb-vals { display: flex; gap: 16px; font-size: 13px; font-weight: 700; }
+ .sticky-bar .sb-cash { color: var(--dark); }
+ .sticky-bar .sb-total { color: var(--muted); }
+ .search-bar { display: block; width: 100%; font-size: 15px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); margin-bottom: 12px; -webkit-appearance: none; }
+ .search-bar:focus { outline: none; border-color: var(--accent); }
+ .search-bar::placeholder { color: var(--muted); }
+ .date-header { font-size: 12px; font-weight: 600; color: var(--muted); padding: 10px 4px 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+ .date-header:first-child { padding-top: 0; }
  .pin-screen {
    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-   background: #f5f0eb; z-index: 200; display: flex; flex-direction: column;
+   background: var(--bg); z-index: 200; display: flex; flex-direction: column;
    align-items: center; justify-content: center; padding: 20px; overflow: hidden;
    touch-action: none; -webkit-overflow-scrolling: auto;
  }
- .pin-screen h2 { font-size: 22px; color: #5c4a3a; margin-bottom: 8px; }
+ .pin-screen h2 { font-size: 22px; color: var(--dark); margin-bottom: 8px; }
  .pin-dots { display: flex; gap: 12px; margin: 16px 0 24px; }
- .pin-dots .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #d4c8bc; background: transparent; transition: all 0.2s; }
- .pin-dots .dot.filled { background: #8b6f4e; border-color: #8b6f4e; }
+ .pin-dots .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); background: transparent; transition: all 0.2s; }
+ .pin-dots .dot.filled { background: var(--accent); border-color: var(--accent); }
  .pin-dots.wrong { animation: shake 0.4s; }
  .pin-dots.wrong .dot.filled { background: #c0694f; border-color: #c0694f; }
  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
  .pin-pad { display: grid; grid-template-columns: repeat(3, 80px); gap: 14px; }
- .pin-pad button { width: 80px; height: 80px; border-radius: 50%; font-size: 28px; font-weight: 600; border: 1px solid #d4c8bc; background: #fff; color: #3b2e24; cursor: pointer; display: flex; align-items: center; justify-content: center; }
- .pin-pad button:active { background: #8b6f4e; color: #fff; border-color: #8b6f4e; }
+ .pin-pad button { width: 80px; height: 80px; border-radius: 50%; font-size: 28px; font-weight: 600; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+ .pin-pad button:active { background: var(--accent); color: #fff; border-color: var(--accent); }
  .pin-pad .pin-empty { visibility: hidden; }
- .pin-pad .pin-del { font-size: 20px; border: 1px solid #d4c8bc; background: #fff; }
+ .pin-pad .pin-del { font-size: 20px; border: 1px solid var(--border); background: var(--card); }
 </style>
 </head>
 <body>
 <div id="pin-screen" class="pin-screen">
  <h2>🌾 Granola Kid</h2>
- <p style="color:#8a7968;font-size:14px">Enter PIN to continue</p>
+ <p style="color:var(--muted);font-size:14px">Enter PIN to continue</p>
  <div class="pin-dots" id="pinDots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
  <div class="pin-pad">
    <button onclick="pinKey(1)">1</button><button onclick="pinKey(2)">2</button><button onclick="pinKey(3)">3</button>
@@ -174,19 +227,26 @@
  </div>
 </div>
 <div id="app" style="display:none">
-<div class="header-area">
+<div class="sticky-bar" id="stickyBar">
+ <span class="sb-title">🌾 Granola Kid</span>
+ <div class="sb-vals"><span class="sb-cash" id="stickyCash">$0.00</span><span class="sb-total" id="stickyTotal">$0.00</span></div>
+</div>
+<div class="header-area" id="headerArea">
 <div class="logo"><img src="logo.png" alt="Logo" style="width:100%;max-width:300px;display:block;margin:0 auto;"></div>
 <h1>Welcome Granola Kid</h1>
 <div class="summary">
- <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄</button>
+ <div class="hdr-btns">
+   <button id="darkToggle" onclick="toggleDark()"></button>
+   <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄</button>
+ </div>
  <div class="bal-row">
-   <div class="bal-item"><div class="amt" id="cashBal" style="color:#5c4a3a">$0.00</div><div class="lbl">💵 Cash Balance</div></div>
-   <div class="bal-item"><div class="amt" id="totalBal" style="color:#5c4a3a">$0.00</div><div class="lbl">📊 Total Balance</div></div>
+   <div class="bal-item"><div class="amt" id="cashBal" style="color:var(--dark)">$0.00</div><div class="lbl">💵 Cash</div></div>
+   <div class="bal-item"><div class="amt" id="totalBal" style="color:var(--dark)">$0.00</div><div class="lbl">📊 Total</div></div>
  </div>
  <div class="row">
-   <div class="stat inc"><div class="amt">$<span id="tinc">0.00</span></div><div class="lbl">↑ Total Income</div></div>
+   <div class="stat inc"><div class="amt">$<span id="tinc">0.00</span></div><div class="lbl">↑ Income</div></div>
    <div class="stat pending"><div class="amt">$<span id="tpend">0.00</span></div><div class="lbl">⏳ Pending</div></div>
-   <div class="stat exp"><div class="amt">$<span id="texp">0.00</span></div><div class="lbl">↓ Total Expenses</div></div>
+   <div class="stat exp"><div class="amt">$<span id="texp">0.00</span></div><div class="lbl">↓ Expenses</div></div>
  </div>
 </div>
 </div>
@@ -197,7 +257,7 @@
    <input type="radio" name="type" id="tInc" value="income" onchange="toggleForm()"><label for="tInc">Income</label>
  </div>
  <form id="expForm" style="margin-top:10px">
-   <input id="expDesc" placeholder="Description" required>
+   <input id="expDesc" placeholder="Description (e.g. MFF Run #12, Shopify labels)" required>
    <div class="row">
      <input id="expAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal" oninput="calcGst()">
      <select id="expCat"><option>📦 Co-Packing</option><option>🌾 Ingredients</option><option>🏷️ Bags & Boxes</option><option>🚚 Shipping & Gas</option><option>💻 Tech & Office</option><option>📢 Ads & Promo</option><option>☕ Business Meal</option><option>💳 Debt Repayment</option></select>
@@ -208,23 +268,24 @@
  </form>
  <form id="incForm" style="margin-top:10px;display:none">
    <select id="incSource" onchange="updateFulfilledVis()"><option>🛍️ DTC</option><option>🏢 Wholesale</option></select>
-   <input id="incCustomer" placeholder="Order Number (e.g. 1234)" required inputmode="numeric">
+   <input id="incCustomer" placeholder="Order # or Note (e.g. 1234, Sample Pack)" required>
    <input id="incAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
    <input id="incDate" type="date">
    <div class="fulfilled-wrap" id="fulfilledWrap"><label>📦 Fulfilled / Shipped Date</label><input id="incFulfilled" type="date"></div>
    <div class="row"><select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select><button type="submit" id="incBtn">Add Income</button></div>
  </form>
 </div>
+<input class="search-bar" id="searchBar" placeholder="🔍 Search entries..." style="display:none" oninput="renderList()">
 <div class="card" id="list-card" style="display:none"><div id="list"></div></div>
 <div class="loading" id="loading">Loading...</div>
-<div class="empty" id="empty" style="display:none">No entries yet</div>
+<div class="empty" id="empty" style="display:none">No entries yet — add your first one above</div>
 <div class="card" id="mgr-card" style="display:none">
  <div class="mgr-title">🏢 The Manager's Office</div>
  <div class="date-area">
-   <div style="font-size:12px;color:#8a7968;margin-bottom:6px">📅 Viewing</div>
-   <div class="date-toggle"><button class="active" onclick="setRange('ytd')">YTD</button><button onclick="setRange('all')">All Time</button><button onclick="setRange('custom')">Custom</button></div>
+   <div style="font-size:12px;color:var(--muted);margin-bottom:6px">📅 Viewing</div>
+   <div class="date-toggle"><button class="active" onclick="setRange('ytd', this)">YTD</button><button onclick="setRange('all', this)">All Time</button><button onclick="setRange('custom', this)">Custom</button></div>
    <div class="date-range" id="dateRange" style="display:none"><input type="date" id="mgrFrom" onchange="renderMgr()"><input type="date" id="mgrTo" onchange="renderMgr()"></div>
-   <div id="rangeSnap" style="font-size:20px;font-weight:700;color:#5c4a3a"></div>
+   <div id="rangeSnap" style="font-size:20px;font-weight:700;color:var(--dark)"></div>
  </div>
  <div class="mgr-section" onclick="toggleSec('secRevExp')"><span class="sec-label">📊 Revenue & Expenses</span><span class="sec-arrow" id="secRevExpArrow">▸</span></div>
  <div class="mgr-body" id="secRevExp"><div class="ytd-grid" id="ytdGrid"></div></div>
@@ -239,7 +300,7 @@
  <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">📥 Export to CSV</button>
 </div>
 <div class="footer">
- <a href="create-order.html" style="display:block;background:#8b6f4e;color:#fff;text-decoration:none;font-size:16px;font-weight:600;padding:14px;border-radius:10px;margin-bottom:12px">📋 Production Order</a>
+ <a href="create-order.html" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:16px;font-weight:600;padding:14px;border-radius:10px;margin-bottom:12px">📋 Production Order</a>
  <div>Made with 🌾 by Granola Kid</div>
 </div>
 </div>
@@ -250,37 +311,122 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playTick() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 1200; g.gain.value = 0.1; o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05); o.stop(audioCtx.currentTime + 0.05); }
 function playError() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 300; g.gain.value = 0.15; o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); o.stop(audioCtx.currentTime + 0.2); }
 function playSuccess() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 800; g.gain.value = 0.1; o.start(); o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); o.stop(audioCtx.currentTime + 0.2); }
+function haptic(ms) { if (navigator.vibrate) navigator.vibrate(ms || 10); }
 async function pinKey(n) {
  if (pinEntry.length >= 6) return;
- playTick(); pinEntry += n; updateDots();
+ haptic(); playTick(); pinEntry += n; updateDots();
  if (pinEntry.length === 6) {
-   const res = await fetch(API + "?pin=" + pinEntry, { redirect: "follow" });
+   const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "fetch", pin: pinEntry }) });
    const json = await res.json();
-   if (!json.error) { validatedPin = pinEntry; playSuccess(); document.getElementById("pin-screen").style.display = "none"; document.getElementById("app").style.display = "block"; initApp(json); }
-   else { document.getElementById("pinDots").classList.add("wrong"); playError(); setTimeout(() => { pinEntry = ""; updateDots(); document.getElementById("pinDots").classList.remove("wrong"); }, 500); }
+   if (!json.error) { validatedPin = pinEntry; haptic(30); playSuccess(); document.getElementById("pin-screen").style.display = "none"; document.getElementById("app").style.display = "block"; initApp(json); }
+   else { document.getElementById("pinDots").classList.add("wrong"); haptic(100); playError(); setTimeout(() => { pinEntry = ""; updateDots(); document.getElementById("pinDots").classList.remove("wrong"); }, 500); }
  }
 }
-function pinDel() { if (pinEntry.length > 0) playTick(); pinEntry = pinEntry.slice(0, -1); updateDots(); }
+function pinDel() { if (pinEntry.length > 0) { haptic(); playTick(); } pinEntry = pinEntry.slice(0, -1); updateDots(); }
 function updateDots() { document.querySelectorAll("#pinDots .dot").forEach((d, i) => d.classList.toggle("filled", i < pinEntry.length)); }
 document.addEventListener("keydown", e => { if (document.getElementById("pin-screen").style.display === "none") return; if (e.key >= "0" && e.key <= "9") pinKey(parseInt(e.key)); else if (e.key === "Backspace") pinDel(); });
 const $ = id => document.getElementById(id);
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
 let allData = [], capital = 0, pricing = {}, cashWaveData = [];
+let prevCashBal = 0, prevTotalBal = 0, prevIncTotal = 0, prevPendTotal = 0, prevExpTotal = 0;
+let swipeHandled = false;
+$("darkToggle").textContent = window._gkDark ? "☀️" : "🌙";
+function toggleDark() {
+ haptic();
+ window._gkDark = !window._gkDark;
+ localStorage.setItem("gk-dark", window._gkDark ? "1" : "0");
+ const mode = window._gkDark ? window._gkTheme.dark : window._gkTheme.light;
+ const r = document.documentElement;
+ r.classList.toggle("dark", window._gkDark);
+ Object.keys(mode).forEach(k => r.style.setProperty("--" + k, mode[k]));
+ document.getElementById("metaTheme").setAttribute("content", window._gkDark ? mode.header : mode.dark);
+ $("darkToggle").textContent = window._gkDark ? "☀️" : "🌙";
+}
+function animateValue(el, from, to, duration, prefix) {
+ prefix = prefix || "";
+ if (Math.abs(from - to) < 0.005) { el.textContent = prefix + to.toFixed(2); return; }
+ const start = performance.now();
+ function step(time) {
+   const p = Math.min((time - start) / duration, 1);
+   const eased = 1 - Math.pow(1 - p, 3);
+   el.textContent = prefix + (from + (to - from) * eased).toFixed(2);
+   if (p < 1) requestAnimationFrame(step);
+ }
+ requestAnimationFrame(step);
+}
+function dateLabel(dateStr) {
+ const today = new Date(); const todayStr = today.toISOString().split("T")[0];
+ const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+ const yesterdayStr = yesterday.toISOString().split("T")[0];
+ if (dateStr === todayStr) return "Today";
+ if (dateStr === yesterdayStr) return "Yesterday";
+ const d = new Date(dateStr + "T12:00:00"); if (isNaN(d.getTime())) return dateStr;
+ const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+ const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+ let label = days[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate();
+ if (d.getFullYear() !== today.getFullYear()) label += ", " + d.getFullYear();
+ return label;
+}
 function initApp(json) {
  $("expDate").value = new Date().toISOString().split("T")[0];
  $("incDate").value = new Date().toISOString().split("T")[0];
  capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || [];
  allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
  $("loading").style.display = "none"; render();
- $("expForm").onsubmit = async e => { e.preventDefault(); $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true; await post({ action: "add", type: "expense", date: $("expDate").value, description: $("expDesc").value, category: $("expCat").value, amount: parseFloat($("expAmount").value), paid: $("expPaid").value }); $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0]; $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00"; $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false; showToast("✓ Expense added"); fetchData(); };
- $("incForm").onsubmit = async e => { e.preventDefault(); $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true; await post({ action: "add", type: "income", date: $("incDate").value, source: $("incSource").value, customer: "#" + $("incCustomer").value.replace(/^#/, ""), amount: parseFloat($("incAmount").value), paid: $("incPaid").value, fulfilled: $("incFulfilled").value || "" }); $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = ""; $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false; showToast("✓ Income added — keep it up! 💰"); celebrate(); fetchData(); };
+ $("expForm").onsubmit = async e => {
+   e.preventDefault(); haptic(); $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true;
+   try {
+     await post({ action: "add", type: "expense", date: $("expDate").value, description: $("expDesc").value, category: $("expCat").value, amount: parseFloat($("expAmount").value), paid: $("expPaid").value });
+     $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0]; $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00";
+     showToast("✓ Expense added"); fetchData();
+   } catch { showToast("Error adding expense — try again"); }
+   $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false;
+   $("expDesc").focus();
+ };
+ $("incForm").onsubmit = async e => {
+   e.preventDefault(); haptic(); $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true;
+   try {
+     await post({ action: "add", type: "income", date: $("incDate").value, source: $("incSource").value, customer: $("incCustomer").value.trim(), amount: parseFloat($("incAmount").value), paid: $("incPaid").value, fulfilled: $("incFulfilled").value || "" });
+     $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = "";
+     showToast("✓ Income added — keep it up!"); celebrate(); fetchData();
+   } catch { showToast("Error adding income — try again"); }
+   $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false;
+   $("incCustomer").focus();
+ };
+ const headerObs = new IntersectionObserver(([e]) => {
+   $("stickyBar").classList.toggle("visible", !e.isIntersecting);
+ }, { threshold: 0 });
+ headerObs.observe($("headerArea"));
  render();
 }
-function toggleForm() { const isExp = $("tExp").checked; $("expForm").style.display = isExp ? "flex" : "none"; $("incForm").style.display = isExp ? "none" : "flex"; if (!isExp) updateFulfilledVis(); }
+function toggleForm() {
+ const isExp = $("tExp").checked;
+ $("expForm").style.display = isExp ? "flex" : "none";
+ $("incForm").style.display = isExp ? "none" : "flex";
+ if (!isExp) { updateFulfilledVis(); $("incCustomer").focus(); }
+ else { $("expDesc").focus(); }
+ haptic();
+}
 function updateFulfilledVis() { $("fulfilledWrap").className = "fulfilled-wrap" + (($("incSource").value || "").toLowerCase().includes("wholesale") ? " show" : ""); }
 function calcGst() { const amt = parseFloat($("expAmount").value) || 0; const gst = Math.round(amt * 0.05 * 100) / 100; $("gstAmt").textContent = gst.toFixed(2); $("totalAmt").textContent = (amt + gst).toFixed(2); }
-async function fetchData() { try { const res = await fetch(API + "?pin=" + validatedPin, { redirect: "follow" }); const json = await res.json(); capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || []; allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date))); $("loading").style.display = "none"; render(); } catch (err) { $("loading").textContent = "Error loading data. Tap to retry."; $("loading").onclick = () => { $("loading").textContent = "Loading..."; $("loading").onclick = null; fetchData(); }; } }
-async function post(body) { body.pin = validatedPin; await fetch(API, { method: "POST", redirect: "follow", body: JSON.stringify(body) }); }
+async function fetchData() {
+ try {
+   const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "fetch", pin: validatedPin }) });
+   const json = await res.json();
+   capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || [];
+   allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
+   $("loading").style.display = "none"; render();
+ } catch (err) {
+   $("loading").style.display = "block";
+   $("loading").textContent = "Error loading data. Tap to retry.";
+   $("loading").onclick = () => { $("loading").textContent = "Loading..."; $("loading").onclick = null; fetchData(); };
+ }
+}
+async function post(body) {
+ body.pin = validatedPin;
+ const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(body) });
+ if (!res.ok) throw new Error("Request failed");
+}
 function render() {
  const data = allData;
  const incPaid = data.filter(e => e.type === "income" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0);
@@ -290,35 +436,30 @@ function render() {
  const expUnpaid = data.filter(e => e.type === "expense" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0);
  const expTotal = expPaid + expUnpaid;
  const cashBal = capital + incPaid - expPaid; const totalBal = capital + incTotal - expTotal;
- $("cashBal").textContent = `$${cashBal.toFixed(2)}`; $("cashBal").style.color = cashBal >= 0 ? "#5c4a3a" : "#c0694f";
- $("totalBal").textContent = `$${totalBal.toFixed(2)}`; $("totalBal").style.color = totalBal >= 0 ? "#5c4a3a" : "#c0694f";
- $("tinc").textContent = incTotal.toFixed(2); $("tpend").textContent = incPending.toFixed(2); $("texp").textContent = expTotal.toFixed(2);
+ animateValue($("cashBal"), prevCashBal, cashBal, 400, "$");
+ animateValue($("totalBal"), prevTotalBal, totalBal, 400, "$");
+ animateValue($("tinc"), prevIncTotal, incTotal, 400);
+ animateValue($("tpend"), prevPendTotal, incPending, 400);
+ animateValue($("texp"), prevExpTotal, expTotal, 400);
+ $("cashBal").style.color = cashBal >= 0 ? "var(--dark)" : "#c0694f";
+ $("totalBal").style.color = totalBal >= 0 ? "var(--dark)" : "#c0694f";
+ prevCashBal = cashBal; prevTotalBal = totalBal; prevIncTotal = incTotal; prevPendTotal = incPending; prevExpTotal = expTotal;
+ $("stickyCash").textContent = `$${cashBal.toFixed(2)}`; $("stickyCash").style.color = cashBal >= 0 ? "var(--dark)" : "#c0694f";
+ $("stickyTotal").textContent = `$${totalBal.toFixed(2)}`;
  $("empty").style.display = data.length ? "none" : "block";
  $("list-card").style.display = data.length ? "block" : "none";
+ $("searchBar").style.display = data.length ? "block" : "none";
  $("mgr-card").style.display = data.length ? "block" : "none";
- const visible = data.filter((e, i) => { e._idx = i; return e.paid !== "yes"; });
- $("list").innerHTML = visible.map(e => {
-   const i = e._idx;
-   const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || "");
-   const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`;
-   const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
-   let light = "";
-   if (e.paid !== "yes") {
-     let dueDate = null;
-     if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { dueDate = new Date(new Date(fmtDate(e.date)).getTime() + 7*86400000); }
-     else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fd = fmtDate(e.fulfilled) || fmtDate(e.date); if (fd) dueDate = new Date(new Date(fd).getTime() + 14*86400000); }
-     if (dueDate) { const diff = (dueDate - new Date()) / 86400000; light = diff < 0 ? "🔴" : diff <= 7 ? "🟡" : "🟢"; }
-   }
-   return `<div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${light ? light + ' ' : ''}${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions"><span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i})`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span><button onclick="cam(${i})" title="Upload receipt">${e.receipt ? '🖼️' : '📷'}</button><button onclick="del(${i})" title="Delete entry">🗑️</button>${light === '🔴' && e.type === 'income' ? `<button onclick="remind(${i})" title="Send payment reminder email" style="background:#c0694f !important;color:#fff !important;font-size:11px !important;padding:3px 8px !important;border-radius:6px !important">📧 Remind</button>` : ''}</div></div>${e.receipt ? `<a class="receipt-link" href="${esc(e.receipt)}" target="_blank">📎 View Receipt</a>` : ''}</div>`; }).join("");
+ renderList();
  const nowDate = new Date(); const dayOfWeek = nowDate.getDay(); const monOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
  const thisMonday = new Date(nowDate); thisMonday.setDate(thisMonday.getDate() + monOffset);
  const thisSunday = new Date(thisMonday); thisSunday.setDate(thisSunday.getDate() + 6);
  const monStr = thisMonday.toISOString().split("T")[0]; const sunStr = thisSunday.toISOString().split("T")[0];
  let weekOut = 0, weekIn = 0, overdueOut = 0, overdueIn = 0;
  const todayWk = new Date().toISOString().split("T")[0];
- data.forEach(e => { if (e.paid === "yes") return; const d = fmtDate(e.date);
-   if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { const due = new Date(new Date(d).getTime() + 7*86400000).toISOString().split("T")[0]; if (due >= monStr && due <= sunStr) weekOut += parseFloat(e.total || e.amount || 0); else if (due < todayWk) overdueOut += parseFloat(e.total || e.amount || 0); }
-   if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fDate = fmtDate(e.fulfilled) || fmtDate(e.date); if (fDate) { const due = new Date(new Date(fDate).getTime() + 14*86400000).toISOString().split("T")[0]; if (due >= monStr && due <= sunStr) weekIn += parseFloat(e.amount || 0); else if (due < todayWk) overdueIn += parseFloat(e.amount || 0); } }
+ data.forEach(e => { if (e.paid === "yes") return; const d = fmtDate(e.date); if (!d) return;
+   if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { const due = new Date(new Date(d).getTime() + 7*86400000); if (isNaN(due.getTime())) return; const dueStr = due.toISOString().split("T")[0]; if (dueStr >= monStr && dueStr <= sunStr) weekOut += parseFloat(e.total || e.amount || 0); else if (dueStr < todayWk) overdueOut += parseFloat(e.total || e.amount || 0); }
+   if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fDate = fmtDate(e.fulfilled) || fmtDate(e.date); if (!fDate) return; const due = new Date(new Date(fDate).getTime() + 14*86400000); if (isNaN(due.getTime())) return; const dueStr = due.toISOString().split("T")[0]; if (dueStr >= monStr && dueStr <= sunStr) weekIn += parseFloat(e.amount || 0); else if (dueStr < todayWk) overdueIn += parseFloat(e.amount || 0); }
  });
  if (weekOut > 0 || weekIn > 0 || overdueOut > 0 || overdueIn > 0) {
    let html = `💰 This week: <span class="wa-out">-$${weekOut.toFixed(0)} out</span> · <span class="wa-in">+$${weekIn.toFixed(0)} in</span>`;
@@ -328,9 +469,73 @@ function render() {
  } else { $("weekAlert").style.display = "none"; }
  renderMgr();
 }
+function renderList() {
+ const query = ($("searchBar").value || "").toLowerCase().trim();
+ const visible = [];
+ allData.forEach((e, idx) => {
+   if (e.paid === "yes") return;
+   if (query) {
+     const haystack = [e.description, e.source, e.customer, e.category, String(e.amount), String(e.total)].join(" ").toLowerCase();
+     if (!haystack.includes(query)) return;
+   }
+   visible.push({ entry: e, origIdx: idx });
+ });
+ let html = ""; let lastDate = "";
+ visible.forEach(({ entry: e, origIdx: i }) => {
+   const d = fmtDate(e.date);
+   if (d !== lastDate) { html += `<div class="date-header">${dateLabel(d)}</div>`; lastDate = d; }
+   const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || "");
+   const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`;
+   const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
+   let light = "";
+   if (e.paid !== "yes") {
+     let dueDate = null;
+     if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { dueDate = new Date(new Date(fmtDate(e.date)).getTime() + 7*86400000); }
+     else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fd = fmtDate(e.fulfilled) || fmtDate(e.date); if (fd) dueDate = new Date(new Date(fd).getTime() + 14*86400000); }
+     if (dueDate && !isNaN(dueDate.getTime())) { const diff = (dueDate - new Date()) / 86400000; light = diff < 0 ? "🔴" : diff <= 7 ? "🟡" : "🟢"; }
+   }
+   const receiptUrl = safeUrl(e.receipt);
+   html += `<div class="swipe-entry" data-idx="${i}"><div class="swipe-action swipe-action-left">✓ Paid</div><div class="swipe-action swipe-action-right">🗑️</div><div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${light ? light + ' ' : ''}${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions"><span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i}, event)`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span><button onclick="cam(${i}, event)" title="Upload receipt">${e.receipt ? '🖼️' : '📷'}</button><button onclick="del(${i}, event)" title="Delete entry">🗑️</button>${light === '🔴' && e.type === 'income' ? `<button onclick="remind(${i}, event)" title="Send payment reminder email" style="background:#c0694f !important;color:#fff !important;font-size:11px !important;padding:3px 8px !important;border-radius:6px !important">📧 Remind</button>` : ''}</div></div>${receiptUrl ? `<a class="receipt-link" href="${esc(receiptUrl)}" target="_blank" rel="noopener">📎 View Receipt</a>` : ''}</div></div>`;
+ });
+ $("list").innerHTML = html;
+ initSwipe();
+}
+function initSwipe() {
+ document.querySelectorAll(".swipe-entry").forEach(wrap => {
+   const entryEl = wrap.querySelector(".entry");
+   let startX = 0, startY = 0, dx = 0, locked = false, direction = null;
+   wrap.addEventListener("touchstart", e => {
+     startX = e.touches[0].clientX; startY = e.touches[0].clientY; dx = 0; locked = false; direction = null;
+     entryEl.style.transition = "none";
+   }, { passive: true });
+   wrap.addEventListener("touchmove", e => {
+     const cx = e.touches[0].clientX, cy = e.touches[0].clientY;
+     if (!direction) {
+       const ax = Math.abs(cx - startX), ay = Math.abs(cy - startY);
+       if (ax < 8 && ay < 8) return;
+       direction = ax > ay ? "h" : "v";
+       if (direction === "v") { locked = true; return; }
+     }
+     if (locked) return;
+     e.preventDefault();
+     dx = Math.max(-120, Math.min(120, cx - startX));
+     entryEl.style.transform = `translateX(${dx}px)`;
+     wrap.classList.toggle("swiping-right", dx > 30);
+     wrap.classList.toggle("swiping-left", dx < -30);
+   }, { passive: false });
+   wrap.addEventListener("touchend", () => {
+     entryEl.style.transition = "transform 0.2s"; entryEl.style.transform = "";
+     wrap.classList.remove("swiping-right", "swiping-left");
+     const idx = parseInt(wrap.dataset.idx);
+     if (dx > 100) { swipeHandled = true; haptic(20); markPaid(idx, new Event("swipe")); }
+     else if (dx < -100) { swipeHandled = true; haptic(20); del(idx, new Event("swipe")); }
+     dx = 0;
+   }, { passive: true });
+ });
+}
 let mgrRange = "ytd", pieSlices = [];
-function setRange(r) { mgrRange = r; document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active")); event.target.classList.add("active"); $("dateRange").style.display = r === "custom" ? "flex" : "none"; if (r === "custom") { const yr = new Date().getFullYear(); if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`; if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0]; } renderMgr(); }
-function toggleSec(id) { $(id).classList.toggle("open"); $(id + "Arrow").classList.toggle("open"); }
+function setRange(r, el) { mgrRange = r; document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active")); el.classList.add("active"); $("dateRange").style.display = r === "custom" ? "flex" : "none"; if (r === "custom") { const yr = new Date().getFullYear(); if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`; if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0]; } renderMgr(); }
+function toggleSec(id) { haptic(); $(id).classList.toggle("open"); $(id + "Arrow").classList.toggle("open"); }
 function getMgrData() { const yr = new Date().getFullYear().toString(); return allData.filter(e => { const d = fmtDate(e.date); if (mgrRange === "ytd") return d.startsWith(yr); if (mgrRange === "all") return true; return d >= ($("mgrFrom").value || "0000") && d <= ($("mgrTo").value || "9999"); }); }
 function renderMgr() {
  const data = getMgrData(); const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -346,8 +551,8 @@ function renderMgr() {
  const catEntries = Object.entries(cats).sort((a, b) => b[1] - a[1]); const pieTotal = catEntries.reduce((s, c) => s + c[1], 0) || 1;
  const canvas = $("pieChart"); const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, 200, 200); pieSlices = []; let startAngle = -Math.PI / 2;
  catEntries.forEach(([cat, val], idx) => { const slice = (val / pieTotal) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(100, 100); ctx.arc(100, 100, 90, startAngle, startAngle + slice); ctx.fillStyle = pieColors[idx % pieColors.length]; ctx.fill(); pieSlices.push({ cat, val, start: startAngle, end: startAngle + slice, color: pieColors[idx % pieColors.length] }); startAngle += slice; });
- ctx.beginPath(); ctx.arc(100, 100, 50, 0, Math.PI * 2); ctx.fillStyle = "#fff"; ctx.fill();
- $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) => `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${cat} $${val.toFixed(0)}</span>`).join(""); $("catDetail").innerHTML = "";
+ ctx.beginPath(); ctx.arc(100, 100, 50, 0, Math.PI * 2); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--card").trim(); ctx.fill();
+ $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) => `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${esc(cat)} $${val.toFixed(0)}</span>`).join(""); $("catDetail").innerHTML = "";
  const p = pricing;
  function estCogs(e) { const amt = parseFloat(e.amount || 0); const src = (e.source || "").toLowerCase(); if (src.includes("wholesale") || src.includes("ws")) return (amt / (p.wsPrice || 9.30)) * (p.wsCogs || 5.42); else return (amt / (p.dtcPrice || 13.29)) * (p.dtcCogs || 5.50); }
  const incData = data.filter(e => e.type === "income");
@@ -361,29 +566,68 @@ function renderMgr() {
  const wsMargin = wsRev > 0 ? (((wsRev - wsCost) / wsRev) * 100).toFixed(1) : "0.0";
  $("profitGrid").innerHTML = `<div class="ytd-item ${grossProfit >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${grossProfit >= 0 ? '+' : ''}$${grossProfit.toFixed(2)}</div><div class="ytd-lbl">💰 Est. Gross Profit</div></div><div class="ytd-item"><div class="ytd-val">${marginPct}%</div><div class="ytd-lbl">📊 Blended Margin</div></div><div class="ytd-item"><div class="ytd-val">${dtcMargin}%</div><div class="ytd-lbl">🛍️ DTC Margin</div></div><div class="ytd-item"><div class="ytd-val">${wsMargin}%</div><div class="ytd-lbl">🏢 Wholesale Margin</div></div>`;
  const mProfit = {}; incData.forEach(e => { const m = fmtDate(e.date).substring(0, 7) || "Unknown"; if (!mProfit[m]) mProfit[m] = { rev: 0, cogs: 0 }; mProfit[m].rev += parseFloat(e.amount || 0); mProfit[m].cogs += estCogs(e); });
- $("monthProfit").innerHTML = Object.keys(mProfit).sort().reverse().map(m => { const mp = mProfit[m]; const gp = mp.rev - mp.cogs; const mg = mp.rev > 0 ? ((gp / mp.rev) * 100).toFixed(1) : "0.0"; const parts = m.split("-"); const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m; return `<div class="profit-row"><div class="profit-label"><span>${label}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div></div>`; }).join("");
+ $("monthProfit").innerHTML = Object.keys(mProfit).sort().reverse().map(m => { const mp = mProfit[m]; const gp = mp.rev - mp.cogs; const mg = mp.rev > 0 ? ((gp / mp.rev) * 100).toFixed(1) : "0.0"; const parts = m.split("-"); const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m; return `<div class="profit-row"><div class="profit-label"><span>${esc(label)}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div></div>`; }).join("");
  const today = new Date(); const todayStr = today.toISOString().split("T")[0]; const in7 = new Date(today.getTime() + 7*86400000).toISOString().split("T")[0];
  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0];
  const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split("T")[0];
  const prevMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split("T")[0];
  let wed7 = 0, spillover = 0;
- const cwRows = cashWaveData.map(r => { const d = fmtDate(r.date); const mffDue = new Date(new Date(d).getTime() + 7*86400000).toISOString().split("T")[0]; const wsDue = new Date(new Date(d).getTime() + 15*86400000).toISOString().split("T")[0]; const mff = parseFloat(r.mff) || 0; const ws = parseFloat(r.wholesale) || 0; if (mffDue >= todayStr && mffDue <= in7) wed7 += mff; if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= new Date(today.getFullYear(), today.getMonth(), 7).toISOString().split("T")[0]) spillover += mff; return { date: d, mff, mffDue, ws, wsDue, notes: r.notes || "" }; }).sort((a, b) => b.date.localeCompare(a.date));
+ const cwRows = cashWaveData.map(r => {
+   const d = fmtDate(r.date); if (!d) return null;
+   const baseDate = new Date(d); if (isNaN(baseDate.getTime())) return null;
+   const mffDue = new Date(baseDate.getTime() + 7*86400000).toISOString().split("T")[0];
+   const wsDue = new Date(baseDate.getTime() + 15*86400000).toISOString().split("T")[0];
+   const mff = parseFloat(r.mff) || 0; const ws = parseFloat(r.wholesale) || 0;
+   if (mffDue >= todayStr && mffDue <= in7) wed7 += mff;
+   if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= new Date(today.getFullYear(), today.getMonth(), 7).toISOString().split("T")[0]) spillover += mff;
+   return { date: d, mff, mffDue, ws, wsDue, notes: r.notes || "" };
+ }).filter(Boolean).sort((a, b) => b.date.localeCompare(a.date));
  let cwHtml = wed7 > 0 ? `<div class="cw-alert">⚠️ $${wed7.toFixed(2)} due to MFF in next 7 days</div>` : `<div class="cw-alert ok">✅ No MFF payments due this week</div>`;
  if (spillover > 0) cwHtml += `<div class="cw-alert">🔴 Month spillover: $${spillover.toFixed(2)} from last month due this week</div>`;
- if (cwRows.length) { cwHtml += cwRows.map(r => { const total = r.mff + r.ws || 1; return `<div><div class="cw-row"><span>🗓️ ${r.date}</span><span><span class="cw-out">-$${r.mff.toFixed(0)}</span> → <span class="cw-in">+$${r.ws.toFixed(0)}</span></span></div><div class="cw-bar"><div class="cw-bar-out" style="width:${(r.mff / total) * 100}%"></div><div class="cw-bar-in" style="width:${(r.ws / total) * 100}%"></div></div><div style="font-size:11px;color:#8a7968">Pay MFF: ${r.mffDue} · WS due: ${r.wsDue}${r.notes ? ' · ' + esc(r.notes) : ''}</div></div>`; }).join(""); } else { cwHtml += '<div style="text-align:center;color:#8a7968;padding:12px;font-size:13px">Add production runs to the Cash Wave tab in Google Sheets</div>'; }
+ if (cwRows.length) { cwHtml += cwRows.map(r => { const total = r.mff + r.ws || 1; return `<div><div class="cw-row"><span>🗓️ ${esc(r.date)}</span><span><span class="cw-out">-$${r.mff.toFixed(0)}</span> → <span class="cw-in">+$${r.ws.toFixed(0)}</span></span></div><div class="cw-bar"><div class="cw-bar-out" style="width:${(r.mff / total) * 100}%"></div><div class="cw-bar-in" style="width:${(r.ws / total) * 100}%"></div></div><div style="font-size:11px;color:var(--muted)">Pay MFF: ${esc(r.mffDue)} · WS due: ${esc(r.wsDue)}${r.notes ? ' · ' + esc(r.notes) : ''}</div></div>`; }).join(""); } else { cwHtml += '<div style="text-align:center;color:var(--muted);padding:12px;font-size:13px">Add production runs to the Cash Wave tab in Google Sheets</div>'; }
  $("cashWave").innerHTML = cwHtml;
 }
-function tapPie(event) { const canvas = $("pieChart"); const rect = canvas.getBoundingClientRect(); const x = (event.clientX - rect.left) * (200 / rect.width) - 100; const y = (event.clientY - rect.top) * (200 / rect.height) - 100; const dist = Math.sqrt(x * x + y * y); if (dist < 50 || dist > 90) { $("catDetail").innerHTML = ""; return; } let angle = Math.atan2(y, x); if (angle < -Math.PI / 2) angle += Math.PI * 2; const hit = pieSlices.find(s => angle >= s.start && angle < s.end); if (!hit) return; const data = getMgrData(); const entries = data.filter(e => e.type === "expense" && (e.category || "Other") === hit.cat); $("catDetail").innerHTML = `<div class="cat-detail" style="border-left:3px solid ${hit.color}"><div style="font-weight:700;margin-bottom:4px">${hit.cat} — $${hit.val.toFixed(2)}</div>${entries.map(e => `<div><span>${esc(e.description || "")} · ${fmtDate(e.date)}</span><span>$${parseFloat(e.total || e.amount || 0).toFixed(2)}</span></div>`).join("")}</div>`; }
-function exportCSV() { const rows = [["Type","Date","Description/Source","Category/Customer","Amount","GST","Total","Paid"]]; allData.forEach(e => { if (e.type === "income") rows.push(["Income", fmtDate(e.date), e.source || "", e.customer || "", e.amount || 0, "", "", e.paid || ""]); else rows.push(["Expense", fmtDate(e.date), e.description || "", e.category || "", e.amount || 0, e.gst || 0, e.total || 0, e.paid || ""]); }); const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n"); const blob = new Blob([csv], { type: "text/csv" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `granola-kid-${new Date().toISOString().split("T")[0]}.csv`; a.click(); }
-function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+function tapPie(event) { const canvas = $("pieChart"); const rect = canvas.getBoundingClientRect(); const x = (event.clientX - rect.left) * (200 / rect.width) - 100; const y = (event.clientY - rect.top) * (200 / rect.height) - 100; const dist = Math.sqrt(x * x + y * y); if (dist < 50 || dist > 90) { $("catDetail").innerHTML = ""; return; } let angle = Math.atan2(y, x); if (angle < -Math.PI / 2) angle += Math.PI * 2; const hit = pieSlices.find(s => angle >= s.start && angle < s.end); if (!hit) return; const data = getMgrData(); const entries = data.filter(e => e.type === "expense" && (e.category || "Other") === hit.cat); $("catDetail").innerHTML = `<div class="cat-detail" style="border-left:3px solid ${hit.color}"><div style="font-weight:700;margin-bottom:4px">${esc(hit.cat)} — $${hit.val.toFixed(2)}</div>${entries.map(e => `<div><span>${esc(e.description || "")} · ${fmtDate(e.date)}</span><span>$${parseFloat(e.total || e.amount || 0).toFixed(2)}</span></div>`).join("")}</div>`; }
+function exportCSV() { const rows = [["Type","Date","Description/Source","Category/Customer","Amount","GST","Total","Paid"]]; allData.forEach(e => { if (e.type === "income") rows.push(["Income", fmtDate(e.date), e.source || "", e.customer || "", e.amount || 0, "", "", e.paid || ""]); else rows.push(["Expense", fmtDate(e.date), e.description || "", e.category || "", e.amount || 0, e.gst || 0, e.total || 0, e.paid || ""]); }); const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n"); const blob = new Blob([csv], { type: "text/csv" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `granola-kid-${new Date().toISOString().split("T")[0]}.csv`; a.click(); URL.revokeObjectURL(a.href); }
+function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+function safeUrl(url) { if (!url) return ""; try { const u = new URL(url); return (u.protocol === "https:" || u.protocol === "http:") ? url : ""; } catch { return ""; } }
 function fmtDate(d) { return d ? String(d).substring(0, 10) : ""; }
 function showToast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
-function refreshData() { $("refreshBtn").classList.add("spinning"); fetchData().then(() => { $("refreshBtn").classList.remove("spinning"); showToast("✓ Refreshed"); }); }
+let refreshing = false;
+function refreshData() { if (refreshing) return; refreshing = true; haptic(); $("refreshBtn").classList.add("spinning"); fetchData().then(() => { $("refreshBtn").classList.remove("spinning"); showToast("✓ Refreshed"); }).catch(() => { $("refreshBtn").classList.remove("spinning"); showToast("Error refreshing"); }).finally(() => { refreshing = false; }); }
 function celebrate() { const emojis = ["💰","🌟","🎉","💵","✨","🌾"]; const div = document.createElement("div"); div.className = "celebrate"; for (let i = 0; i < 20; i++) { const s = document.createElement("span"); s.textContent = emojis[Math.floor(Math.random() * emojis.length)]; s.style.left = Math.random() * 100 + "%"; s.style.animationDelay = Math.random() * 1 + "s"; s.style.fontSize = (32 + Math.random() * 24) + "px"; div.appendChild(s); } document.body.appendChild(div); setTimeout(() => div.remove(), 4500); }
-async function del(i) { event.stopPropagation(); if (!confirm("Delete this entry?")) return; const e = allData[i]; await post({ action: "delete", type: e.type, row: e.row }); fetchData(); }
-async function markPaid(i) { event.stopPropagation(); const e = allData[i]; await post({ action: "pay", type: e.type, row: e.row }); fetchData(); }
-async function cam(i) { event.stopPropagation(); const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = async () => { const file = inp.files[0]; const reader = new FileReader(); reader.onload = async () => { const base64 = reader.result.split(",")[1]; const e = allData[i]; await fetch(API, { method: "POST", body: JSON.stringify({ action: "receipt", type: e.type, row: e.row, data: base64, pin: validatedPin, mime: file.type, filename: `receipt_${fmtDate(e.date)}_${Date.now()}.${file.type.split("/")[1]}` })}); fetchData(); }; reader.readAsDataURL(file); }; inp.click(); }
-function remind(i) {
+async function del(i, event) {
+ if (event && event.stopPropagation) event.stopPropagation();
+ if (!confirm("Delete this entry?")) return;
+ haptic(20); const e = allData[i];
+ try { await post({ action: "delete", type: e.type, row: e.row }); showToast("✓ Deleted"); fetchData(); }
+ catch { showToast("Error deleting — try again"); }
+}
+async function markPaid(i, event) {
+ if (event && event.stopPropagation) event.stopPropagation();
+ haptic(20); const e = allData[i];
+ try { await post({ action: "pay", type: e.type, row: e.row }); showToast("✓ Marked as paid"); fetchData(); }
+ catch { showToast("Error updating — try again"); }
+}
+async function cam(i, event) {
+ event.stopPropagation();
+ const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*";
+ inp.onchange = async () => {
+   const file = inp.files[0]; if (!file) return;
+   if (file.size > 5 * 1024 * 1024) { showToast("Image too large (max 5MB)"); return; }
+   const reader = new FileReader();
+   reader.onload = async () => {
+     const base64 = reader.result.split(",")[1]; const e = allData[i];
+     try {
+       await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "receipt", type: e.type, row: e.row, data: base64, pin: validatedPin, mime: file.type, filename: `receipt_${fmtDate(e.date)}_${Date.now()}.${file.type.split("/")[1]}` })});
+       showToast("✓ Receipt uploaded"); fetchData();
+     } catch { showToast("Error uploading — try again"); }
+   };
+   reader.readAsDataURL(file);
+ };
+ inp.click();
+}
+function remind(i, event) {
  event.stopPropagation();
  const e = allData[i];
  const order = e.customer || "N/A";
@@ -396,13 +640,23 @@ function remind(i) {
  window.open(`mailto:?subject=${subj}&body=${encodeURIComponent(body)}`);
 }
 function edit(i) {
+ if (swipeHandled) { swipeHandled = false; return; }
+ haptic();
  const e = allData[i]; const overlay = document.createElement("div"); overlay.className = "edit-overlay"; overlay.onclick = ev => { if (ev.target === overlay) overlay.remove(); };
  let fields;
  if (e.type === "expense") { fields = `<input id="eDesc" value="${esc(e.description || "")}" placeholder="Description" required><div class="row"><input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal"><select id="eCat">${["📦 Co-Packing","🌾 Ingredients","🏷️ Bags & Boxes","🚚 Shipping & Gas","💻 Tech & Office","📢 Ads & Promo","☕ Business Meal","💳 Debt Repayment"].map(c => `<option${(e.category||"").includes(c.substring(2)) ? " selected" : ""}>${c}</option>`).join("")}</select></div><input id="eDate" type="date" value="${fmtDate(e.date)}"><select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`; }
- else { fields = `<select id="eSrc"><option${(e.source||"").includes("DTC") ? " selected" : ""}>🛍️ DTC</option><option${(e.source||"").includes("Wholesale") ? " selected" : ""}>🏢 Wholesale</option></select><input id="eCust" value="${esc(e.customer || "")}" placeholder="Customer / Order Number" required><input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal"><input id="eDate" type="date" value="${fmtDate(e.date)}">${(e.source || "").toLowerCase().includes("wholesale") ? `<label style="font-size:12px;color:#8a7968">📦 Fulfilled Date</label><input id="eFulfilled" type="date" value="${fmtDate(e.fulfilled)}">` : ''}<select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`; }
+ else { fields = `<select id="eSrc"><option${(e.source||"").includes("DTC") ? " selected" : ""}>🛍️ DTC</option><option${(e.source||"").includes("Wholesale") ? " selected" : ""}>🏢 Wholesale</option></select><input id="eCust" value="${esc(e.customer || "")}" placeholder="Order # or Note" required><input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal"><input id="eDate" type="date" value="${fmtDate(e.date)}">${(e.source || "").toLowerCase().includes("wholesale") ? `<label style="font-size:12px;color:var(--muted)">📦 Fulfilled Date</label><input id="eFulfilled" type="date" value="${fmtDate(e.fulfilled)}">` : ''}<select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`; }
  overlay.innerHTML = `<div class="edit-sheet"><h3>Edit ${e.type === "income" ? "Income" : "Expense"}</h3><form id="editForm">${fields}<div class="edit-btns"><button type="button" class="cancel" onclick="this.closest('.edit-overlay').remove()">Cancel</button><button type="submit">Save</button></div></form></div>`;
  document.body.appendChild(overlay);
- $("editForm").onsubmit = async ev => { ev.preventDefault(); const body = { action: "edit", type: e.type, row: e.row, date: $("eDate").value, amount: parseFloat($("eAmt").value), paid: $("ePaid").value }; if (e.type === "expense") { body.description = $("eDesc").value; body.category = $("eCat").value; } else { body.source = $("eSrc").value; body.customer = $("eCust").value; const ef = document.getElementById("eFulfilled"); if (ef) body.fulfilled = ef.value; } overlay.remove(); await post(body); fetchData(); };
+ $("editForm").onsubmit = async ev => {
+   ev.preventDefault(); haptic();
+   const body = { action: "edit", type: e.type, row: e.row, date: $("eDate").value, amount: parseFloat($("eAmt").value), paid: $("ePaid").value };
+   if (e.type === "expense") { body.description = $("eDesc").value; body.category = $("eCat").value; }
+   else { body.source = $("eSrc").value; body.customer = $("eCust").value; const ef = document.getElementById("eFulfilled"); if (ef) body.fulfilled = ef.value; }
+   overlay.remove();
+   try { await post(body); showToast("✓ Updated"); fetchData(); }
+   catch { showToast("Error saving — try again"); }
+ };
 }
 </script>
 </body>
