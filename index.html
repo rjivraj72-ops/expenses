@@ -47,13 +47,7 @@
 </script>
 <style>
  * { margin: 0; padding: 0; box-sizing: border-box; }
- body {
-   font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
-   background: var(--bg); color: var(--text);
-   padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
-   -webkit-tap-highlight-color: transparent; overflow-x: hidden;
-   background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
- }
+ body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif; background: var(--bg); color: var(--text); padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom); -webkit-tap-highlight-color: transparent; overflow-x: hidden; background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); }
  .header-area { background: linear-gradient(180deg, var(--header) 0%, var(--bg) 100%); margin: -16px -16px 16px -16px; padding: 16px 16px 0; border-radius: 0 0 20px 20px; }
  .logo { padding: 20px 0 4px; }
  h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: var(--dark); }
@@ -200,12 +194,7 @@
  .receipt-thumb { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; margin-top: 6px; border: 1px solid var(--border); cursor: pointer; }
  .date-header { font-size: 12px; font-weight: 600; color: var(--muted); padding: 10px 4px 4px; text-transform: uppercase; letter-spacing: 0.5px; }
  .date-header:first-child { padding-top: 0; }
- .pin-screen {
-   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-   background: var(--bg); z-index: 200; display: flex; flex-direction: column;
-   align-items: center; justify-content: center; padding: 20px; overflow: hidden;
-   touch-action: none; -webkit-overflow-scrolling: auto;
- }
+ .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; touch-action: none; -webkit-overflow-scrolling: auto; }
  .pin-screen h2 { font-size: 22px; color: var(--dark); margin-bottom: 8px; }
  .pin-dots { display: flex; gap: 12px; margin: 16px 0 24px; }
  .pin-dots .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); background: transparent; transition: all 0.2s; }
@@ -218,6 +207,34 @@
  .pin-pad button:active { background: var(--accent); color: #fff; border-color: var(--accent); }
  .pin-pad .pin-empty { visibility: hidden; }
  .pin-pad .pin-del { font-size: 20px; border: 1px solid var(--border); background: var(--card); }
+ .kbd-hint { display: none; }
+ @media (min-width: 768px) {
+   body { padding: 16px 32px; max-width: 1100px; margin: 0 auto; }
+   .header-area { margin: -16px -32px 16px -32px; padding: 16px 32px 0; }
+   .desktop-cols { display: flex; gap: 20px; align-items: flex-start; }
+   .desktop-cols .col-form { flex: 0 0 380px; position: sticky; top: 16px; }
+   .desktop-cols .col-list { flex: 1; min-width: 0; }
+   .pin-pad button { width: 64px; height: 64px; font-size: 24px; }
+   .pin-pad { gap: 10px; grid-template-columns: repeat(3, 64px); }
+   .entry-actions { opacity: 0; transition: opacity 0.15s; }
+   .entry:hover .entry-actions { opacity: 1; }
+   .entry { transition: background 0.15s; }
+   .entry:hover { filter: brightness(0.97); }
+   .swipe-action { display: none; }
+   .edit-sheet { border-radius: 16px; margin-bottom: 20vh; }
+   .edit-overlay { align-items: center; }
+   .ytd-grid { grid-template-columns: repeat(4, 1fr); }
+   .summary .bal-item .amt { font-size: 26px; }
+   .summary .stat .amt { font-size: 18px; }
+   .mgr-card-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+   .kbd-hint { display: inline; font-size: 10px; color: var(--muted); font-weight: 400; margin-left: 6px; padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; vertical-align: middle; }
+   .receipt-thumb { width: 64px; height: 64px; }
+ }
+ @media (min-width: 1024px) {
+   body { padding: 16px 48px; }
+   .header-area { margin: -16px -48px 16px -48px; padding: 16px 48px 0; }
+   .desktop-cols .col-form { flex: 0 0 420px; }
+ }
 </style>
 </head>
 <body>
@@ -244,7 +261,7 @@
 <div class="summary">
  <div class="hdr-btns">
    <button id="darkToggle" onclick="toggleDark()"></button>
-   <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄</button>
+   <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh (R)">🔄</button>
  </div>
  <div class="bal-row">
    <div class="bal-item"><div class="amt" id="cashBal" style="color:var(--dark)">$0.00</div><div class="lbl">💵 Cash</div></div>
@@ -258,10 +275,12 @@
 </div>
 </div>
 <div class="week-alert" id="weekAlert" style="display:none"></div>
+<div class="desktop-cols">
+<div class="col-form">
 <div class="card">
  <div class="toggle">
-   <input type="radio" name="type" id="tExp" value="expense" checked onchange="toggleForm()"><label for="tExp">Expense</label>
-   <input type="radio" name="type" id="tInc" value="income" onchange="toggleForm()"><label for="tInc">Income</label>
+   <input type="radio" name="type" id="tExp" value="expense" checked onchange="toggleForm()"><label for="tExp">Expense <span class="kbd-hint">E</span></label>
+   <input type="radio" name="type" id="tInc" value="income" onchange="toggleForm()"><label for="tInc">Income <span class="kbd-hint">I</span></label>
  </div>
  <form id="expForm" style="margin-top:10px">
    <input id="expDesc" placeholder="Description (e.g. MFF Run #12, Shopify labels)" required>
@@ -282,6 +301,8 @@
    <div class="row"><select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select><button type="submit" id="incBtn">Add Income</button></div>
  </form>
 </div>
+</div>
+<div class="col-list">
 <input class="search-bar" id="searchBar" placeholder="🔍 Search... (today, last week, co-packing, etc)" style="display:none" oninput="renderList()">
 <div class="filter-row" id="filterRow" style="display:none">
  <button class="active" onclick="setFilter(false, this)">Unpaid</button>
@@ -290,6 +311,8 @@
 <div class="card" id="list-card" style="display:none"><div id="list"></div></div>
 <div class="loading" id="loading">Loading...</div>
 <div class="empty" id="empty" style="display:none">No entries yet — add your first one above</div>
+</div>
+</div>
 <div class="card" id="mgr-card" style="display:none">
  <div class="mgr-title">🏢 The Manager's Office</div>
  <div class="date-area">
@@ -754,6 +777,16 @@ function edit(i) {
    catch { showToast("Error saving — try again"); }
  };
 }
+document.addEventListener("keydown", e => {
+ if (document.getElementById("pin-screen").style.display !== "none") return;
+ if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA") return;
+ if (document.querySelector(".edit-overlay")) { if (e.key === "Escape") { document.querySelector(".edit-overlay").remove(); } return; }
+ if (e.key === "r" || e.key === "R") { e.preventDefault(); refreshData(); }
+ else if (e.key === "e" || e.key === "E") { e.preventDefault(); $("tExp").checked = true; toggleForm(); $("expDesc").focus(); }
+ else if (e.key === "i" || e.key === "I") { e.preventDefault(); $("tInc").checked = true; toggleForm(); $("incCustomer").focus(); }
+ else if (e.key === "/" || e.key === "f" || e.key === "F") { e.preventDefault(); $("searchBar").focus(); }
+ else if (e.key === "Escape") { $("searchBar").value = ""; renderList(); $("searchBar").blur(); }
+});
 </script>
 </body>
 </html>
