@@ -157,13 +157,13 @@
  .celebrate span { position: absolute; top: -30px; font-size: 24px; animation: fall 3s ease-in forwards; }
  @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
  .gst-info { font-size: 13px; color: var(--muted); text-align: right; padding: 2px 0; }
- .app-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; padding-top: calc(10px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 60; }
- .app-header-left { display: flex; align-items: center; gap: 8px; }
- .app-header-title { font-weight: 900; font-size: 0.9rem; color: var(--dark); letter-spacing: 0.02em; }
- .app-header-right { display: flex; align-items: center; gap: 6px; }
- .app-hdr-btn { background: none; border: 1px solid var(--border); border-radius: 10px; width: 38px; height: 38px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: background 0.15s; }
+ .app-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; padding-top: calc(8px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 60; }
+ .app-header-left { display: flex; align-items: center; gap: 6px; }
+ .app-header-title { font-weight: 900; font-size: 0.85rem; color: var(--dark); letter-spacing: 0.02em; }
+ .app-header-right { display: flex; align-items: center; gap: 4px; }
+ .app-hdr-btn { background: none; border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 32px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: background 0.15s; }
  .app-hdr-btn:active { background: var(--input); }
- .app-hdr-lock { background: none; border: 1px solid var(--border); border-radius: 10px; padding: 7px 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; color: var(--muted); display: flex; align-items: center; gap: 5px; transition: background 0.15s; }
+ .app-hdr-lock { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 0.7rem; font-weight: 700; cursor: pointer; color: var(--muted); display: flex; align-items: center; gap: 4px; transition: background 0.15s; }
  .app-hdr-lock:active { background: var(--input); }
  .refresh-btn.spinning { animation: spin 0.8s linear; }
  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
