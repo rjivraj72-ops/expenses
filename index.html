@@ -5,50 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#5c4a3a" id="metaTheme">
+<meta name="theme-color" content="#f2f2f7" id="metaTheme">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.json">
 <title>Granola Kid</title>
 <script>
 (function() {
-  var themes = [
-    { name:"Sunday",
-      light:{ accent:"#8b6f4e", dark:"#5c4a3a", text:"#3b2e24", muted:"#8a7968", bg:"#f5f0eb", input:"#faf7f4", border:"#d4c8bc", header:"#e8ddd2", divider:"#e8ddd2", card:"#ffffff" },
-      dark: { accent:"#d4a46a", dark:"#f5f0eb", text:"#f0ebe6", muted:"#a89880", bg:"#000000", input:"#1c1c1e", border:"#3a3a3c", header:"#0a0a0a", divider:"#2c2c2e", card:"#1c1c1e" }},
-    { name:"Monday",
-      light:{ accent:"#5a7a5e", dark:"#3a5c3e", text:"#2a3b2c", muted:"#6a8a6e", bg:"#eef5ef", input:"#f4faf4", border:"#b8d4ba", header:"#d0e8d3", divider:"#d0e8d3", card:"#ffffff" },
-      dark: { accent:"#6fcc78", dark:"#e8f5ea", text:"#e0f0e2", muted:"#80b084", bg:"#000000", input:"#1c1c1e", border:"#3a3a3c", header:"#0a0a0a", divider:"#2c2c2e", card:"#1c1c1e" }},
-    { name:"Tuesday",
-      light:{ accent:"#5a7a9e", dark:"#3a5472", text:"#2a3542", muted:"#6889a0", bg:"#eef2f8", input:"#f4f8fc", border:"#b8c8d8", header:"#d0dce8", divider:"#d0dce8", card:"#ffffff" },
-      dark: { accent:"#5eb8e8", dark:"#e8f0f8", text:"#e0ecf8", muted:"#80a8c8", bg:"#000000", input:"#1c1c1e", border:"#3a3a3c", header:"#0a0a0a", divider:"#2c2c2e", card:"#1c1c1e" }},
-    { name:"Wednesday",
-      light:{ accent:"#8a5e8b", dark:"#5c3a5c", text:"#3b2a3b", muted:"#8a6889", bg:"#f4eff5", input:"#faf4fa", border:"#d0bcd0", header:"#e6d0e6", divider:"#e6d0e6", card:"#ffffff" },
-      dark: { accent:"#c480c8", dark:"#f0e8f0", text:"#ece0ec", muted:"#b088b0", bg:"#000000", input:"#1c1c1e", border:"#3a3a3c", header:"#0a0a0a", divider:"#2c2c2e", card:"#1c1c1e" }},
-    { name:"Thursday",
-      light:{ accent:"#b07040", dark:"#7a4a28", text:"#42301e", muted:"#a0805a", bg:"#f8f1ea", input:"#fcf7f1", border:"#d8c4b0", header:"#eadaca", divider:"#eadaca", card:"#ffffff" },
-      dark: { accent:"#e8983c", dark:"#f5ede0", text:"#f0e4d4", muted:"#c09868", bg:"#000000", input:"#1c1c1e", border:"#3a3a3c", header:"#0a0a0a", divider:"#2c2c2e", card:"#1c1c1e" }},
-    { name:"Friday",
-      light:{ accent:"#a06070", dark:"#6e3a48", text:"#3e2830", muted:"#a07080", bg:"#f8eff2", input:"#fcf4f7", border:"#d8bcc4", header:"#ecd4da", divider:"#ecd4da", card:"#ffffff" },
-      dark: { accent:"#e87090", dark:"#f8e8f0", text:"#f4e0e8", muted:"#c08090", bg:"#000000", input:"#1c1c1e", border:"#3a3a3c", header:"#0a0a0a", divider:"#2c2c2e", card:"#1c1c1e" }},
-    { name:"Saturday",
-      light:{ accent:"#8a8040", dark:"#5c5428", text:"#3e3820", muted:"#908060", bg:"#f6f5eb", input:"#fbfaf3", border:"#d0ceb8", header:"#e6e4ce", divider:"#e6e4ce", card:"#ffffff" },
-      dark: { accent:"#d0c840", dark:"#f5f5e0", text:"#f0f0d8", muted:"#b0b070", bg:"#000000", input:"#1c1c1e", border:"#3a3a3c", header:"#0a0a0a", divider:"#2c2c2e", card:"#1c1c1e" }}
-  ];
-  var t = themes[new Date().getDay()];
+  var accents = ['#007aff','#5856d6','#af52de','#ff2d55','#ff9500','#34c759','#00c7be'];
+  var accent = accents[new Date().getDay()];
+  var light = { accent:accent, dark:"#1c1c1e", text:"#1c1c1e", muted:"#8e8e93", bg:"#f2f2f7", input:"#ffffff", border:"#eeeeee", header:"#f9f9fb", divider:"#eeeeee", card:"#ffffff" };
+  var dark  = { accent:accent, dark:"#ffffff", text:"#ffffff", muted:"#8e8e93", bg:"#000000", input:"#1c1c1e", border:"#3a3a3c", header:"#0a0a0a", divider:"#2c2c2e", card:"#1c1c1e" };
   var stored = localStorage.getItem("gk-dark");
   var isDark = stored !== null ? stored === "1" : window.matchMedia("(prefers-color-scheme: dark)").matches;
-  var mode = isDark ? t.dark : t.light;
+  var mode = isDark ? dark : light;
   var r = document.documentElement;
   if (isDark) r.classList.add("dark");
   Object.keys(mode).forEach(function(k) { r.style.setProperty("--" + k, mode[k]); });
-  document.getElementById("metaTheme").setAttribute("content", isDark ? t.dark.header : t.light.dark);
-  window._gkTheme = t; window._gkDark = isDark;
+  document.getElementById("metaTheme").setAttribute("content", isDark ? "#1c1c1e" : "#f2f2f7");
+  window._gkLight = light; window._gkDark2 = dark; window._gkDark = isDark;
 })();
 </script>
 <style>
  * { margin: 0; padding: 0; box-sizing: border-box; }
  body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif; background: var(--bg); color: var(--text); padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom); -webkit-tap-highlight-color: transparent; overflow-x: hidden; touch-action: pan-x pan-y; background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); }
- .header-area { background: linear-gradient(180deg, var(--header) 0%, var(--bg) 100%); margin: -16px -16px 16px -16px; padding: 16px 16px 0; border-radius: 0 0 20px 20px; }
+ .header-area { background: var(--bg); margin: -16px -16px 16px -16px; padding: 16px 16px 0; }
  .logo { padding: 20px 0 4px; }
  h1 { font-size: 28px; font-weight: 700; padding: 4px 0 8px; text-align: center; color: var(--dark); }
  .summary { position: relative; text-align: center; padding-bottom: 16px; font-size: 14px; color: var(--muted); }
@@ -60,15 +40,15 @@
  .summary .stat { text-align: center; flex: 1; }
  .summary .stat .amt { font-size: 16px; font-weight: 700; line-height: 1.2; }
  .summary .stat .lbl { font-size: 12px; color: var(--muted); line-height: 1.2; }
- .summary .inc { color: #5a8a5e; font-weight: 600; }
- .summary .exp { color: #c0694f; font-weight: 600; }
- .summary .pending { color: #c4a24e; font-weight: 600; }
+ .summary .inc { color: #28a745; font-weight: 600; }
+ .summary .exp { color: #ff3b30; font-weight: 600; }
+ .summary .pending { color: #ff9500; font-weight: 600; }
  .fulfilled-wrap { display: none; }
  .fulfilled-wrap.show { display: block; }
  .fulfilled-wrap label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 2px; }
  .week-alert { background: var(--card); border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center; font-size: 14px; font-weight: 600; box-shadow: 0 2px 8px rgba(60,46,36,0.06); }
- .week-alert .wa-out { color: #c0694f; }
- .week-alert .wa-in { color: #5a8a5e; }
+ .week-alert .wa-out { color: #ff3b30; }
+ .week-alert .wa-in { color: #28a745; }
  .week-alert .wa-label { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 4px; }
  .card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(60,46,36,0.06), 0 1px 3px rgba(60,46,36,0.04); }
  html.dark .card { box-shadow: 0 2px 12px rgba(0,0,0,0.3), 0 0 0 1px var(--border); }
@@ -87,15 +67,15 @@
  .toggle input:checked + label { background: var(--accent); color: #fff; }
  .swipe-entry { position: relative; overflow: hidden; border-radius: 8px; margin-bottom: 6px; }
  .swipe-action { position: absolute; top: 0; bottom: 0; width: 100px; display: flex; align-items: center; font-weight: 600; font-size: 12px; padding: 0 14px; opacity: 0; transition: opacity 0.15s; color: #fff; }
- .swipe-action-left { left: 0; background: #5a8a5e; }
- .swipe-action-right { right: 0; background: #c0694f; justify-content: flex-end; }
+ .swipe-action-left { left: 0; background: #28a745; }
+ .swipe-action-right { right: 0; background: #ff3b30; justify-content: flex-end; }
  .swipe-entry.swiping-right .swipe-action-left { opacity: 1; }
  .swipe-entry.swiping-left .swipe-action-right { opacity: 1; }
  .entry { padding: 12px; border-radius: 8px; cursor: pointer; position: relative; z-index: 1; }
  .entry.inc-row { background: #f0f7f1; }
  .entry.exp-row { background: #fdf5f2; }
- html.dark .entry.inc-row { background: #0f1f12; }
- html.dark .entry.exp-row { background: #1f0f0c; }
+ html.dark .entry.inc-row { background: #1a2e1c; }
+ html.dark .entry.exp-row { background: #2e1a18; }
  .edit-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
  .edit-sheet { background: var(--card); width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px 16px env(safe-area-inset-bottom); animation: sheetUp 0.25s ease-out; }
  .edit-sheet h3 { font-size: 17px; font-weight: 600; color: var(--dark); margin-bottom: 12px; text-align: center; }
@@ -107,16 +87,16 @@
  .entry-top { display: flex; justify-content: space-between; align-items: center; }
  .entry-desc { font-size: 15px; font-weight: 500; }
  .entry-amount { font-size: 16px; font-weight: 600; }
- .entry-amount.inc { color: #5a8a5e; }
- .entry-amount.exp { color: #c0694f; }
+ .entry-amount.inc { color: #28a745; }
+ .entry-amount.exp { color: #ff3b30; }
  .entry-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 12px; color: var(--muted); }
  .entry-actions { display: flex; gap: 8px; align-items: center; }
  .entry-actions button { background: none !important; border: none !important; font-size: 14px; padding: 2px 6px; width: auto !important; color: var(--muted); font-weight: 400; min-width: 0; }
  .entry-actions .paid-badge { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px; }
- .paid-badge.yes { background: #e8f5e9; color: #5a8a5e; }
- .paid-badge.no { background: #fce8e3; color: #c0694f; cursor: pointer; }
- html.dark .paid-badge.yes { background: #0f2012; color: #6fcc78; }
- html.dark .paid-badge.no { background: #200f0c; color: #e87060; }
+ .paid-badge.yes { background: #e8f5e9; color: #28a745; }
+ .paid-badge.no { background: #fce8e3; color: #ff3b30; cursor: pointer; }
+ html.dark .paid-badge.yes { background: #1a2e1c; color: #34c759; }
+ html.dark .paid-badge.no { background: #2e1a18; color: #ff3b30; }
  .receipt-link { display: inline-block; font-size: 12px; color: var(--accent); font-weight: 500; margin-top: 6px; text-decoration: none; }
  .empty { text-align: center; color: var(--muted); padding: 32px 0; font-size: 15px; }
  .footer { text-align: center; color: var(--muted); font-size: 12px; padding: 20px 0 10px; }
@@ -133,8 +113,8 @@
  .ytd-item { background: var(--input); border-radius: 8px; padding: 10px; text-align: center; }
  .ytd-item .ytd-val { font-size: 18px; font-weight: 700; color: var(--dark); }
  .ytd-item .ytd-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
- .ytd-item.profit .ytd-val { color: #5a8a5e; }
- .ytd-item.loss .ytd-val { color: #c0694f; }
+ .ytd-item.profit .ytd-val { color: #28a745; }
+ .ytd-item.loss .ytd-val { color: #ff3b30; }
  .pie-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
  .pie-wrap canvas { max-width: 200px; max-height: 200px; }
  .pie-legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: 11px; color: var(--dark); }
@@ -144,19 +124,19 @@
  .profit-row { margin-bottom: 10px; }
  .profit-label { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 2px; display: flex; justify-content: space-between; }
  .profit-label .pval { font-weight: 700; }
- .profit-label .pval.pos { color: #5a8a5e; }
- .profit-label .pval.neg { color: #c0694f; }
- .cw-alert { background: #fce8e3; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 13px; color: #c0694f; font-weight: 600; text-align: center; }
- .cw-alert.ok { background: #e8f5e9; color: #5a8a5e; }
- html.dark .cw-alert { background: #200f0c; color: #e87060; }
- html.dark .cw-alert.ok { background: #0f2012; color: #6fcc78; }
+ .profit-label .pval.pos { color: #28a745; }
+ .profit-label .pval.neg { color: #ff3b30; }
+ .cw-alert { background: #fce8e3; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 13px; color: #ff3b30; font-weight: 600; text-align: center; }
+ .cw-alert.ok { background: #e8f5e9; color: #28a745; }
+ html.dark .cw-alert { background: #2e1a18; color: #ff3b30; }
+ html.dark .cw-alert.ok { background: #1a2e1c; color: #34c759; }
  .cw-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--divider); font-size: 13px; }
  .cw-row:last-child { border-bottom: none; }
- .cw-out { color: #c0694f; font-weight: 600; }
- .cw-in { color: #5a8a5e; font-weight: 600; }
+ .cw-out { color: #ff3b30; font-weight: 600; }
+ .cw-in { color: #28a745; font-weight: 600; }
  .cw-bar { display: flex; height: 20px; border-radius: 6px; overflow: hidden; margin: 4px 0 8px; }
- .cw-bar-out { background: #c0694f; }
- .cw-bar-in { background: #5a8a5e; }
+ .cw-bar-out { background: #ff3b30; }
+ .cw-bar-in { background: #28a745; }
  .date-toggle { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
  .date-toggle button { flex: 0; width: auto; padding: 6px 12px; font-size: 12px; background: var(--header); color: var(--dark); font-weight: 500; }
  .date-toggle button.active { background: var(--accent); color: #fff; }
@@ -171,14 +151,20 @@
  .pending-item:last-child { border-bottom: none; }
  .pending-item .pending-top { display: flex; justify-content: space-between; align-items: center; }
  .pending-item .pending-desc { color: var(--dark); font-weight: 500; }
- .pending-item button { width: auto; padding: 4px 10px; font-size: 11px; background: #5a8a5e; }
+ .pending-item button { width: auto; padding: 4px 10px; font-size: 11px; background: #28a745; }
  .loading { text-align: center; color: var(--muted); padding: 32px 0; font-size: 15px; }
  .celebrate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
  .celebrate span { position: absolute; top: -30px; font-size: 24px; animation: fall 3s ease-in forwards; }
  @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
  .gst-info { font-size: 13px; color: var(--muted); text-align: right; padding: 2px 0; }
- .hdr-btns { position: absolute; right: 16px; top: 8px; display: flex; gap: 4px; }
- .hdr-btns button { background: none; border: none; font-size: 20px; padding: 4px 6px; width: auto; color: var(--muted); cursor: pointer; }
+ .app-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; padding-top: calc(10px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 60; }
+ .app-header-left { display: flex; align-items: center; gap: 8px; }
+ .app-header-title { font-weight: 900; font-size: 0.9rem; color: var(--dark); letter-spacing: 0.02em; }
+ .app-header-right { display: flex; align-items: center; gap: 6px; }
+ .app-hdr-btn { background: none; border: 1px solid var(--border); border-radius: 10px; width: 38px; height: 38px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: background 0.15s; }
+ .app-hdr-btn:active { background: var(--input); }
+ .app-hdr-lock { background: none; border: 1px solid var(--border); border-radius: 10px; padding: 7px 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; color: var(--muted); display: flex; align-items: center; gap: 5px; transition: background 0.15s; }
+ .app-hdr-lock:active { background: var(--input); }
  .refresh-btn.spinning { animation: spin 0.8s linear; }
  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--dark); color: var(--bg); padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards; }
@@ -207,7 +193,7 @@
  .pin-dots .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); background: transparent; transition: all 0.2s; }
  .pin-dots .dot.filled { background: var(--accent); border-color: var(--accent); }
  .pin-dots.wrong { animation: shake 0.4s; }
- .pin-dots.wrong .dot.filled { background: #c0694f; border-color: #c0694f; }
+ .pin-dots.wrong .dot.filled { background: #ff3b30; border-color: #ff3b30; }
  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
  .pin-pad { display: grid; grid-template-columns: repeat(3, 80px); gap: 14px; }
  .pin-pad button { width: 80px; height: 80px; border-radius: 50%; font-size: 28px; font-weight: 600; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -258,6 +244,18 @@
 </div>
 <div id="app" style="display:none">
 <div class="ptr-indicator" id="ptrIndicator"></div>
+<div class="app-header" id="appHeader">
+ <div class="app-header-left">
+   <span class="app-header-title">GRANOLA KID</span>
+ </div>
+ <div class="app-header-right">
+   <button class="app-hdr-btn" onclick="openGemini()" title="Gemini AI">🤖</button>
+   <button class="app-hdr-btn" onclick="openShopify()" title="Shopify">🛒</button>
+   <button class="app-hdr-btn" id="darkToggle" onclick="toggleDark()"></button>
+   <button class="app-hdr-btn refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh (R)">🔄</button>
+   <button class="app-hdr-lock" id="lockBtn" onclick="lockApp()">🔒 Lock</button>
+ </div>
+</div>
 <div class="sticky-bar" id="stickyBar">
  <span class="sb-title">🌾 Granola Kid</span>
  <div class="sb-vals"><span class="sb-cash" id="stickyCash">$0.00</span><span class="sb-total" id="stickyTotal">$0.00</span></div>
@@ -266,12 +264,6 @@
 <div class="logo"><img src="logo.png" alt="Logo" style="width:100%;max-width:300px;display:block;margin:0 auto;"></div>
 <h1>Welcome Granola Kid</h1>
 <div class="summary">
- <div class="hdr-btns">
-   <button onclick="openGemini()" title="Gemini AI">🤖</button>
-   <button onclick="openShopify()" title="Shopify">🛒</button>
-   <button id="darkToggle" onclick="toggleDark()"></button>
-   <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh (R)">🔄</button>
- </div>
  <div class="bal-row">
    <div class="bal-item"><div class="amt" id="cashBal" style="color:var(--dark)">$0.00</div><div class="lbl">💵 Cash</div></div>
    <div class="bal-item"><div class="amt" id="totalBal" style="color:var(--dark)">$0.00</div><div class="lbl">📊 Total</div></div>
@@ -413,17 +405,25 @@ function openShopify() {
  window.location = "shopify://";
  setTimeout(() => { if (Date.now() - start < 2000) window.open("https://admin.shopify.com", "_blank"); }, 1500);
 }
+function lockApp() {
+ haptic();
+ validatedPin = "";
+ document.getElementById("app").style.display = "none";
+ document.getElementById("pin-screen").style.display = "flex";
+ pinEntry = "";
+ updateDots();
+}
 
 $("darkToggle").textContent = window._gkDark ? "☀️" : "🌙";
 function toggleDark() {
  haptic();
  window._gkDark = !window._gkDark;
  localStorage.setItem("gk-dark", window._gkDark ? "1" : "0");
- const mode = window._gkDark ? window._gkTheme.dark : window._gkTheme.light;
+ const mode = window._gkDark ? window._gkDark2 : window._gkLight;
  const r = document.documentElement;
  r.classList.toggle("dark", window._gkDark);
  Object.keys(mode).forEach(k => r.style.setProperty("--" + k, mode[k]));
- document.getElementById("metaTheme").setAttribute("content", window._gkDark ? mode.header : mode.dark);
+ document.getElementById("metaTheme").setAttribute("content", window._gkDark ? "#1c1c1e" : "#f2f2f7");
  $("darkToggle").textContent = window._gkDark ? "☀️" : "🌙";
 }
 function animateValue(el, from, to, duration, prefix) {
