@@ -151,7 +151,7 @@
  .celebrate span { position: absolute; top: -30px; font-size: 24px; animation: fall 3s ease-in forwards; }
  @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
  .gst-info { font-size: 0.7rem; color: var(--muted); text-align: right; padding: 2px 0; }
- .app-header { height: 50px; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 60; }
+ .app-header { height: calc(50px + env(safe-area-inset-top)); padding: env(safe-area-inset-top) 16px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 60; }
  .app-header-left { display: flex; align-items: center; }
  .app-header-title { font-weight: 900; font-size: 0.85rem; color: var(--text); }
  .app-header-right { display: flex; align-items: center; gap: 6px; }
