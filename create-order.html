@@ -23,13 +23,14 @@
 })();
 </script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; touch-action: pan-x pan-y; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { touch-action: manipulation; -ms-touch-action: manipulation; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
     background: var(--bg); color: var(--text);
     padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
     -webkit-tap-highlight-color: transparent;
-    touch-action: pan-x pan-y;
+    -webkit-text-size-adjust: 100%;
   }
   .header-area {
     background: var(--bg);
@@ -114,7 +115,10 @@
 
 <script>
 document.addEventListener("touchstart", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
-document.addEventListener("gesturestart", e => { e.preventDefault(); }, { passive: false });
+document.addEventListener("touchmove", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+document.addEventListener("gesturestart", e => e.preventDefault());
+document.addEventListener("gesturechange", e => e.preventDefault());
+document.addEventListener("gestureend", e => e.preventDefault());
 
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
 const skus = ["Naked","GoNuts","CocoYummy","CranCinny Bliss","Dark & Dreamy","Bulk Container"];
