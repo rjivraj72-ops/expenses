@@ -383,10 +383,28 @@ let pinEntry = "";
 let validatedPin = "";
 let pinFails = 0, pinLocked = false;
 let showPaid = false;
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playTick() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 1200; g.gain.value = 0.1; o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05); o.stop(audioCtx.currentTime + 0.05); }
-function playError() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 300; g.gain.value = 0.15; o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); o.stop(audioCtx.currentTime + 0.2); }
-function playSuccess() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 800; g.gain.value = 0.1; o.start(); o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); o.stop(audioCtx.currentTime + 0.2); }
+let audioCtx = null;
+function pinSoundEnabled() { return localStorage.getItem("gk-pin-sound") === "1"; }
+function playTone(freq, duration, endFreq) {
+ if (!pinSoundEnabled()) return;
+ const Audio = window.AudioContext || window.webkitAudioContext;
+ if (!Audio) return;
+ try {
+   audioCtx = audioCtx || new Audio();
+   const o = audioCtx.createOscillator();
+   const g = audioCtx.createGain();
+   o.connect(g); g.connect(audioCtx.destination);
+   o.frequency.value = freq;
+   g.gain.value = 0.08;
+   o.start();
+   if (endFreq) o.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + duration * 0.75);
+   g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+   o.stop(audioCtx.currentTime + duration);
+ } catch {}
+}
+function playTick() { playTone(900, 0.04); }
+function playError() { playTone(260, 0.16); }
+function playSuccess() { playTone(720, 0.16, 1080); }
 function haptic(ms) { if (navigator.vibrate) navigator.vibrate(ms || 10); }
 async function pinKey(n) {
  if (pinLocked) return;
