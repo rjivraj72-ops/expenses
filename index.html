@@ -349,7 +349,7 @@ async function pinKey(n) {
  if (pinEntry.length === 6) {
    const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "fetch", pin: pinEntry }) });
    const json = await res.json();
-   if (!json.error) { validatedPin = pinEntry; haptic(30); playSuccess(); document.getElementById("pin-screen").style.display = "none"; document.getElementById("app").style.display = "block"; initApp(json); }
+   if (!json.error) { validatedPin = pinEntry; sessionStorage.setItem("gk-auth-pin", pinEntry); haptic(30); playSuccess(); document.getElementById("pin-screen").style.display = "none"; document.getElementById("app").style.display = "block"; initApp(json); }
    else {
      pinFails++;
      document.getElementById("pinDots").classList.add("wrong"); haptic(100); playError();
@@ -403,6 +403,7 @@ function openShopify() {
 function lockApp() {
  haptic();
  validatedPin = "";
+ sessionStorage.removeItem("gk-auth-pin");
  document.getElementById("app").style.display = "none";
  document.getElementById("pin-screen").style.display = "flex";
  pinEntry = "";
