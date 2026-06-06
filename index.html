@@ -98,3 +98,511 @@
  .due-badge.overdue { color: #ff3b30; border-color: rgba(255,59,48,0.35); }
  .receipt-link { display: inline-block; font-size: 0.7rem; color: var(--accent); font-weight: 600; margin-top: 6px; text-decoration: none; }
  .empty { text-align: center; color: var(--muted); padding: 32px 0; font-size: 0.85rem; }
+ .footer { text-align: center; color: var(--muted); font-size: 0.7rem; padding: 20px 0 10px; }
+ .mgr-title { font-size: 1rem; font-weight: 900; color: var(--text); margin-bottom: 12px; text-align: center; }
+ .mgr-section { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+ .mgr-section:last-child { border-bottom: none; }
+ .mgr-section .sec-label { font-size: 1rem; font-weight: 700; color: var(--text); }
+ .mgr-section .sec-arrow { font-size: 0.9rem; color: var(--muted); transition: transform 0.2s; }
+ .mgr-section .sec-arrow.open { transform: rotate(90deg); }
+ .mgr-body { display: none; padding: 12px 0 4px; }
+ .mgr-body.open { display: block; }
+ .date-area { background: var(--input); border-radius: 10px; padding: 14px; margin-bottom: 14px; text-align: center; border: 1px solid var(--border); }
+ .ytd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+ .ytd-item { background: var(--input); border-radius: 10px; padding: 10px; text-align: center; border: 1px solid var(--border); }
+ .ytd-item .ytd-val { font-size: 1.2rem; font-weight: 900; color: var(--text); font-variant-numeric: tabular-nums; }
+ .ytd-item .ytd-lbl { font-size: 0.7rem; color: var(--muted); margin-top: 2px; font-weight: 700; }
+ .ytd-item.profit .ytd-val { color: var(--accent); }
+ .ytd-item.loss .ytd-val { color: var(--text); }
+ .pie-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
+ .pie-wrap canvas { max-width: 200px; max-height: 200px; }
+ .pie-legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: 0.8rem; color: var(--text); font-weight: 600; }
+ .pie-legend span { display: flex; align-items: center; gap: 4px; }
+ .pie-legend .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+ .export-btn { margin-top: 12px; background: var(--input); color: var(--text); font-size: 0.9rem; padding: 10px; border: 1px solid var(--border); }
+ .profit-row { margin-bottom: 8px; }
+ .profit-label { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 2px; display: flex; justify-content: space-between; }
+ .profit-label .pval { font-weight: 900; }
+ .profit-label .pval.pos { color: var(--accent); }
+ .profit-label .pval.neg { color: var(--text); }
+ .cw-alert { background: var(--input); border-radius: 10px; padding: 10px; margin-bottom: 10px; font-size: 0.8rem; color: var(--text); font-weight: 700; text-align: center; border: 1px solid var(--border); }
+ .cw-alert.ok { color: var(--accent); }
+ .cw-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+ .cw-row:last-child { border-bottom: none; }
+ .cw-out { color: var(--text); font-weight: 700; }
+ .cw-in { color: var(--accent); font-weight: 700; }
+ .cw-bar { display: flex; height: 16px; border-radius: 6px; overflow: hidden; margin: 4px 0 8px; }
+ .cw-bar-out { background: var(--muted); }
+ .cw-bar-in { background: var(--accent); }
+ .date-toggle { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+ .date-toggle button { flex: 0; width: auto; padding: 7px 14px; font-size: 0.8rem; background: var(--input); color: var(--text); font-weight: 700; border: 1px solid var(--border); }
+ .date-toggle button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+ .date-range { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+ .date-range input { width: 130px; font-size: 0.8rem; padding: 8px; }
+ .cat-detail { background: var(--input); border-radius: 10px; padding: 10px; margin-top: 8px; font-size: 0.85rem; color: var(--text); border: 1px solid var(--border); }
+ .cat-detail div { padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; }
+ .cat-detail div:last-child { border-bottom: none; }
+ .cat-detail div span:first-child { flex: 1; word-break: break-word; }
+ .pending-list { margin-top: 8px; }
+ .pending-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+ .pending-item:last-child { border-bottom: none; }
+ .pending-item .pending-top { display: flex; justify-content: space-between; align-items: center; }
+ .pending-item .pending-desc { color: var(--text); font-weight: 600; }
+ .pending-item button { width: auto; padding: 4px 10px; font-size: 0.7rem; background: var(--accent); }
+ .loading { text-align: center; color: var(--muted); padding: 32px 0; font-size: 0.85rem; }
+ .celebrate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+ .celebrate span { position: absolute; top: -30px; font-size: 24px; animation: fall 3s ease-in forwards; }
+ @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+ .gst-info { font-size: 0.7rem; color: var(--muted); text-align: right; padding: 2px 0; }
+ .app-header { height: calc(50px + env(safe-area-inset-top)); padding: env(safe-area-inset-top) 16px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 60; }
+ .app-header-left { display: flex; align-items: center; }
+ .app-header-title { font-weight: 900; font-size: 0.85rem; color: var(--text); }
+ .app-header-right { display: flex; align-items: center; gap: 6px; }
+ .mode-tabs { display: flex; gap: 6px; margin: 10px 0; }
+ .mode-tabs a { flex: 1; text-align: center; text-decoration: none; padding: 9px 8px; border-radius: 10px; font-size: 0.82rem; font-weight: 800; color: var(--text); background: var(--input); border: 1px solid var(--border); }
+ .mode-tabs a.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+ .sync-status { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-align: center; margin: 10px 0 0; }
+ .app-hdr-btn { background: none; border: 1px solid var(--border); border-radius: 10px; width: 34px; height: 34px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); transition: background 0.15s; }
+ .app-hdr-btn:active { background: var(--bg); }
+ .app-hdr-lock { background: none; border: 1px solid var(--border); border-radius: 10px; padding: 7px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: var(--muted); display: flex; align-items: center; gap: 5px; transition: background 0.15s; }
+ .app-hdr-lock:active { background: var(--bg); }
+ .refresh-btn.spinning { animation: spin 0.8s linear; }
+ @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+ .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--dark); color: var(--bg); padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards; }
+ @keyframes toastIn { to { opacity: 1; } }
+ @keyframes toastOut { to { opacity: 0; } }
+ .sticky-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: var(--card); padding: 6px 16px; padding-top: calc(6px + env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transform: translateY(-100%); transition: transform 0.25s ease; }
+ .sticky-bar.visible { transform: translateY(0); }
+ .sticky-bar .sb-title { font-weight: 700; font-size: 14px; color: var(--dark); }
+ .sticky-bar .sb-vals { display: flex; gap: 16px; font-size: 13px; font-weight: 700; }
+ .sticky-bar .sb-cash { color: var(--dark); }
+ .sticky-bar .sb-total { color: var(--muted); }
+ .search-bar { display: block; width: 100%; font-size: 0.95rem; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); margin-bottom: 10px; -webkit-appearance: none; }
+ .search-bar:focus { outline: none; border-color: var(--accent); }
+ .search-bar::placeholder { color: var(--muted); }
+ .filter-row { display: flex; gap: 6px; margin-bottom: 10px; }
+ .filter-row button { flex: 0; width: auto; padding: 6px 14px; font-size: 0.8rem; font-weight: 700; background: var(--input); color: var(--text); border: 1px solid var(--border); }
+ .filter-row button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+ .entry.paid-entry { opacity: 0.5; }
+ .ptr-indicator { text-align: center; padding: 0; height: 0; overflow: hidden; transition: height 0.2s; font-size: 13px; color: var(--muted); font-weight: 500; display: flex; align-items: center; justify-content: center; }
+ .receipt-thumb { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; margin-top: 6px; border: 1px solid var(--border); cursor: pointer; }
+ .date-header { font-size: 0.75rem; font-weight: 800; color: var(--muted); padding: 10px 4px 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+ .date-header:first-child { padding-top: 0; }
+ .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow: hidden; touch-action: none; -webkit-overflow-scrolling: auto; }
+ .pin-screen h2 { font-size: 22px; color: var(--dark); margin-bottom: 8px; }
+ .pin-dots { display: flex; gap: 12px; margin: 16px 0 24px; }
+ .pin-dots .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); background: transparent; transition: all 0.2s; }
+ .pin-dots .dot.filled { background: var(--accent); border-color: var(--accent); }
+ .pin-dots.wrong { animation: shake 0.4s; }
+ .pin-dots.wrong .dot.filled { background: #ff3b30; border-color: #ff3b30; }
+ @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+ .pin-pad { display: grid; grid-template-columns: repeat(3, 80px); gap: 14px; }
+ .pin-pad button { width: 80px; height: 80px; border-radius: 50%; font-size: 28px; font-weight: 600; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+ .pin-pad button:active { background: var(--accent); color: #fff; border-color: var(--accent); }
+ .pin-pad .pin-empty { visibility: hidden; }
+ .pin-pad .pin-del { font-size: 20px; border: 1px solid var(--border); background: var(--card); }
+ .kbd-hint { display: none; }
+ /* Polished business-dashboard layer */
+ body { line-height: 1.35; }
+ .app-header { border-bottom-color: var(--border); backdrop-filter: blur(18px); }
+ .app-header-title { letter-spacing: 0.08em; }
+ .app-hdr-btn, .app-hdr-lock { background: var(--input); }
+ .header-area { padding-bottom: 4px; }
+ .logo img { max-width: 220px !important; }
+ .summary { padding: 4px 0 16px; }
+ .summary .bal-row { gap: 12px; }
+ .summary .bal-item { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 10px; }
+ .summary .bal-item .amt { font-size: 1.65rem; }
+ .summary .bal-item .lbl, .stat-lbl, .ytd-item .ytd-lbl { color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+ .stat-item, .card, .week-alert, .ytd-item, .date-area { border-radius: 8px; box-shadow: 0 1px 2px rgba(31,36,32,0.04); }
+ .card { padding: 16px; margin-bottom: 12px; }
+ .week-alert { text-align: left; border-left: 4px solid var(--accent); }
+ .mode-tabs a, .toggle label, .date-toggle button, .filter-row button { border-radius: 8px; }
+ input, select, button, .search-bar { border-radius: 8px; }
+ .entry { border-radius: 8px; padding: 13px 14px; border-left: 4px solid transparent; }
+ .entry.inc-row { border-left-color: var(--accent); }
+ .entry.exp-row { border-left-color: var(--muted); }
+ .entry.paid-entry { opacity: 0.66; }
+ .entry-top { align-items: flex-start; gap: 12px; }
+ .entry-desc { font-size: 0.95rem; line-height: 1.25; }
+ .entry-amount { font-size: 1.02rem; white-space: nowrap; }
+ .entry-bottom { align-items: flex-start; gap: 10px; }
+ .entry-actions { flex-wrap: wrap; justify-content: flex-end; }
+ .entry-actions button { font-size: 0.8rem; border: 1px solid var(--border) !important; border-radius: 6px; padding: 3px 7px; background: var(--input) !important; }
+ .paid-badge.yes, .paid-badge.no, .due-badge { border-radius: 6px; }
+ .mgr-title { text-align: left; font-size: 1.05rem; letter-spacing: 0.01em; }
+ .mgr-section { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-top: 8px; background: var(--input); }
+ .mgr-section:last-child { border-bottom: 1px solid var(--border); }
+ .mgr-section .sec-label { font-size: 0.92rem; }
+ .mgr-body.open { padding: 10px 0 4px; }
+ .footer a { border-radius: 8px !important; }
+ @media (min-width: 768px) {
+   body { padding: 16px 32px; max-width: 1100px; margin: 0 auto; }
+   .header-area { margin: -16px -32px 16px -32px; padding: 16px 32px 0; }
+   .desktop-cols { display: flex; gap: 20px; align-items: flex-start; }
+   .desktop-cols .col-form { flex: 0 0 380px; position: sticky; top: 16px; }
+   .desktop-cols .col-list { flex: 1; min-width: 0; }
+   .pin-pad button { width: 64px; height: 64px; font-size: 24px; }
+   .pin-pad { gap: 10px; grid-template-columns: repeat(3, 64px); }
+   .entry-actions { opacity: 0; transition: opacity 0.15s; }
+   .entry:hover .entry-actions { opacity: 1; }
+   .entry { transition: background 0.15s; }
+   .entry:hover { filter: brightness(0.97); }
+   .swipe-action { display: none; }
+   .edit-sheet { border-radius: 16px; margin-bottom: 20vh; }
+   .edit-overlay { align-items: center; }
+   .ytd-grid { grid-template-columns: repeat(4, 1fr); }
+   .summary .bal-item .amt { font-size: 26px; }
+   .summary .stat .amt { font-size: 18px; }
+   .mgr-card-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+   .kbd-hint { display: inline; font-size: 10px; color: var(--muted); font-weight: 400; margin-left: 6px; padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; vertical-align: middle; }
+   .receipt-thumb { width: 64px; height: 64px; }
+ }
+ @media (min-width: 1024px) {
+   body { padding: 16px 48px; }
+   .header-area { margin: -16px -48px 16px -48px; padding: 16px 48px 0; }
+   .desktop-cols .col-form { flex: 0 0 420px; }
+ }
+</style>
+</head>
+<body>
+<div id="pin-screen" class="pin-screen">
+ <h2>Granola Kid</h2>
+ <p style="color:var(--muted);font-size:14px">Enter PIN to continue</p>
+ <div class="pin-dots" id="pinDots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+ <div class="pin-pad">
+   <button onclick="pinKey(1)">1</button><button onclick="pinKey(2)">2</button><button onclick="pinKey(3)">3</button>
+   <button onclick="pinKey(4)">4</button><button onclick="pinKey(5)">5</button><button onclick="pinKey(6)">6</button>
+   <button onclick="pinKey(7)">7</button><button onclick="pinKey(8)">8</button><button onclick="pinKey(9)">9</button>
+   <button class="pin-empty"></button><button onclick="pinKey(0)">0</button><button class="pin-del" onclick="pinDel()">⌫</button>
+ </div>
+</div>
+<div id="app" style="display:none">
+<div class="ptr-indicator" id="ptrIndicator"></div>
+<div class="app-header" id="appHeader">
+ <div class="app-header-left">
+   <span class="app-header-title">GRANOLA KID</span>
+ </div>
+ <div class="app-header-right">
+   <button class="app-hdr-btn" onclick="openGemini()" title="Gemini AI">AI</button>
+   <button class="app-hdr-btn" onclick="openShopify()" title="Shopify">S</button>
+   <button class="app-hdr-btn" id="darkToggle" onclick="toggleDark()"></button>
+   <button class="app-hdr-btn refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh (R)">↻</button>
+   <button class="app-hdr-lock" id="lockBtn" onclick="lockApp()">Lock</button>
+ </div>
+</div>
+<div class="sticky-bar" id="stickyBar">
+ <span class="sb-title">Granola Kid</span>
+ <div class="sb-vals"><span class="sb-cash" id="stickyCash">$0.00</span><span class="sb-total" id="stickyTotal">$0.00</span></div>
+</div>
+<div class="header-area" id="headerArea">
+<div class="logo"><img src="logo.png" alt="Logo" style="width:100%;max-width:260px;display:block;margin:0 auto;"></div>
+<nav class="mode-tabs" aria-label="App sections">
+ <a class="active" href="index.html">Finance</a>
+ <a href="create-order.html">Production Order</a>
+</nav>
+<div class="summary">
+ <div class="bal-row">
+   <div class="bal-item"><div class="amt" id="cashBal">$0.00</div><div class="lbl">CASH BALANCE</div></div>
+   <div class="bal-item"><div class="amt" id="totalBal">$0.00</div><div class="lbl">TOTAL BALANCE</div></div>
+ </div>
+ <div class="stat-row">
+   <div class="stat-item"><div class="stat-val" id="tinc">$0.00</div><div class="stat-lbl">INCOME</div></div>
+   <div class="stat-item"><div class="stat-val" id="tpend">$0.00</div><div class="stat-lbl">PENDING</div></div>
+   <div class="stat-item"><div class="stat-val" id="texp">$0.00</div><div class="stat-lbl">EXPENSES</div></div>
+ </div>
+ <div class="sync-status" id="syncStatus">Not synced yet</div>
+</div>
+</div>
+<div class="week-alert" id="weekAlert" style="display:none"></div>
+<div class="desktop-cols">
+<div class="col-form">
+<div class="card">
+ <div class="toggle">
+   <input type="radio" name="type" id="tExp" value="expense" checked onchange="toggleForm()"><label for="tExp">Expense <span class="kbd-hint">E</span></label>
+   <input type="radio" name="type" id="tInc" value="income" onchange="toggleForm()"><label for="tInc">Income <span class="kbd-hint">I</span></label>
+ </div>
+ <form id="expForm" style="margin-top:10px">
+   <input id="expDesc" placeholder="Description (e.g. MFF Run #12, Shopify labels)" required>
+   <div class="row">
+     <input id="expAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal" oninput="calcGst()">
+     <select id="expCat"><option>Co-Packing</option><option>Ingredients</option><option>Bags & Boxes</option><option>Shipping & Gas</option><option>Tech & Office</option><option>Ads & Promo</option><option>Business Meal</option><option>Debt Repayment</option></select>
+   </div>
+   <div class="gst-info">GST (5%): $<span id="gstAmt">0.00</span> · Total: $<span id="totalAmt">0.00</span></div>
+   <input id="expDate" type="date">
+   <div class="row"><select id="expPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select><button type="submit" id="expBtn">Add Expense</button></div>
+ </form>
+ <form id="incForm" style="margin-top:10px;display:none">
+   <select id="incSource" onchange="updateFulfilledVis()"><option>DTC</option><option>Wholesale</option></select>
+   <input id="incCustomer" placeholder="Order # or Note (e.g. 1234, Sample Pack)" required>
+   <input id="incAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
+   <input id="incDate" type="date">
+   <div class="fulfilled-wrap" id="fulfilledWrap"><label>Fulfilled / Shipped Date</label><input id="incFulfilled" type="date"></div>
+   <div class="row"><select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select><button type="submit" id="incBtn">Add Income</button></div>
+ </form>
+</div>
+</div>
+<div class="col-list">
+<input class="search-bar" id="searchBar" placeholder="🔍 Search... (today, last week, co-packing, etc)" style="display:none" oninput="renderList()">
+<div class="filter-row" id="filterRow" style="display:none">
+ <button class="active" onclick="setFilter(false, this)">Unpaid</button>
+ <button onclick="setFilter(true, this)">All</button>
+</div>
+<div class="card" id="list-card" style="display:none"><div id="list"></div></div>
+<div class="loading" id="loading">Loading...</div>
+<div class="empty" id="empty" style="display:none">No entries yet — add your first one above</div>
+</div>
+</div>
+<div class="card" id="mgr-card" style="display:none">
+ <div class="mgr-title">Manager's Office</div>
+ <div class="date-area">
+   <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Viewing</div>
+   <div class="date-toggle"><button class="active" onclick="setRange('ytd', this)">YTD</button><button onclick="setRange('all', this)">All Time</button><button onclick="setRange('custom', this)">Custom</button></div>
+   <div class="date-range" id="dateRange" style="display:none"><input type="date" id="mgrFrom" onchange="renderMgr()"><input type="date" id="mgrTo" onchange="renderMgr()"></div>
+   <div id="rangeSnap" style="font-size:20px;font-weight:700;color:var(--dark)"></div>
+ </div>
+ <div class="mgr-section" onclick="toggleSec('secRevExp')"><span class="sec-label">Revenue & Expenses</span><span class="sec-arrow" id="secRevExpArrow">▸</span></div>
+ <div class="mgr-body" id="secRevExp"><div class="ytd-grid" id="ytdGrid"></div></div>
+ <div class="mgr-section" onclick="toggleSec('secPie')"><span class="sec-label">Expenses by Category</span><span class="sec-arrow" id="secPieArrow">▸</span></div>
+ <div class="mgr-body" id="secPie"><div class="pie-wrap"><canvas id="pieChart" width="200" height="200" onclick="tapPie(event)"></canvas></div><div class="pie-legend" id="pieLegend"></div><div id="catDetail"></div></div>
+ <div class="mgr-section" onclick="toggleSec('secProfit')"><span class="sec-label">Profitability</span><span class="sec-arrow" id="secProfitArrow">▸</span></div>
+ <div class="mgr-body" id="secProfit"><div class="ytd-grid" id="profitGrid"></div></div>
+ <div class="mgr-section" onclick="toggleSec('secMonthly')"><span class="sec-label">Monthly Profit</span><span class="sec-arrow" id="secMonthlyArrow">▸</span></div>
+ <div class="mgr-body" id="secMonthly"><div id="monthProfit"></div></div>
+ <div class="mgr-section" onclick="toggleSec('secWave')"><span class="sec-label">Cash Wave</span><span class="sec-arrow" id="secWaveArrow">▸</span></div>
+ <div class="mgr-body" id="secWave"><div id="cashWave"></div></div>
+ <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">Export to CSV</button>
+</div>
+<div class="footer">
+ <a href="create-order.html" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:12px;border-radius:10px;margin-bottom:12px;text-align:center">Production Order</a>
+ <div>Made by Granola Kid</div>
+</div>
+</div>
+<script>
+let pinEntry = "";
+let validatedPin = "";
+let pinFails = 0, pinLocked = false;
+let showPaid = false;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playTick() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 1200; g.gain.value = 0.1; o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05); o.stop(audioCtx.currentTime + 0.05); }
+function playError() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 300; g.gain.value = 0.15; o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); o.stop(audioCtx.currentTime + 0.2); }
+function playSuccess() { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = 800; g.gain.value = 0.1; o.start(); o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); o.stop(audioCtx.currentTime + 0.2); }
+function haptic(ms) { if (navigator.vibrate) navigator.vibrate(ms || 10); }
+async function pinKey(n) {
+ if (pinLocked) return;
+ if (pinEntry.length >= 6) return;
+ haptic(); playTick(); pinEntry += n; updateDots();
+ if (pinEntry.length === 6) {
+   const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "fetch", pin: pinEntry }) });
+   const json = await res.json();
+   if (!json.error) { validatedPin = pinEntry; sessionStorage.setItem("gk-auth-pin", pinEntry); haptic(30); playSuccess(); document.getElementById("pin-screen").style.display = "none"; document.getElementById("app").style.display = "block"; initApp(json); }
+   else {
+     pinFails++;
+     document.getElementById("pinDots").classList.add("wrong"); haptic(100); playError();
+     setTimeout(() => { pinEntry = ""; updateDots(); document.getElementById("pinDots").classList.remove("wrong"); }, 500);
+     if (pinFails >= 5) {
+       pinLocked = true;
+       let sec = 30;
+       const msg = document.querySelector(".pin-screen p");
+       const origText = msg.textContent;
+       const iv = setInterval(() => {
+         sec--;
+         msg.textContent = `Too many attempts. Try again in ${sec}s`;
+         if (sec <= 0) { clearInterval(iv); pinLocked = false; pinFails = 0; msg.textContent = origText; }
+       }, 1000);
+       msg.textContent = `Too many attempts. Try again in 30s`;
+     }
+   }
+ }
+}
+function pinDel() { if (pinLocked) return; if (pinEntry.length > 0) { haptic(); playTick(); } pinEntry = pinEntry.slice(0, -1); updateDots(); }
+function updateDots() { document.querySelectorAll("#pinDots .dot").forEach((d, i) => d.classList.toggle("filled", i < pinEntry.length)); }
+document.addEventListener("keydown", e => { if (pinLocked) return; if (document.getElementById("pin-screen").style.display === "none") return; if (e.key >= "0" && e.key <= "9") pinKey(parseInt(e.key)); else if (e.key === "Backspace") pinDel(); });
+document.addEventListener("gesturestart", function(e) { e.preventDefault(); });
+document.addEventListener("gesturechange", function(e) { e.preventDefault(); });
+document.addEventListener("gestureend", function(e) { e.preventDefault(); });
+const $ = id => document.getElementById(id);
+const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
+let allData = [], capital = 0, pricing = {}, cashWaveData = [];
+let prevCashBal = 0, prevTotalBal = 0, prevIncTotal = 0, prevPendTotal = 0, prevExpTotal = 0;
+let swipeHandled = false;
+
+function setFilter(show, el) {
+ showPaid = show; haptic();
+ document.querySelectorAll(".filter-row button").forEach(b => b.classList.remove("active"));
+ el.classList.add("active");
+ renderList();
+}
+
+function openGemini() {
+ haptic();
+ const start = Date.now();
+ window.location = "googlegemini://";
+ setTimeout(() => { if (Date.now() - start < 2000) window.open("https://gemini.google.com", "_blank"); }, 1500);
+}
+function openShopify() {
+ haptic();
+ const start = Date.now();
+ window.location = "shopify://";
+ setTimeout(() => { if (Date.now() - start < 2000) window.open("https://admin.shopify.com", "_blank"); }, 1500);
+}
+function lockApp() {
+ haptic();
+ validatedPin = "";
+ sessionStorage.removeItem("gk-auth-pin");
+ document.getElementById("app").style.display = "none";
+ document.getElementById("pin-screen").style.display = "flex";
+ pinEntry = "";
+ updateDots();
+}
+
+$("darkToggle").textContent = window._gkDark ? "L" : "D";
+function toggleDark() {
+ haptic();
+ window._gkDark = !window._gkDark;
+ localStorage.setItem("gk-dark", window._gkDark ? "1" : "0");
+ const mode = window._gkDark ? window._gkDark2 : window._gkLight;
+ const r = document.documentElement;
+ r.classList.toggle("dark", window._gkDark);
+ Object.keys(mode).forEach(k => r.style.setProperty("--" + k, mode[k]));
+ document.getElementById("metaTheme").setAttribute("content", window._gkDark ? "#1c1c1e" : "#f2f2f7");
+ $("darkToggle").textContent = window._gkDark ? "L" : "D";
+}
+function animateValue(el, from, to, duration, prefix) {
+ prefix = prefix || "";
+ if (Math.abs(from - to) < 0.005) { el.textContent = prefix + to.toFixed(2); return; }
+ const start = performance.now();
+ function step(time) {
+   const p = Math.min((time - start) / duration, 1);
+   const eased = 1 - Math.pow(1 - p, 3);
+   el.textContent = prefix + (from + (to - from) * eased).toFixed(2);
+   if (p < 1) requestAnimationFrame(step);
+ }
+ requestAnimationFrame(step);
+}
+function dateLabel(dateStr) {
+ const today = new Date(); const todayStr = today.toISOString().split("T")[0];
+ const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+ const yesterdayStr = yesterday.toISOString().split("T")[0];
+ if (dateStr === todayStr) return "Today";
+ if (dateStr === yesterdayStr) return "Yesterday";
+ const d = new Date(dateStr + "T12:00:00"); if (isNaN(d.getTime())) return dateStr;
+ const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+ const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+ let label = days[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate();
+ if (d.getFullYear() !== today.getFullYear()) label += ", " + d.getFullYear();
+ return label;
+}
+function updateSyncStatus(state) {
+ const el = $("syncStatus");
+ if (!el) return;
+ if (state === "loading") { el.textContent = "Syncing with Google Sheets..."; return; }
+ if (state === "error") { el.textContent = "Could not reach Google Sheets. Tap refresh to try again."; return; }
+ const now = new Date();
+ el.textContent = `Last synced ${now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+}
+function initApp(json) {
+ $("expDate").value = new Date().toISOString().split("T")[0];
+ $("incDate").value = new Date().toISOString().split("T")[0];
+ capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || [];
+ allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
+ $("loading").style.display = "none"; updateSyncStatus("success"); render();
+ $("expForm").onsubmit = async e => { e.preventDefault(); haptic(); $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true; try { await post({ action: "add", type: "expense", date: $("expDate").value, description: $("expDesc").value, category: $("expCat").value, amount: parseFloat($("expAmount").value), paid: $("expPaid").value }); $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0]; $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00"; showToast("✓ Expense added"); fetchData(); } catch { showToast("Error adding expense — try again"); } $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false; $("expDesc").focus(); };
+ $("incForm").onsubmit = async e => { e.preventDefault(); haptic(); $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true; try { await post({ action: "add", type: "income", date: $("incDate").value, source: $("incSource").value, customer: $("incCustomer").value.trim(), amount: parseFloat($("incAmount").value), paid: $("incPaid").value, fulfilled: $("incFulfilled").value || "" }); $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = ""; showToast("✓ Income added — keep it up!"); celebrate(); fetchData(); } catch { showToast("Error adding income — try again"); } $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false; $("incCustomer").focus(); };
+ const headerObs = new IntersectionObserver(([e]) => { $("stickyBar").classList.toggle("visible", !e.isIntersecting); }, { threshold: 0 });
+ headerObs.observe($("headerArea"));
+ let ptrStartY = 0, ptrActive = false;
+ document.addEventListener("touchstart", e => { if (window.scrollY === 0 && document.getElementById("pin-screen").style.display === "none") { ptrStartY = e.touches[0].clientY; ptrActive = true; } }, { passive: true });
+ document.addEventListener("touchmove", e => { if (!ptrActive) return; const dy = e.touches[0].clientY - ptrStartY; if (dy > 0 && dy < 150 && window.scrollY === 0) { const h = Math.min(dy * 0.4, 50); $("ptrIndicator").style.height = h + "px"; $("ptrIndicator").textContent = h > 40 ? "Release to refresh" : "Pull to refresh"; } }, { passive: true });
+ document.addEventListener("touchend", () => { if (!ptrActive) return; ptrActive = false; const h = parseInt($("ptrIndicator").style.height) || 0; if (h > 40) { $("ptrIndicator").textContent = "Refreshing..."; $("ptrIndicator").style.height = "36px"; refreshData(); setTimeout(() => { $("ptrIndicator").style.height = "0"; }, 1500); } else { $("ptrIndicator").style.height = "0"; } }, { passive: true });
+ render();
+}
+function toggleForm() { const isExp = $("tExp").checked; $("expForm").style.display = isExp ? "flex" : "none"; $("incForm").style.display = isExp ? "none" : "flex"; if (!isExp) { updateFulfilledVis(); $("incCustomer").focus(); } else { $("expDesc").focus(); } haptic(); }
+function updateFulfilledVis() { $("fulfilledWrap").className = "fulfilled-wrap" + (($("incSource").value || "").toLowerCase().includes("wholesale") ? " show" : ""); }
+function calcGst() { const amt = parseFloat($("expAmount").value) || 0; const gst = Math.round(amt * 0.05 * 100) / 100; $("gstAmt").textContent = gst.toFixed(2); $("totalAmt").textContent = (amt + gst).toFixed(2); }
+async function fetchData() { updateSyncStatus("loading"); try { const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "fetch", pin: validatedPin }) }); const json = await res.json(); capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || []; allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date))); $("loading").style.display = "none"; updateSyncStatus("success"); render(); } catch (err) { updateSyncStatus("error"); $("loading").style.display = "block"; $("loading").textContent = "Could not reach Google Sheets. Tap to retry."; $("loading").onclick = () => { $("loading").textContent = "Loading..."; $("loading").onclick = null; fetchData(); }; } }
+async function post(body) { body.pin = validatedPin; const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(body) }); if (!res.ok) throw new Error("Request failed"); }
+function render() { const data = allData; const incPaid = data.filter(e => e.type === "income" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0); const incPending = data.filter(e => e.type === "income" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0); const incTotal = incPaid + incPending; const expPaid = data.filter(e => e.type === "expense" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0); const expUnpaid = data.filter(e => e.type === "expense" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0); const expTotal = expPaid + expUnpaid; const cashBal = capital + incPaid - expPaid; const totalBal = capital + incTotal - expTotal; animateValue($("cashBal"), prevCashBal, cashBal, 400, "$"); animateValue($("totalBal"), prevTotalBal, totalBal, 400, "$"); animateValue($("tinc"), prevIncTotal, incTotal, 400, "$"); animateValue($("tpend"), prevPendTotal, incPending, 400, "$"); animateValue($("texp"), prevExpTotal, expTotal, 400, "$"); $("cashBal").style.color = cashBal >= 0 ? "var(--text)" : "#ff3b30"; $("totalBal").style.color = totalBal >= 0 ? "var(--text)" : "#ff3b30"; prevCashBal = cashBal; prevTotalBal = totalBal; prevIncTotal = incTotal; prevPendTotal = incPending; prevExpTotal = expTotal; $("stickyCash").textContent = `$${cashBal.toFixed(2)}`; $("stickyCash").style.color = cashBal >= 0 ? "var(--text)" : "#ff3b30"; $("stickyTotal").textContent = `$${totalBal.toFixed(2)}`; $("empty").style.display = data.length ? "none" : "block"; $("list-card").style.display = data.length ? "block" : "none"; $("searchBar").style.display = data.length ? "block" : "none"; $("filterRow").style.display = data.length ? "flex" : "none"; $("mgr-card").style.display = data.length ? "block" : "none"; renderList(); const nowDate = new Date(); const dayOfWeek = nowDate.getDay(); const monOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; const thisMonday = new Date(nowDate); thisMonday.setDate(thisMonday.getDate() + monOffset); const thisSunday = new Date(thisMonday); thisSunday.setDate(thisSunday.getDate() + 6); const monStr = thisMonday.toISOString().split("T")[0]; const sunStr = thisSunday.toISOString().split("T")[0]; let weekOut = 0, weekIn = 0, overdueOut = 0, overdueIn = 0; const todayWk = new Date().toISOString().split("T")[0]; data.forEach(e => { if (e.paid === "yes") return; const d = fmtDate(e.date); if (!d) return; if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { const due = new Date(new Date(d).getTime() + 7*86400000); if (isNaN(due.getTime())) return; const dueStr = due.toISOString().split("T")[0]; if (dueStr >= monStr && dueStr <= sunStr) weekOut += parseFloat(e.total || e.amount || 0); else if (dueStr < todayWk) overdueOut += parseFloat(e.total || e.amount || 0); } if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fDate = fmtDate(e.fulfilled) || fmtDate(e.date); if (!fDate) return; const due = new Date(new Date(fDate).getTime() + 14*86400000); if (isNaN(due.getTime())) return; const dueStr = due.toISOString().split("T")[0]; if (dueStr >= monStr && dueStr <= sunStr) weekIn += parseFloat(e.amount || 0); else if (dueStr < todayWk) overdueIn += parseFloat(e.amount || 0); } }); if (weekOut > 0 || weekIn > 0 || overdueOut > 0 || overdueIn > 0) { let html = `<div class="wa-title">THIS WEEK</div><div class="wa-amounts"><span class="wa-out">-$${weekOut.toFixed(0)} out</span><span class="wa-sep">·</span><span class="wa-in">+$${weekIn.toFixed(0)} in</span></div>`; if (overdueOut > 0 || overdueIn > 0) { html += `<div class="wa-overdue"><span class="wa-overdue-label">OVERDUE</span>`; if (overdueOut > 0) html += `<span class="wa-out">-$${overdueOut.toFixed(0)}</span> `; if (overdueIn > 0) html += `<span class="wa-in">+$${overdueIn.toFixed(0)}</span>`; html += `</div>`; } html += `<div class="wa-label">${monStr.substring(5)} → ${sunStr.substring(5)} · Net 7 · Net 14</div>`; $("weekAlert").style.display = "block"; $("weekAlert").innerHTML = html; } else { $("weekAlert").style.display = "none"; } renderMgr(); }
+function localDateStr(d) { const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0"); return `${y}-${m}-${day}`; }
+function getDateRange(query) { const now = new Date(); const todayStr = localDateStr(now); if (query === "today") return { from: todayStr, to: todayStr }; if (query === "yesterday") { const y = new Date(now); y.setDate(y.getDate() - 1); return { from: localDateStr(y), to: localDateStr(y) }; } const dow = now.getDay(); const monOff = dow === 0 ? -6 : 1 - dow; const thisMon = new Date(now); thisMon.setDate(thisMon.getDate() + monOff); const thisSun = new Date(thisMon); thisSun.setDate(thisSun.getDate() + 6); if (query === "this week") return { from: localDateStr(thisMon), to: localDateStr(thisSun) }; if (query === "last week") { const lm = new Date(thisMon); lm.setDate(lm.getDate() - 7); const ls = new Date(lm); ls.setDate(ls.getDate() + 6); return { from: localDateStr(lm), to: localDateStr(ls) }; } if (query === "this month") { return { from: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-01`, to: localDateStr(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }; } if (query === "last month") { const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1); return { from: localDateStr(lm), to: localDateStr(new Date(now.getFullYear(), now.getMonth(), 0)) }; } const mNames = ["january","february","march","april","may","june","july","august","september","october","november","december"]; const mShort = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]; let mIdx = mNames.indexOf(query); if (mIdx === -1) mIdx = mShort.indexOf(query); if (mIdx !== -1) { const yr = mIdx <= now.getMonth() ? now.getFullYear() : now.getFullYear() - 1; return { from: localDateStr(new Date(yr, mIdx, 1)), to: localDateStr(new Date(yr, mIdx + 1, 0)) }; } return null; }
+function renderList() { const query = ($("searchBar").value || "").toLowerCase().trim(); const dateRange = query ? getDateRange(query) : null; const visible = []; allData.forEach((e, idx) => { if (!showPaid && e.paid === "yes") return; if (query) { if (dateRange) { const d = fmtDate(e.date); if (d < dateRange.from || d > dateRange.to) return; } else { const haystack = [e.description || "", e.source || "", e.customer || "", e.category || "", e.type || "", fmtDate(e.date), String(e.amount || ""), String(e.total || "")].join(" ").toLowerCase(); if (!haystack.includes(query)) return; } } visible.push({ entry: e, origIdx: idx }); }); let html = ""; let lastDate = ""; visible.forEach(({ entry: e, origIdx: i }) => { const d = fmtDate(e.date); if (d !== lastDate) { html += `<div class="date-header">${dateLabel(d)}</div>`; lastDate = d; } const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || ""); const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`; const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0); let light = ""; if (e.paid !== "yes") { let dueDate = null; if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { dueDate = new Date(new Date(fmtDate(e.date)).getTime() + 7*86400000); } else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fd = fmtDate(e.fulfilled) || fmtDate(e.date); if (fd) dueDate = new Date(new Date(fd).getTime() + 14*86400000); } if (dueDate && !isNaN(dueDate.getTime())) { const diff = (dueDate - new Date()) / 86400000; light = diff < 0 ? "Overdue" : diff <= 7 ? "Due soon" : "Scheduled"; } } const receiptUrl = safeUrl(e.receipt); html += `<div class="swipe-entry" data-idx="${i}"><div class="swipe-action swipe-action-left">✓ Paid</div><div class="swipe-action swipe-action-right">Del</div><div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}${e.paid === 'yes' ? ' paid-entry' : ''}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${light ? light + ' ' : ''}${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions"><span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i}, event)`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span><button onclick="cam(${i}, event)" title="Upload receipt">${e.receipt ? 'Img' : 'Rcpt'}</button><button onclick="del(${i}, event)" title="Delete entry">Del</button>${light === 'Overdue' && e.type === 'income' ? `<button onclick="remind(${i}, event)" title="Send payment reminder email" style="background:#c0694f !important;color:#fff !important;font-size:11px !important;padding:3px 8px !important;border-radius:6px !important">Remind</button>` : ''}</div></div>${receiptUrl ? `<a href="${esc(receiptUrl)}" target="_blank" rel="noopener"><img class="receipt-thumb" src="${esc(receiptUrl)}" alt="Receipt" onerror="this.outerHTML='<span class=\\'receipt-link\\'>View Receipt</span>'"></a>` : ''}</div></div>`; }); $("list").innerHTML = html; initSwipe(); }
+function renderList() {
+ const query = ($("searchBar").value || "").toLowerCase().trim();
+ const dateRange = query ? getDateRange(query) : null;
+ const visible = [];
+ allData.forEach((e, idx) => {
+   if (!showPaid && e.paid === "yes") return;
+   if (query) {
+     if (dateRange) {
+       const d = fmtDate(e.date);
+       if (d < dateRange.from || d > dateRange.to) return;
+     } else {
+       const haystack = [e.description || "", e.source || "", e.customer || "", e.category || "", e.type || "", fmtDate(e.date), String(e.amount || ""), String(e.total || "")].join(" ").toLowerCase();
+       if (!haystack.includes(query)) return;
+     }
+   }
+   visible.push({ entry: e, origIdx: idx });
+ });
+
+ let html = "";
+ let lastDate = "";
+ visible.forEach(({ entry: e, origIdx: i }) => {
+   const d = fmtDate(e.date);
+   if (d !== lastDate) {
+     html += `<div class="date-header">${dateLabel(d)}</div>`;
+     lastDate = d;
+   }
+   const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || "");
+   const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`;
+   const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
+   let dueLabel = "";
+   let dueClass = "";
+
+   if (e.paid !== "yes") {
+     let dueDate = null;
+     if (e.type === "expense" && (e.category || "").includes("Co-Packing")) {
+       dueDate = new Date(new Date(fmtDate(e.date)).getTime() + 7 * 86400000);
+     } else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) {
+       const fd = fmtDate(e.fulfilled) || fmtDate(e.date);
+       if (fd) dueDate = new Date(new Date(fd).getTime() + 14 * 86400000);
+     }
+     if (dueDate && !isNaN(dueDate.getTime())) {
+       const diff = (dueDate - new Date()) / 86400000;
+       dueLabel = diff < 0 ? "Overdue" : diff <= 7 ? "Due soon" : "Scheduled";
+       dueClass = diff < 0 ? "overdue" : diff <= 7 ? "soon" : "ok";
+     }
+   }
+
+   const receiptUrl = safeUrl(e.receipt);
+   const statusBadge = dueLabel ? `<span class="due-badge ${dueClass}">${dueLabel}</span>` : "";
+   const remindBtn = dueClass === "overdue" && e.type === "income" ? `<button onclick="remind(${i}, event)" title="Send payment reminder email" style="background:#c0694f !important;color:#fff !important;font-size:11px !important;padding:3px 8px !important;border-radius:6px !important">Remind</button>` : "";
+
+   html += `<div class="swipe-entry" data-idx="${i}"><div class="swipe-action swipe-action-left">Paid</div><div class="swipe-action swipe-action-right">Delete</div><div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}${e.paid === 'yes' ? ' paid-entry' : ''}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions">${statusBadge}<span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i}, event)`}">${e.paid === 'yes' ? 'Paid' : 'Unpaid'}</span><button onclick="cam(${i}, event)" title="Upload receipt">${e.receipt ? 'Img' : 'Rcpt'}</button><button onclick="del(${i}, event)" title="Delete entry">Del</button>${remindBtn}</div></div>${receiptUrl ? `<a href="${esc(receiptUrl)}" target="_blank" rel="noopener"><img class="receipt-thumb" src="${esc(receiptUrl)}" alt="Receipt" onerror="this.outerHTML='<span class=\\'receipt-link\\'>View Receipt</span>'"></a>` : ''}</div></div>`;
+ });
+ $("list").innerHTML = html;
+ initSwipe();
+}
+function initSwipe() { document.querySelectorAll(".swipe-entry").forEach(wrap => { const entryEl = wrap.querySelector(".entry"); let startX = 0, startY = 0, dx = 0, locked = false, direction = null; wrap.addEventListener("touchstart", e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; dx = 0; locked = false; direction = null; entryEl.style.transition = "none"; }, { passive: true }); wrap.addEventListener("touchmove", e => { const cx = e.touches[0].clientX, cy = e.touches[0].clientY; if (!direction) { const ax = Math.abs(cx - startX), ay = Math.abs(cy - startY); if (ax < 8 && ay < 8) return; direction = ax > ay ? "h" : "v"; if (direction === "v") { locked = true; return; } } if (locked) return; e.preventDefault(); dx = Math.max(-120, Math.min(120, cx - startX)); entryEl.style.transform = `translateX(${dx}px)`; wrap.classList.toggle("swiping-right", dx > 30); wrap.classList.toggle("swiping-left", dx < -30); }, { passive: false }); wrap.addEventListener("touchend", () => { entryEl.style.transition = "transform 0.2s"; entryEl.style.transform = ""; wrap.classList.remove("swiping-right", "swiping-left"); const idx = parseInt(wrap.dataset.idx); if (dx > 100) { swipeHandled = true; haptic(20); markPaid(idx, new Event("swipe")); } else if (dx < -100) { swipeHandled = true; haptic(20); del(idx, new Event("swipe")); } dx = 0; }, { passive: true }); }); }
+let mgrRange = "ytd", pieSlices = [];
+function setRange(r, el) { mgrRange = r; document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active")); el.classList.add("active"); $("dateRange").style.display = r === "custom" ? "flex" : "none"; if (r === "custom") { const yr = new Date().getFullYear(); if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`; if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0]; } renderMgr(); }
+function toggleSec(id) { haptic(); $(id).classList.toggle("open"); $(id + "Arrow").classList.toggle("open"); }
+function getMgrData() { const yr = new Date().getFullYear().toString(); return allData.filter(e => { const d = fmtDate(e.date); if (mgrRange === "ytd") return d.startsWith(yr); if (mgrRange === "all") return true; return d >= ($("mgrFrom").value || "0000") && d <= ($("mgrTo").value || "9999"); }); }
+function renderMgr() { const data = getMgrData(); const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; const ytdInc = data.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount || 0), 0); const ytdExp = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0); const ytdGst = data.filter(e => e.type === "expense").reduce((s, e) => s + parseFloat(e.gst || 0), 0); const ytdProfit = ytdInc - ytdExp; const profitClass = ytdProfit >= 0 ? "profit" : "loss"; const rangeLabel = mgrRange === "ytd" ? "YTD" : mgrRange === "all" ? "All Time" : "Period"; $("rangeSnap").innerHTML = `${ytdProfit >= 0 ? '' : ''} ${rangeLabel}: ${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}`; $("rangeSnap").style.color = ytdProfit >= 0 ? "#5a8a5e" : "#c0694f"; $("ytdGrid").innerHTML = `<div class="ytd-item"><div class="ytd-val">$${ytdInc.toFixed(2)}</div><div class="ytd-lbl">${rangeLabel} Revenue</div></div><div class="ytd-item"><div class="ytd-val">$${ytdExp.toFixed(2)}</div><div class="ytd-lbl">${rangeLabel} Expenses</div></div><div class="ytd-item ${profitClass}"><div class="ytd-val">${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}</div><div class="ytd-lbl">${ytdProfit >= 0 ? '' : ''} ${rangeLabel} Profit</div></div><div class="ytd-item"><div class="ytd-val">$${ytdGst.toFixed(2)}</div><div class="ytd-lbl">GST Paid</div></div>`; const cats = {}; data.filter(e => e.type === "expense").forEach(e => { const c = e.category || "Other"; cats[c] = (cats[c] || 0) + parseFloat(e.total || e.amount || 0); }); const pieColors = ["#c0694f","#5a8a5e","#c4a24e","#8b6f4e","#6b8fa3","#a36b8f","#7a9a6b","#d4956a"]; const catEntries = Object.entries(cats).sort((a, b) => b[1] - a[1]); const pieTotal = catEntries.reduce((s, c) => s + c[1], 0) || 1; const canvas = $("pieChart"); const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, 200, 200); pieSlices = []; let startAngle = -Math.PI / 2; catEntries.forEach(([cat, val], idx) => { const slice = (val / pieTotal) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(100, 100); ctx.arc(100, 100, 90, startAngle, startAngle + slice); ctx.fillStyle = pieColors[idx % pieColors.length]; ctx.fill(); pieSlices.push({ cat, val, start: startAngle, end: startAngle + slice, color: pieColors[idx % pieColors.length] }); startAngle += slice; }); ctx.beginPath(); ctx.arc(100, 100, 50, 0, Math.PI * 2); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--card").trim(); ctx.fill(); $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) => `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${esc(cat)} $${val.toFixed(0)}</span>`).join(""); $("catDetail").innerHTML = ""; const p = pricing; function estCogs(e) { const amt = parseFloat(e.amount || 0); const src = (e.source || "").toLowerCase(); if (src.includes("wholesale") || src.includes("ws")) return (amt / (p.wsPrice || 9.30)) * (p.wsCogs || 5.42); else return (amt / (p.dtcPrice || 13.29)) * (p.dtcCogs || 5.50); } const incData = data.filter(e => e.type === "income"); const dtcSales = incData.filter(e => !(e.source || "").toLowerCase().includes("wholesale")); const wsSales = incData.filter(e => (e.source || "").toLowerCase().includes("wholesale")); const dtcRev = dtcSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0); const dtcCost = dtcSales.reduce((s, e) => s + estCogs(e), 0); const wsRev = wsSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0); const wsCost = wsSales.reduce((s, e) => s + estCogs(e), 0); const totalRev = dtcRev + wsRev; const totalCost = dtcCost + wsCost; const grossProfit = totalRev - totalCost; const marginPct = totalRev > 0 ? ((grossProfit / totalRev) * 100).toFixed(1) : "0.0"; const dtcMargin = dtcRev > 0 ? (((dtcRev - dtcCost) / dtcRev) * 100).toFixed(1) : "0.0"; const wsMargin = wsRev > 0 ? (((wsRev - wsCost) / wsRev) * 100).toFixed(1) : "0.0"; $("profitGrid").innerHTML = `<div class="ytd-item ${grossProfit >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${grossProfit >= 0 ? '+' : ''}$${grossProfit.toFixed(2)}</div><div class="ytd-lbl">Est. Gross Profit</div></div><div class="ytd-item"><div class="ytd-val">${marginPct}%</div><div class="ytd-lbl">Blended Margin</div></div><div class="ytd-item"><div class="ytd-val">${dtcMargin}%</div><div class="ytd-lbl">DTC Margin</div></div><div class="ytd-item"><div class="ytd-val">${wsMargin}%</div><div class="ytd-lbl">Wholesale Margin</div></div>`; const mProfit = {}; incData.forEach(e => { const m = fmtDate(e.date).substring(0, 7) || "Unknown"; if (!mProfit[m]) mProfit[m] = { rev: 0, cogs: 0 }; mProfit[m].rev += parseFloat(e.amount || 0); mProfit[m].cogs += estCogs(e); }); $("monthProfit").innerHTML = Object.keys(mProfit).sort().reverse().map(m => { const mp = mProfit[m]; const gp = mp.rev - mp.cogs; const mg = mp.rev > 0 ? ((gp / mp.rev) * 100).toFixed(1) : "0.0"; const parts = m.split("-"); const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m; return `<div class="profit-row"><div class="profit-label"><span>${esc(label)}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div></div>`; }).join(""); const today = new Date(); const todayStr = today.toISOString().split("T")[0]; const in7 = new Date(today.getTime() + 7*86400000).toISOString().split("T")[0]; const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0]; const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split("T")[0]; const prevMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split("T")[0]; let wed7 = 0, spillover = 0; const cwRows = cashWaveData.map(r => { const d = fmtDate(r.date); if (!d) return null; const baseDate = new Date(d); if (isNaN(baseDate.getTime())) return null; const mffDue = new Date(baseDate.getTime() + 7*86400000).toISOString().split("T")[0]; const wsDue = new Date(baseDate.getTime() + 15*86400000).toISOString().split("T")[0]; const mff = parseFloat(r.mff) || 0; const ws = parseFloat(r.wholesale) || 0; if (mffDue >= todayStr && mffDue <= in7) wed7 += mff; if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= new Date(today.getFullYear(), today.getMonth(), 7).toISOString().split("T")[0]) spillover += mff; return { date: d, mff, mffDue, ws, wsDue, notes: r.notes || "" }; }).filter(Boolean).sort((a, b) => b.date.localeCompare(a.date)); let cwHtml = wed7 > 0 ? `<div class="cw-alert">$${wed7.toFixed(2)} due to MFF in next 7 days</div>` : `<div class="cw-alert ok">No MFF payments due this week</div>`; if (spillover > 0) cwHtml += `<div class="cw-alert">Overdue Month spillover: $${spillover.toFixed(2)} from last month due this week</div>`; if (cwRows.length) { cwHtml += cwRows.map(r => { const total = r.mff + r.ws || 1; return `<div><div class="cw-row"><span>${esc(r.date)}</span><span><span class="cw-out">-$${r.mff.toFixed(0)}</span> → <span class="cw-in">+$${r.ws.toFixed(0)}</span></span></div><div class="cw-bar"><div class="cw-bar-out" style="width:${(r.mff / total) * 100}%"></div><div class="cw-bar-in" style="width:${(r.ws / total) * 100}%"></div></div><div style="font-size:11px;color:var(--muted)">Pay MFF: ${esc(r.mffDue)} · WS due: ${esc(r.wsDue)}${r.notes ? ' · ' + esc(r.notes) : ''}</div></div>`; }).join(""); } else { cwHtml += '<div style="text-align:center;color:var(--muted);padding:12px;font-size:13px">Add production runs to the Cash Wave tab in Google Sheets</div>'; } $("cashWave").innerHTML = cwHtml; }
+function tapPie(event) { const canvas = $("pieChart"); const rect = canvas.getBoundingClientRect(); const x = (event.clientX - rect.left) * (200 / rect.width) - 100; const y = (event.clientY - rect.top) * (200 / rect.height) - 100; const dist = Math.sqrt(x * x + y * y); if (dist < 50 || dist > 90) { $("catDetail").innerHTML = ""; return; } let angle = Math.atan2(y, x); if (angle < -Math.PI / 2) angle += Math.PI * 2; const hit = pieSlices.find(s => angle >= s.start && angle < s.end); if (!hit) return; const data = getMgrData(); const entries = data.filter(e => e.type === "expense" && (e.category || "Other") === hit.cat); $("catDetail").innerHTML = `<div class="cat-detail" style="border-left:3px solid ${hit.color}"><div style="font-weight:700;margin-bottom:4px">${esc(hit.cat)} — $${hit.val.toFixed(2)}</div>${entries.map(e => `<div><span>${esc(e.description || "")} · ${fmtDate(e.date)}</span><span>$${parseFloat(e.total || e.amount || 0).toFixed(2)}</span></div>`).join("")}</div>`; }
+function exportCSV() { const rows = [["Type","Date","Description/Source","Category/Customer","Amount","GST","Total","Paid"]]; allData.forEach(e => { if (e.type === "income") rows.push(["Income", fmtDate(e.date), e.source || "", e.customer || "", e.amount || 0, "", "", e.paid || ""]); else rows.push(["Expense", fmtDate(e.date), e.description || "", e.category || "", e.amount || 0, e.gst || 0, e.total || 0, e.paid || ""]); }); const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n"); const blob = new Blob([csv], { type: "text/csv" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `granola-kid-${new Date().toISOString().split("T")[0]}.csv`; a.click(); URL.revokeObjectURL(a.href); }
+function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+function safeUrl(url) { if (!url) return ""; try { const u = new URL(url); return (u.protocol === "https:" || u.protocol === "http:") ? url : ""; } catch { return ""; } }
+function fmtDate(d) { if (!d) return ""; const s = String(d); if (s.length === 10) return s; const dt = new Date(s); if (isNaN(dt.getTime())) return s.substring(0, 10); return localDateStr(dt); }
+function showToast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+let refreshing = false;
+function refreshData() { if (refreshing) return; refreshing = true; haptic(); $("refreshBtn").classList.add("spinning"); fetchData().then(() => { $("refreshBtn").classList.remove("spinning"); showToast("✓ Refreshed"); }).catch(() => { $("refreshBtn").classList.remove("spinning"); showToast("Error refreshing"); }).finally(() => { refreshing = false; }); }
+function celebrate() { const emojis = ["","","","","",""]; const div = document.createElement("div"); div.className = "celebrate"; for (let i = 0; i < 20; i++) { const s = document.createElement("span"); s.textContent = emojis[Math.floor(Math.random() * emojis.length)]; s.style.left = Math.random() * 100 + "%"; s.style.animationDelay = Math.random() * 1 + "s"; s.style.fontSize = (32 + Math.random() * 24) + "px"; div.appendChild(s); } document.body.appendChild(div); setTimeout(() => div.remove(), 4500); }
+async function del(i, event) { if (event && event.stopPropagation) event.stopPropagation(); if (!confirm("Delete this entry?")) return; haptic(20); const e = allData[i]; try { await post({ action: "delete", type: e.type, row: e.row }); showToast("✓ Deleted"); fetchData(); } catch { showToast("Error deleting — try again"); } }
+async function markPaid(i, event) { if (event && event.stopPropagation) event.stopPropagation(); haptic(20); const e = allData[i]; try { await post({ action: "pay", type: e.type, row: e.row }); showToast("✓ Marked as paid"); fetchData(); } catch { showToast("Error updating — try again"); } }
+async function cam(i, event) { event.stopPropagation(); const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = async () => { const file = inp.files[0]; if (!file) return; if (file.size > 5 * 1024 * 1024) { showToast("Image too large (max 5MB)"); return; } const reader = new FileReader(); reader.onload = async () => { const base64 = reader.result.split(",")[1]; const e = allData[i]; try { await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "receipt", type: e.type, row: e.row, data: base64, pin: validatedPin, mime: file.type, filename: `receipt_${fmtDate(e.date)}_${Date.now()}.${file.type.split("/")[1]}` })}); showToast("✓ Receipt uploaded"); fetchData(); } catch { showToast("Error uploading — try again"); } }; reader.readAsDataURL(file); }; inp.click(); }
+function remind(i, event) { event.stopPropagation(); const e = allData[i]; const order = e.customer || "N/A"; const amt = parseFloat(e.amount || 0).toFixed(2); const fd = fmtDate(e.fulfilled) || fmtDate(e.date); const subj = encodeURIComponent(`Payment Reminder — Order ${order}`); let body = `Hi,\n\nThis is a friendly reminder that payment of $${amt} for Order ${order} (fulfilled ${fd}) is now overdue (Net 14).\n\nPlease let us know the status at your earliest convenience.`; if (e.receipt) body += `\n\nInvoice/Receipt: ${e.receipt}`; body += `\n\nThank you!\n— Granola Kid`; window.open(`mailto:?subject=${subj}&body=${encodeURIComponent(body)}`); }
+function edit(i) { if (swipeHandled) { swipeHandled = false; return; } haptic(); const e = allData[i]; const overlay = document.createElement("div"); overlay.className = "edit-overlay"; overlay.onclick = ev => { if (ev.target === overlay) overlay.remove(); }; let fields; if (e.type === "expense") { fields = `<input id="eDesc" value="${esc(e.description || "")}" placeholder="Description" required><div class="row"><input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal"><select id="eCat">${["Co-Packing","Ingredients","Bags & Boxes","Shipping & Gas","Tech & Office","Ads & Promo","Business Meal","Debt Repayment"].map(c => `<option${(e.category||"").includes(c.substring(2)) ? " selected" : ""}>${c}</option>`).join("")}</select></div><input id="eDate" type="date" value="${fmtDate(e.date)}"><select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`; } else { fields = `<select id="eSrc"><option${(e.source||"").includes("DTC") ? " selected" : ""}>DTC</option><option${(e.source||"").includes("Wholesale") ? " selected" : ""}>Wholesale</option></select><input id="eCust" value="${esc(e.customer || "")}" placeholder="Order # or Note" required><input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="Amount" required inputmode="decimal"><input id="eDate" type="date" value="${fmtDate(e.date)}">${(e.source || "").toLowerCase().includes("wholesale") ? `<label style="font-size:12px;color:var(--muted)">Fulfilled Date</label><input id="eFulfilled" type="date" value="${fmtDate(e.fulfilled)}">` : ''}<select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`; } overlay.innerHTML = `<div class="edit-sheet"><h3>Edit ${e.type === "income" ? "Income" : "Expense"}</h3><form id="editForm">${fields}<div class="edit-btns"><button type="button" class="cancel" onclick="this.closest('.edit-overlay').remove()">Cancel</button><button type="submit">Save</button></div></form></div>`; document.body.appendChild(overlay); $("editForm").onsubmit = async ev => { ev.preventDefault(); haptic(); const body = { action: "edit", type: e.type, row: e.row, date: $("eDate").value, amount: parseFloat($("eAmt").value), paid: $("ePaid").value }; if (e.type === "expense") { body.description = $("eDesc").value; body.category = $("eCat").value; } else { body.source = $("eSrc").value; body.customer = $("eCust").value; const ef = document.getElementById("eFulfilled"); if (ef) body.fulfilled = ef.value; } overlay.remove(); try { await post(body); showToast("✓ Updated"); fetchData(); } catch { showToast("Error saving — try again"); } }; }
+document.addEventListener("keydown", e => { if (document.getElementById("pin-screen").style.display !== "none") return; if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA") return; if (document.querySelector(".edit-overlay")) { if (e.key === "Escape") { document.querySelector(".edit-overlay").remove(); } return; } if (e.key === "r" || e.key === "R") { e.preventDefault(); refreshData(); } else if (e.key === "e" || e.key === "E") { e.preventDefault(); $("tExp").checked = true; toggleForm(); $("expDesc").focus(); } else if (e.key === "i" || e.key === "I") { e.preventDefault(); $("tInc").checked = true; toggleForm(); $("incCustomer").focus(); } else if (e.key === "/" || e.key === "f" || e.key === "F") { e.preventDefault(); $("searchBar").focus(); } else if (e.key === "Escape") { $("searchBar").value = ""; renderList(); $("searchBar").blur(); } });
+</script>
+</body>
+</html>

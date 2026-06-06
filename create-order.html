@@ -98,3 +98,327 @@
   /* Polished business-workflow layer */
   body { line-height: 1.35; }
   .header-area { padding: 16px; }
+  h1 { font-size: 1.2rem; letter-spacing: 0.01em; }
+  .subtitle, .card-title, .week-box .label { color: var(--muted); }
+  .card, .week-box { border-radius: 8px; box-shadow: 0 1px 2px rgba(31,36,32,0.04); }
+  .card { padding: 16px; margin-bottom: 12px; }
+  input, select, textarea, button, .shopify-btn, .mode-tabs a, .preview { border-radius: 8px; }
+  .sku-grid { gap: 10px; }
+  .sku-item { background: var(--input); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+  .sku-item input { background: var(--card); }
+  .preview { font-size: 0.85rem; line-height: 1.55; }
+  .footer { padding-top: 20px; }
+</style>
+</head>
+<body>
+<div id="pin-screen" class="pin-screen">
+  <h2>Granola Kid</h2>
+  <p id="pinMsg" style="color:var(--muted);font-size:14px">Enter PIN to create orders</p>
+  <div class="pin-dots" id="pinDots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  <div class="pin-pad">
+    <button onclick="pinKey(1)">1</button><button onclick="pinKey(2)">2</button><button onclick="pinKey(3)">3</button>
+    <button onclick="pinKey(4)">4</button><button onclick="pinKey(5)">5</button><button onclick="pinKey(6)">6</button>
+    <button onclick="pinKey(7)">7</button><button onclick="pinKey(8)">8</button><button onclick="pinKey(9)">9</button>
+    <button class="pin-empty"></button><button onclick="pinKey(0)">0</button><button class="pin-del" onclick="pinDel()">⌫</button>
+  </div>
+</div>
+<div id="app" style="display:none">
+<div class="header-area">
+  <h1>Production Order</h1>
+  <div class="subtitle">Weekly order for Haley · Due Monday 5pm PT</div>
+  <nav class="mode-tabs" aria-label="App sections">
+    <a href="index.html">Finance</a>
+    <a class="active" href="create-order.html">Production Order</a>
+  </nav>
+</div>
+
+<div class="card" style="text-align:center">
+  <a class="shopify-btn" href="https://thegranolakid.myshopify.com/admin/orders" target="_blank" rel="noopener">Open Shopify Orders</a>
+</div>
+
+<div class="card">
+  <div class="card-title">Order Window</div>
+  <div class="week-meta">
+    <div class="week-box"><div class="label">Week</div><div class="value" id="weekRange">This week</div></div>
+    <div class="week-box"><div class="label">Send By</div><div class="value">Monday 5pm PT</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Add Customer Order</div>
+  <input id="customer" placeholder="Customer Name" required>
+  <div class="sku-grid">
+    <div class="sku-item"><span class="sku-label">Naked</span><input type="number" min="0" inputmode="numeric" data-sku="Naked" placeholder="0"></div>
+    <div class="sku-item"><span class="sku-label">GoNuts</span><input type="number" min="0" inputmode="numeric" data-sku="GoNuts" placeholder="0"></div>
+    <div class="sku-item"><span class="sku-label">CocoYummy</span><input type="number" min="0" inputmode="numeric" data-sku="CocoYummy" placeholder="0"></div>
+    <div class="sku-item"><span class="sku-label">CranCinny</span><input type="number" min="0" inputmode="numeric" data-sku="CranCinny Bliss" placeholder="0"></div>
+    <div class="sku-item"><span class="sku-label">Dark&Dreamy</span><input type="number" min="0" inputmode="numeric" data-sku="Dark & Dreamy" placeholder="0"></div>
+    <div class="sku-item"><span class="sku-label">Bulk</span><input type="number" min="0" inputmode="numeric" data-sku="Bulk Container" placeholder="0"></div>
+  </div>
+  <button class="add-btn" onclick="addOrder()">+ Add to Order</button>
+</div>
+
+<div class="card" id="totals-card" style="display:none">
+  <div class="card-title">Running Total</div>
+  <div id="orderLog" class="order-log"></div>
+  <div id="totals"></div>
+  <button class="reset-btn" onclick="resetAll()">Start Over</button>
+</div>
+
+<div class="card" id="send-card" style="display:none">
+  <div class="card-title">Notes for Co-Packer</div>
+  <textarea id="orderNotes" placeholder="Notes, substitutions, rush timing, packaging requests..." oninput="render()"></textarea>
+  <div class="preview" id="preview"></div>
+  <div class="button-row">
+    <button class="copy-btn" onclick="copyOrder()">Copy Order</button>
+    <button class="whatsapp-btn" id="sendBtn" onclick="sendWhatsApp()">Send via WhatsApp</button>
+  </div>
+</div>
+
+<a class="back-link" href="index.html">Back to Granola Kid</a>
+<div class="footer">Made by Granola Kid</div>
+</div>
+
+<script>
+document.addEventListener("touchstart", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+document.addEventListener("touchmove", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+document.addEventListener("gesturestart", e => e.preventDefault());
+document.addEventListener("gesturechange", e => e.preventDefault());
+document.addEventListener("gestureend", e => e.preventDefault());
+
+const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
+const skus = ["Naked","GoNuts","CocoYummy","CranCinny Bliss","Dark & Dreamy","Bulk Container"];
+const totals = {};
+const orders = [];
+let validatedPin = "";
+let pinEntry = "";
+let pinFails = 0;
+let pinLocked = false;
+skus.forEach(s => totals[s] = 0);
+
+function getInput(sku) { return document.querySelector(`[data-sku="${sku}"]`); }
+function esc(s) { const d = document.createElement("div"); d.textContent = String(s || ""); return d.innerHTML; }
+function unlockApp(pin) {
+  validatedPin = pin;
+  sessionStorage.setItem("gk-auth-pin", pin);
+  document.getElementById("pin-screen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+
+async function validatePin(pin) {
+  const res = await fetch(API, {
+    method: "POST", redirect: "follow",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({ action: "fetch", pin })
+  });
+  if (!res.ok) return false;
+  const json = await res.json();
+  return !json.error;
+}
+
+async function pinKey(n) {
+  if (pinLocked || pinEntry.length >= 6) return;
+  pinEntry += n;
+  updateDots();
+  if (pinEntry.length !== 6) return;
+  try {
+    if (await validatePin(pinEntry)) {
+      unlockApp(pinEntry);
+      return;
+    }
+  } catch {}
+  pinFails++;
+  document.getElementById("pinDots").classList.add("wrong");
+  setTimeout(() => {
+    pinEntry = "";
+    updateDots();
+    document.getElementById("pinDots").classList.remove("wrong");
+  }, 500);
+  if (pinFails >= 5) {
+    pinLocked = true;
+    let sec = 30;
+    const msg = document.getElementById("pinMsg");
+    const origText = msg.textContent;
+    msg.textContent = "Too many attempts. Try again in 30s";
+    const iv = setInterval(() => {
+      sec--;
+      msg.textContent = `Too many attempts. Try again in ${sec}s`;
+      if (sec <= 0) {
+        clearInterval(iv);
+        pinLocked = false;
+        pinFails = 0;
+        msg.textContent = origText;
+      }
+    }, 1000);
+  }
+}
+
+function pinDel() {
+  if (pinLocked) return;
+  pinEntry = pinEntry.slice(0, -1);
+  updateDots();
+}
+
+function updateDots() {
+  document.querySelectorAll("#pinDots .dot").forEach((d, i) => d.classList.toggle("filled", i < pinEntry.length));
+}
+
+document.addEventListener("keydown", e => {
+  if (document.getElementById("pin-screen").style.display === "none") return;
+  if (e.key >= "0" && e.key <= "9") pinKey(parseInt(e.key));
+  else if (e.key === "Backspace") pinDel();
+});
+
+(async function restoreSession() {
+  const pin = sessionStorage.getItem("gk-auth-pin");
+  if (!pin) return;
+  try {
+    if (await validatePin(pin)) unlockApp(pin);
+    else sessionStorage.removeItem("gk-auth-pin");
+  } catch {
+    sessionStorage.removeItem("gk-auth-pin");
+  }
+})();
+
+function localDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function initWeekRange() {
+  const now = new Date();
+  const dow = now.getDay();
+  const monOff = dow === 0 ? -6 : 1 - dow;
+  const mon = new Date(now);
+  mon.setDate(mon.getDate() + monOff);
+  const sun = new Date(mon);
+  sun.setDate(sun.getDate() + 6);
+  document.getElementById("weekRange").textContent = `${mon.toLocaleDateString([], { month: "short", day: "numeric" })} - ${sun.toLocaleDateString([], { month: "short", day: "numeric" })}`;
+}
+
+function buildMessage() {
+  const week = document.getElementById("weekRange").textContent;
+  const notes = document.getElementById("orderNotes")?.value.trim() || "";
+  let msg = `Hi Haley, here is the Granola Kid production order for ${week}:\n\n`;
+  orders.forEach(o => {
+    const items = Object.entries(o.items).map(([s, q]) => `${s} x${q}`).join(", ");
+    msg += `${o.name}: ${items}\n\n`;
+  });
+  msg += "--- Total ---\n";
+  skus.forEach(s => { msg += `${s} - ${totals[s]}\n`; });
+  if (notes) msg += `\n--- Notes ---\n${notes}\n`;
+  return msg.trim();
+}
+
+initWeekRange();
+
+function showToast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+function addOrder() {
+  const name = document.getElementById("customer").value.trim();
+  if (!name) { showToast("Enter customer name"); return; }
+
+  let hasQty = false;
+  const order = { name, items: {} };
+  skus.forEach(s => {
+    const qty = parseInt(getInput(s).value) || 0;
+    if (qty > 0) { totals[s] += qty; order.items[s] = qty; hasQty = true; }
+  });
+
+  if (!hasQty) { showToast("Enter at least one quantity"); return; }
+
+  orders.push(order);
+  document.getElementById("customer").value = "";
+  skus.forEach(s => getInput(s).value = "");
+
+  render();
+  showToast(`✓ ${name} added`);
+}
+
+function render() {
+  const hasOrders = orders.length > 0;
+  document.getElementById("totals-card").style.display = hasOrders ? "block" : "none";
+  document.getElementById("send-card").style.display = hasOrders ? "block" : "none";
+
+  document.getElementById("orderLog").innerHTML = orders.map(o => {
+    const items = Object.entries(o.items).map(([s, q]) => `${esc(s)} ×${q}`).join(", ");
+    return `<div><strong>${esc(o.name)}:</strong> ${items}</div>`;
+  }).join("");
+
+  document.getElementById("totals").innerHTML = skus
+    .filter(s => totals[s] > 0)
+    .map(s => `<div class="total-row"><span class="total-name">${s}</span><span class="total-qty">${totals[s]}</span></div>`)
+    .join("");
+
+  document.getElementById("preview").textContent = buildMessage();
+}
+
+function resetAll() {
+  if (!confirm("Start over? This clears all orders.")) return;
+  orders.length = 0;
+  skus.forEach(s => totals[s] = 0);
+  render();
+  showToast("Cleared");
+}
+
+async function saveOrder() {
+  if (!validatedPin) throw new Error("PIN required");
+  const res = await fetch(API, {
+    method: "POST", redirect: "follow",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({
+      pin: validatedPin, action: "order",
+      date: new Date().toISOString().split("T")[0],
+      Naked: totals["Naked"], GoNuts: totals["GoNuts"],
+      CocoYummy: totals["CocoYummy"], CranCinnyBliss: totals["CranCinny Bliss"],
+      DarkDreamy: totals["Dark & Dreamy"], BulkContainer: totals["Bulk Container"]
+    })
+  });
+  if (!res.ok) throw new Error("Order save failed");
+  showToast("✓ Order saved to sheet");
+}
+
+async function copyOrder() {
+  const msg = buildMessage();
+  try {
+    await navigator.clipboard.writeText(msg);
+    showToast("Order copied");
+  } catch {
+    const preview = document.getElementById("preview");
+    const range = document.createRange();
+    range.selectNodeContents(preview);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    showToast("Order selected");
+  }
+}
+
+async function sendWhatsApp() {
+  const msg = buildMessage();
+  if (!confirm(`Review order before sending:\n\n${msg}`)) return;
+  const btn = document.getElementById("sendBtn");
+  btn.disabled = true;
+  btn.textContent = "Saving...";
+
+  try {
+    await saveOrder();
+  } catch {
+    btn.disabled = false;
+    btn.textContent = "Send via WhatsApp";
+    if (!confirm("The order could not be saved to the sheet. Send it anyway?")) return;
+  }
+  btn.disabled = false;
+  btn.textContent = "Send via WhatsApp";
+  window.location.href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+}
+</script>
+</body>
+</html>
