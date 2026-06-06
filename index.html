@@ -93,6 +93,10 @@
  .entry-actions .paid-badge { font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
  .paid-badge.yes { background: var(--input); color: var(--accent); }
  .paid-badge.no { background: var(--input); color: var(--muted); cursor: pointer; border: 1px solid var(--border); }
+ .due-badge { font-size: 0.68rem; font-weight: 800; padding: 3px 7px; border-radius: 6px; border: 1px solid var(--border); background: var(--input); color: var(--muted); white-space: nowrap; }
+ .due-badge.ok { color: var(--accent); }
+ .due-badge.soon { color: #b26b00; border-color: rgba(178,107,0,0.35); }
+ .due-badge.overdue { color: #ff3b30; border-color: rgba(255,59,48,0.35); }
  .receipt-link { display: inline-block; font-size: 0.7rem; color: var(--accent); font-weight: 600; margin-top: 6px; text-decoration: none; }
  .empty { text-align: center; color: var(--muted); padding: 32px 0; font-size: 0.85rem; }
  .footer { text-align: center; color: var(--muted); font-size: 0.7rem; padding: 20px 0 10px; }
@@ -155,6 +159,10 @@
  .app-header-left { display: flex; align-items: center; }
  .app-header-title { font-weight: 900; font-size: 0.85rem; color: var(--text); }
  .app-header-right { display: flex; align-items: center; gap: 6px; }
+ .mode-tabs { display: flex; gap: 6px; margin: 10px 0; }
+ .mode-tabs a { flex: 1; text-align: center; text-decoration: none; padding: 9px 8px; border-radius: 10px; font-size: 0.82rem; font-weight: 800; color: var(--text); background: var(--input); border: 1px solid var(--border); }
+ .mode-tabs a.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+ .sync-status { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-align: center; margin: 10px 0 0; }
  .app-hdr-btn { background: none; border: 1px solid var(--border); border-radius: 10px; width: 34px; height: 34px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); transition: background 0.15s; }
  .app-hdr-btn:active { background: var(--bg); }
  .app-hdr-lock { background: none; border: 1px solid var(--border); border-radius: 10px; padding: 7px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: var(--muted); display: flex; align-items: center; gap: 5px; transition: background 0.15s; }
@@ -256,6 +264,10 @@
 </div>
 <div class="header-area" id="headerArea">
 <div class="logo"><img src="logo.png" alt="Logo" style="width:100%;max-width:260px;display:block;margin:0 auto;"></div>
+<nav class="mode-tabs" aria-label="App sections">
+ <a class="active" href="index.html">Finance</a>
+ <a href="create-order.html">Production Order</a>
+</nav>
 <div class="summary">
  <div class="bal-row">
    <div class="bal-item"><div class="amt" id="cashBal">$0.00</div><div class="lbl">CASH BALANCE</div></div>
@@ -266,6 +278,7 @@
    <div class="stat-item"><div class="stat-val" id="tpend">$0.00</div><div class="stat-lbl">PENDING</div></div>
    <div class="stat-item"><div class="stat-val" id="texp">$0.00</div><div class="stat-lbl">EXPENSES</div></div>
  </div>
+ <div class="sync-status" id="syncStatus">Not synced yet</div>
 </div>
 </div>
 <div class="week-alert" id="weekAlert" style="display:none"></div>
@@ -447,12 +460,20 @@ function dateLabel(dateStr) {
  if (d.getFullYear() !== today.getFullYear()) label += ", " + d.getFullYear();
  return label;
 }
+function updateSyncStatus(state) {
+ const el = $("syncStatus");
+ if (!el) return;
+ if (state === "loading") { el.textContent = "Syncing with Google Sheets..."; return; }
+ if (state === "error") { el.textContent = "Could not reach Google Sheets. Tap refresh to try again."; return; }
+ const now = new Date();
+ el.textContent = `Last synced ${now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+}
 function initApp(json) {
  $("expDate").value = new Date().toISOString().split("T")[0];
  $("incDate").value = new Date().toISOString().split("T")[0];
  capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || [];
  allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
- $("loading").style.display = "none"; render();
+ $("loading").style.display = "none"; updateSyncStatus("success"); render();
  $("expForm").onsubmit = async e => { e.preventDefault(); haptic(); $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true; try { await post({ action: "add", type: "expense", date: $("expDate").value, description: $("expDesc").value, category: $("expCat").value, amount: parseFloat($("expAmount").value), paid: $("expPaid").value }); $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0]; $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00"; showToast("✓ Expense added"); fetchData(); } catch { showToast("Error adding expense — try again"); } $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false; $("expDesc").focus(); };
  $("incForm").onsubmit = async e => { e.preventDefault(); haptic(); $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true; try { await post({ action: "add", type: "income", date: $("incDate").value, source: $("incSource").value, customer: $("incCustomer").value.trim(), amount: parseFloat($("incAmount").value), paid: $("incPaid").value, fulfilled: $("incFulfilled").value || "" }); $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = ""; showToast("✓ Income added — keep it up!"); celebrate(); fetchData(); } catch { showToast("Error adding income — try again"); } $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false; $("incCustomer").focus(); };
  const headerObs = new IntersectionObserver(([e]) => { $("stickyBar").classList.toggle("visible", !e.isIntersecting); }, { threshold: 0 });
@@ -466,12 +487,68 @@ function initApp(json) {
 function toggleForm() { const isExp = $("tExp").checked; $("expForm").style.display = isExp ? "flex" : "none"; $("incForm").style.display = isExp ? "none" : "flex"; if (!isExp) { updateFulfilledVis(); $("incCustomer").focus(); } else { $("expDesc").focus(); } haptic(); }
 function updateFulfilledVis() { $("fulfilledWrap").className = "fulfilled-wrap" + (($("incSource").value || "").toLowerCase().includes("wholesale") ? " show" : ""); }
 function calcGst() { const amt = parseFloat($("expAmount").value) || 0; const gst = Math.round(amt * 0.05 * 100) / 100; $("gstAmt").textContent = gst.toFixed(2); $("totalAmt").textContent = (amt + gst).toFixed(2); }
-async function fetchData() { try { const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "fetch", pin: validatedPin }) }); const json = await res.json(); capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || []; allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date))); $("loading").style.display = "none"; render(); } catch (err) { $("loading").style.display = "block"; $("loading").textContent = "Error loading data. Tap to retry."; $("loading").onclick = () => { $("loading").textContent = "Loading..."; $("loading").onclick = null; fetchData(); }; } }
+async function fetchData() { updateSyncStatus("loading"); try { const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "fetch", pin: validatedPin }) }); const json = await res.json(); capital = parseFloat(json.capital) || 0; pricing = json.pricing || {}; cashWaveData = json.cashWave || []; allData = [...json.income.map(r => ({ ...r, type: "income" })), ...json.expense.map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date))); $("loading").style.display = "none"; updateSyncStatus("success"); render(); } catch (err) { updateSyncStatus("error"); $("loading").style.display = "block"; $("loading").textContent = "Could not reach Google Sheets. Tap to retry."; $("loading").onclick = () => { $("loading").textContent = "Loading..."; $("loading").onclick = null; fetchData(); }; } }
 async function post(body) { body.pin = validatedPin; const res = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(body) }); if (!res.ok) throw new Error("Request failed"); }
 function render() { const data = allData; const incPaid = data.filter(e => e.type === "income" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0); const incPending = data.filter(e => e.type === "income" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.amount || 0), 0); const incTotal = incPaid + incPending; const expPaid = data.filter(e => e.type === "expense" && e.paid === "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0); const expUnpaid = data.filter(e => e.type === "expense" && e.paid !== "yes").reduce((s, e) => s + parseFloat(e.total || e.amount || 0), 0); const expTotal = expPaid + expUnpaid; const cashBal = capital + incPaid - expPaid; const totalBal = capital + incTotal - expTotal; animateValue($("cashBal"), prevCashBal, cashBal, 400, "$"); animateValue($("totalBal"), prevTotalBal, totalBal, 400, "$"); animateValue($("tinc"), prevIncTotal, incTotal, 400, "$"); animateValue($("tpend"), prevPendTotal, incPending, 400, "$"); animateValue($("texp"), prevExpTotal, expTotal, 400, "$"); $("cashBal").style.color = cashBal >= 0 ? "var(--text)" : "#ff3b30"; $("totalBal").style.color = totalBal >= 0 ? "var(--text)" : "#ff3b30"; prevCashBal = cashBal; prevTotalBal = totalBal; prevIncTotal = incTotal; prevPendTotal = incPending; prevExpTotal = expTotal; $("stickyCash").textContent = `$${cashBal.toFixed(2)}`; $("stickyCash").style.color = cashBal >= 0 ? "var(--text)" : "#ff3b30"; $("stickyTotal").textContent = `$${totalBal.toFixed(2)}`; $("empty").style.display = data.length ? "none" : "block"; $("list-card").style.display = data.length ? "block" : "none"; $("searchBar").style.display = data.length ? "block" : "none"; $("filterRow").style.display = data.length ? "flex" : "none"; $("mgr-card").style.display = data.length ? "block" : "none"; renderList(); const nowDate = new Date(); const dayOfWeek = nowDate.getDay(); const monOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; const thisMonday = new Date(nowDate); thisMonday.setDate(thisMonday.getDate() + monOffset); const thisSunday = new Date(thisMonday); thisSunday.setDate(thisSunday.getDate() + 6); const monStr = thisMonday.toISOString().split("T")[0]; const sunStr = thisSunday.toISOString().split("T")[0]; let weekOut = 0, weekIn = 0, overdueOut = 0, overdueIn = 0; const todayWk = new Date().toISOString().split("T")[0]; data.forEach(e => { if (e.paid === "yes") return; const d = fmtDate(e.date); if (!d) return; if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { const due = new Date(new Date(d).getTime() + 7*86400000); if (isNaN(due.getTime())) return; const dueStr = due.toISOString().split("T")[0]; if (dueStr >= monStr && dueStr <= sunStr) weekOut += parseFloat(e.total || e.amount || 0); else if (dueStr < todayWk) overdueOut += parseFloat(e.total || e.amount || 0); } if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fDate = fmtDate(e.fulfilled) || fmtDate(e.date); if (!fDate) return; const due = new Date(new Date(fDate).getTime() + 14*86400000); if (isNaN(due.getTime())) return; const dueStr = due.toISOString().split("T")[0]; if (dueStr >= monStr && dueStr <= sunStr) weekIn += parseFloat(e.amount || 0); else if (dueStr < todayWk) overdueIn += parseFloat(e.amount || 0); } }); if (weekOut > 0 || weekIn > 0 || overdueOut > 0 || overdueIn > 0) { let html = `<div class="wa-title">THIS WEEK</div><div class="wa-amounts"><span class="wa-out">-$${weekOut.toFixed(0)} out</span><span class="wa-sep">·</span><span class="wa-in">+$${weekIn.toFixed(0)} in</span></div>`; if (overdueOut > 0 || overdueIn > 0) { html += `<div class="wa-overdue"><span class="wa-overdue-label">OVERDUE</span>`; if (overdueOut > 0) html += `<span class="wa-out">-$${overdueOut.toFixed(0)}</span> `; if (overdueIn > 0) html += `<span class="wa-in">+$${overdueIn.toFixed(0)}</span>`; html += `</div>`; } html += `<div class="wa-label">${monStr.substring(5)} → ${sunStr.substring(5)} · Net 7 · Net 14</div>`; $("weekAlert").style.display = "block"; $("weekAlert").innerHTML = html; } else { $("weekAlert").style.display = "none"; } renderMgr(); }
 function localDateStr(d) { const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0"); return `${y}-${m}-${day}`; }
 function getDateRange(query) { const now = new Date(); const todayStr = localDateStr(now); if (query === "today") return { from: todayStr, to: todayStr }; if (query === "yesterday") { const y = new Date(now); y.setDate(y.getDate() - 1); return { from: localDateStr(y), to: localDateStr(y) }; } const dow = now.getDay(); const monOff = dow === 0 ? -6 : 1 - dow; const thisMon = new Date(now); thisMon.setDate(thisMon.getDate() + monOff); const thisSun = new Date(thisMon); thisSun.setDate(thisSun.getDate() + 6); if (query === "this week") return { from: localDateStr(thisMon), to: localDateStr(thisSun) }; if (query === "last week") { const lm = new Date(thisMon); lm.setDate(lm.getDate() - 7); const ls = new Date(lm); ls.setDate(ls.getDate() + 6); return { from: localDateStr(lm), to: localDateStr(ls) }; } if (query === "this month") { return { from: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-01`, to: localDateStr(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }; } if (query === "last month") { const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1); return { from: localDateStr(lm), to: localDateStr(new Date(now.getFullYear(), now.getMonth(), 0)) }; } const mNames = ["january","february","march","april","may","june","july","august","september","october","november","december"]; const mShort = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]; let mIdx = mNames.indexOf(query); if (mIdx === -1) mIdx = mShort.indexOf(query); if (mIdx !== -1) { const yr = mIdx <= now.getMonth() ? now.getFullYear() : now.getFullYear() - 1; return { from: localDateStr(new Date(yr, mIdx, 1)), to: localDateStr(new Date(yr, mIdx + 1, 0)) }; } return null; }
 function renderList() { const query = ($("searchBar").value || "").toLowerCase().trim(); const dateRange = query ? getDateRange(query) : null; const visible = []; allData.forEach((e, idx) => { if (!showPaid && e.paid === "yes") return; if (query) { if (dateRange) { const d = fmtDate(e.date); if (d < dateRange.from || d > dateRange.to) return; } else { const haystack = [e.description || "", e.source || "", e.customer || "", e.category || "", e.type || "", fmtDate(e.date), String(e.amount || ""), String(e.total || "")].join(" ").toLowerCase(); if (!haystack.includes(query)) return; } } visible.push({ entry: e, origIdx: idx }); }); let html = ""; let lastDate = ""; visible.forEach(({ entry: e, origIdx: i }) => { const d = fmtDate(e.date); if (d !== lastDate) { html += `<div class="date-header">${dateLabel(d)}</div>`; lastDate = d; } const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || ""); const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`; const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0); let light = ""; if (e.paid !== "yes") { let dueDate = null; if (e.type === "expense" && (e.category || "").includes("Co-Packing")) { dueDate = new Date(new Date(fmtDate(e.date)).getTime() + 7*86400000); } else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) { const fd = fmtDate(e.fulfilled) || fmtDate(e.date); if (fd) dueDate = new Date(new Date(fd).getTime() + 14*86400000); } if (dueDate && !isNaN(dueDate.getTime())) { const diff = (dueDate - new Date()) / 86400000; light = diff < 0 ? "🔴" : diff <= 7 ? "🟡" : "🟢"; } } const receiptUrl = safeUrl(e.receipt); html += `<div class="swipe-entry" data-idx="${i}"><div class="swipe-action swipe-action-left">✓ Paid</div><div class="swipe-action swipe-action-right">🗑️</div><div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}${e.paid === 'yes' ? ' paid-entry' : ''}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${light ? light + ' ' : ''}${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions"><span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i}, event)`}">${e.paid === 'yes' ? '✓ Paid' : 'Unpaid'}</span><button onclick="cam(${i}, event)" title="Upload receipt">${e.receipt ? '🖼️' : '📷'}</button><button onclick="del(${i}, event)" title="Delete entry">🗑️</button>${light === '🔴' && e.type === 'income' ? `<button onclick="remind(${i}, event)" title="Send payment reminder email" style="background:#c0694f !important;color:#fff !important;font-size:11px !important;padding:3px 8px !important;border-radius:6px !important">📧 Remind</button>` : ''}</div></div>${receiptUrl ? `<a href="${esc(receiptUrl)}" target="_blank" rel="noopener"><img class="receipt-thumb" src="${esc(receiptUrl)}" alt="Receipt" onerror="this.outerHTML='<span class=\\'receipt-link\\'>📎 View Receipt</span>'"></a>` : ''}</div></div>`; }); $("list").innerHTML = html; initSwipe(); }
+function renderList() {
+ const query = ($("searchBar").value || "").toLowerCase().trim();
+ const dateRange = query ? getDateRange(query) : null;
+ const visible = [];
+ allData.forEach((e, idx) => {
+   if (!showPaid && e.paid === "yes") return;
+   if (query) {
+     if (dateRange) {
+       const d = fmtDate(e.date);
+       if (d < dateRange.from || d > dateRange.to) return;
+     } else {
+       const haystack = [e.description || "", e.source || "", e.customer || "", e.category || "", e.type || "", fmtDate(e.date), String(e.amount || ""), String(e.total || "")].join(" ").toLowerCase();
+       if (!haystack.includes(query)) return;
+     }
+   }
+   visible.push({ entry: e, origIdx: idx });
+ });
+
+ let html = "";
+ let lastDate = "";
+ visible.forEach(({ entry: e, origIdx: i }) => {
+   const d = fmtDate(e.date);
+   if (d !== lastDate) {
+     html += `<div class="date-header">${dateLabel(d)}</div>`;
+     lastDate = d;
+   }
+   const desc = e.type === "income" ? `${esc(e.source || "")} · ${esc(e.customer || "")}` : esc(e.description || "");
+   const meta = e.type === "income" ? fmtDate(e.date) : `${esc(e.category || "")} · ${fmtDate(e.date)}`;
+   const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
+   let dueLabel = "";
+   let dueClass = "";
+
+   if (e.paid !== "yes") {
+     let dueDate = null;
+     if (e.type === "expense" && (e.category || "").includes("Co-Packing")) {
+       dueDate = new Date(new Date(fmtDate(e.date)).getTime() + 7 * 86400000);
+     } else if (e.type === "income" && (e.source || "").toLowerCase().includes("wholesale")) {
+       const fd = fmtDate(e.fulfilled) || fmtDate(e.date);
+       if (fd) dueDate = new Date(new Date(fd).getTime() + 14 * 86400000);
+     }
+     if (dueDate && !isNaN(dueDate.getTime())) {
+       const diff = (dueDate - new Date()) / 86400000;
+       dueLabel = diff < 0 ? "Overdue" : diff <= 7 ? "Due soon" : "Scheduled";
+       dueClass = diff < 0 ? "overdue" : diff <= 7 ? "soon" : "ok";
+     }
+   }
+
+   const receiptUrl = safeUrl(e.receipt);
+   const statusBadge = dueLabel ? `<span class="due-badge ${dueClass}">${dueLabel}</span>` : "";
+   const remindBtn = dueClass === "overdue" && e.type === "income" ? `<button onclick="remind(${i}, event)" title="Send payment reminder email" style="background:#c0694f !important;color:#fff !important;font-size:11px !important;padding:3px 8px !important;border-radius:6px !important">Remind</button>` : "";
+
+   html += `<div class="swipe-entry" data-idx="${i}"><div class="swipe-action swipe-action-left">Paid</div><div class="swipe-action swipe-action-right">Delete</div><div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}${e.paid === 'yes' ? ' paid-entry' : ''}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions">${statusBadge}<span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i}, event)`}">${e.paid === 'yes' ? 'Paid' : 'Unpaid'}</span><button onclick="cam(${i}, event)" title="Upload receipt">${e.receipt ? '🖼️' : '📷'}</button><button onclick="del(${i}, event)" title="Delete entry">🗑️</button>${remindBtn}</div></div>${receiptUrl ? `<a href="${esc(receiptUrl)}" target="_blank" rel="noopener"><img class="receipt-thumb" src="${esc(receiptUrl)}" alt="Receipt" onerror="this.outerHTML='<span class=\\'receipt-link\\'>View Receipt</span>'"></a>` : ''}</div></div>`;
+ });
+ $("list").innerHTML = html;
+ initSwipe();
+}
 function initSwipe() { document.querySelectorAll(".swipe-entry").forEach(wrap => { const entryEl = wrap.querySelector(".entry"); let startX = 0, startY = 0, dx = 0, locked = false, direction = null; wrap.addEventListener("touchstart", e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; dx = 0; locked = false; direction = null; entryEl.style.transition = "none"; }, { passive: true }); wrap.addEventListener("touchmove", e => { const cx = e.touches[0].clientX, cy = e.touches[0].clientY; if (!direction) { const ax = Math.abs(cx - startX), ay = Math.abs(cy - startY); if (ax < 8 && ay < 8) return; direction = ax > ay ? "h" : "v"; if (direction === "v") { locked = true; return; } } if (locked) return; e.preventDefault(); dx = Math.max(-120, Math.min(120, cx - startX)); entryEl.style.transform = `translateX(${dx}px)`; wrap.classList.toggle("swiping-right", dx > 30); wrap.classList.toggle("swiping-left", dx < -30); }, { passive: false }); wrap.addEventListener("touchend", () => { entryEl.style.transition = "transform 0.2s"; entryEl.style.transform = ""; wrap.classList.remove("swiping-right", "swiping-left"); const idx = parseInt(wrap.dataset.idx); if (dx > 100) { swipeHandled = true; haptic(20); markPaid(idx, new Event("swipe")); } else if (dx < -100) { swipeHandled = true; haptic(20); del(idx, new Event("swipe")); } dx = 0; }, { passive: true }); }); }
 let mgrRange = "ytd", pieSlices = [];
 function setRange(r, el) { mgrRange = r; document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active")); el.classList.add("active"); $("dateRange").style.display = r === "custom" ? "flex" : "none"; if (r === "custom") { const yr = new Date().getFullYear(); if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`; if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0]; } renderMgr(); }

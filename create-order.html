@@ -42,8 +42,16 @@
   .subtitle { font-size: 0.65rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
   .card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); }
   .card-title { font-size: 0.75rem; font-weight: 800; color: var(--text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-  input, select { font-size: 0.9rem; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--input); width: 100%; color: var(--text); -webkit-appearance: none; margin-bottom: 8px; }
-  input:focus { outline: none; border-color: var(--accent); }
+  input, select, textarea { font-size: 0.9rem; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--input); width: 100%; color: var(--text); -webkit-appearance: none; margin-bottom: 8px; }
+  textarea { min-height: 76px; resize: vertical; font-family: inherit; line-height: 1.4; }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  .mode-tabs { display: flex; gap: 6px; margin-top: 12px; }
+  .mode-tabs a { flex: 1; text-align: center; text-decoration: none; padding: 9px 8px; border-radius: 10px; font-size: 0.82rem; font-weight: 800; color: var(--text); background: var(--input); border: 1px solid var(--border); }
+  .mode-tabs a.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .week-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .week-box { background: var(--input); border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
+  .week-box .label { font-size: 0.65rem; font-weight: 800; color: var(--muted); text-transform: uppercase; margin-bottom: 3px; }
+  .week-box .value { font-size: 0.9rem; font-weight: 900; color: var(--text); }
   .sku-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
   .sku-item { display: flex; align-items: center; gap: 6px; }
   .sku-item input { width: 48px; text-align: center; padding: 8px 4px; margin: 0; font-weight: 900; font-size: 0.9rem; -moz-appearance: textfield; }
@@ -74,6 +82,8 @@
   .shopify-btn { display: block; background: var(--accent); color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 700; padding: 12px; border-radius: 10px; text-align: center; transition: transform 0.1s; }
   .shopify-btn:active { transform: scale(0.96); }
   .whatsapp-btn { background: #25D366; margin-bottom: 8px; }
+  .copy-btn { background: var(--input); color: var(--text); border: 1px solid var(--border); margin-bottom: 8px; }
+  .button-row { display: grid; grid-template-columns: 1fr; gap: 8px; }
   .pin-screen { position: fixed; inset: 0; background: var(--bg); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
   .pin-screen h2 { font-size: 22px; color: var(--text); margin-bottom: 8px; }
   .pin-dots { display: flex; gap: 12px; margin: 16px 0 24px; }
@@ -104,10 +114,22 @@
 <div class="header-area">
   <h1>📋 Production Order</h1>
   <div class="subtitle">Weekly order for Haley · Due Monday 5pm PT</div>
+  <nav class="mode-tabs" aria-label="App sections">
+    <a href="index.html">Finance</a>
+    <a class="active" href="create-order.html">Production Order</a>
+  </nav>
 </div>
 
 <div class="card" style="text-align:center">
   <a class="shopify-btn" href="https://thegranolakid.myshopify.com/admin/orders" target="_blank" rel="noopener">🛍️ Open Shopify Orders</a>
+</div>
+
+<div class="card">
+  <div class="card-title">Order Window</div>
+  <div class="week-meta">
+    <div class="week-box"><div class="label">Week</div><div class="value" id="weekRange">This week</div></div>
+    <div class="week-box"><div class="label">Send By</div><div class="value">Monday 5pm PT</div></div>
+  </div>
 </div>
 
 <div class="card">
@@ -132,11 +154,16 @@
 </div>
 
 <div class="card" id="send-card" style="display:none">
+  <div class="card-title">Notes for Co-Packer</div>
+  <textarea id="orderNotes" placeholder="Notes, substitutions, rush timing, packaging requests..." oninput="render()"></textarea>
   <div class="preview" id="preview"></div>
-  <button class="whatsapp-btn" onclick="sendWhatsApp()">💬 Send via WhatsApp</button>
+  <div class="button-row">
+    <button class="copy-btn" onclick="copyOrder()">Copy Order</button>
+    <button class="whatsapp-btn" id="sendBtn" onclick="sendWhatsApp()">Send via WhatsApp</button>
+  </div>
 </div>
 
-<a class="back-link" href="index.html">← Back to Granola Kid</a>
+<a class="back-link" href="index.html">Back to Granola Kid</a>
 <div class="footer">Made with 🌾 by Granola Kid</div>
 </div>
 
@@ -241,6 +268,40 @@ document.addEventListener("keydown", e => {
   }
 })();
 
+function localDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function initWeekRange() {
+  const now = new Date();
+  const dow = now.getDay();
+  const monOff = dow === 0 ? -6 : 1 - dow;
+  const mon = new Date(now);
+  mon.setDate(mon.getDate() + monOff);
+  const sun = new Date(mon);
+  sun.setDate(sun.getDate() + 6);
+  document.getElementById("weekRange").textContent = `${mon.toLocaleDateString([], { month: "short", day: "numeric" })} - ${sun.toLocaleDateString([], { month: "short", day: "numeric" })}`;
+}
+
+function buildMessage() {
+  const week = document.getElementById("weekRange").textContent;
+  const notes = document.getElementById("orderNotes")?.value.trim() || "";
+  let msg = `Hi Haley, here is the Granola Kid production order for ${week}:\n\n`;
+  orders.forEach(o => {
+    const items = Object.entries(o.items).map(([s, q]) => `${s} x${q}`).join(", ");
+    msg += `${o.name}: ${items}\n\n`;
+  });
+  msg += "--- Total ---\n";
+  skus.forEach(s => { msg += `${s} - ${totals[s]}\n`; });
+  if (notes) msg += `\n--- Notes ---\n${notes}\n`;
+  return msg.trim();
+}
+
+initWeekRange();
+
 function showToast(msg) {
   const t = document.createElement("div");
   t.className = "toast"; t.textContent = msg;
@@ -284,14 +345,7 @@ function render() {
     .map(s => `<div class="total-row"><span class="total-name">${s}</span><span class="total-qty">${totals[s]}</span></div>`)
     .join("");
 
-  let msg = "Hi Haley, here is the weekly order:\n\n";
-  orders.forEach(o => {
-    const items = Object.entries(o.items).map(([s, q]) => `${s} ×${q}`).join(", ");
-    msg += `${o.name}: ${items}\n\n`;
-  });
-  msg += "\n--- Total ---\n";
-  skus.forEach(s => { msg += `${s} - ${totals[s]}\n`; });
-  document.getElementById("preview").textContent = msg.trim();
+  document.getElementById("preview").textContent = buildMessage();
 }
 
 function resetAll() {
@@ -319,21 +373,38 @@ async function saveOrder() {
   showToast("✓ Order saved to sheet");
 }
 
+async function copyOrder() {
+  const msg = buildMessage();
+  try {
+    await navigator.clipboard.writeText(msg);
+    showToast("Order copied");
+  } catch {
+    const preview = document.getElementById("preview");
+    const range = document.createRange();
+    range.selectNodeContents(preview);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    showToast("Order selected");
+  }
+}
+
 async function sendWhatsApp() {
-  let msg = "Hi Haley, here is the weekly order:\n\n";
-  orders.forEach(o => {
-    const items = Object.entries(o.items).map(([s, q]) => `${s} ×${q}`).join(", ");
-    msg += `${o.name}: ${items}\n\n`;
-  });
-  msg += "\n--- Total ---\n";
-  skus.forEach(s => { msg += `${s} - ${totals[s]}\n`; });
-  msg = msg.trim();
+  const msg = buildMessage();
+  if (!confirm(`Review order before sending:\n\n${msg}`)) return;
+  const btn = document.getElementById("sendBtn");
+  btn.disabled = true;
+  btn.textContent = "Saving...";
 
   try {
     await saveOrder();
   } catch {
+    btn.disabled = false;
+    btn.textContent = "Send via WhatsApp";
     if (!confirm("The order could not be saved to the sheet. Send it anyway?")) return;
   }
+  btn.disabled = false;
+  btn.textContent = "Send via WhatsApp";
   window.location.href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 </script>
