@@ -441,8 +441,8 @@
 <div class="col-list">
 <input class="search-bar" id="searchBar" placeholder="🔍 Search... (today, last week, co-packing, etc)" style="display:none" oninput="renderList()">
 <div class="filter-row" id="filterRow" style="display:none">
- <button class="active" onclick="setFilter(false, this)">Unpaid</button>
- <button onclick="setFilter(true, this)">All</button>
+ <button class="active" id="filterUnpaidBtn" onclick="setFilter(false, this)">Unpaid</button>
+ <button id="filterAllBtn" onclick="setFilter(true, this)">All</button>
 </div>
 <div class="card" id="list-card" style="display:none"><div id="list"></div></div>
 <div class="loading" id="loading">Loading...</div>
@@ -639,9 +639,22 @@ function unlockApp(pin, json) {
 })();
 
 function setFilter(show, el) {
- showPaid = show; haptic();
+ setPaidFilter(show);
+ haptic();
+ renderList();
+}
+function setPaidFilter(show) {
+ showPaid = show;
  document.querySelectorAll(".filter-row button").forEach(b => b.classList.remove("active"));
- el.classList.add("active");
+ const btn = show ? $("filterAllBtn") : $("filterUnpaidBtn");
+ if (btn) btn.classList.add("active");
+}
+function revealPaidIfNeeded(paid) {
+ $("searchBar").value = "";
+ if (paid === "yes") {
+   setPaidFilter(true);
+   showToast("Added. Showing All so the paid item is visible.");
+ }
  renderList();
 }
 
@@ -720,8 +733,8 @@ function initApp(json) {
  if (!$("expDate").value) $("expDate").value = new Date().toISOString().split("T")[0];
  if (!$("incDate").value) $("incDate").value = new Date().toISOString().split("T")[0];
  applyData(json);
- $("expForm").onsubmit = async e => { e.preventDefault(); haptic(); $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true; try { await post({ action: "add", type: "expense", date: $("expDate").value, description: $("expDesc").value, category: backendCategory($("expCat").value), amount: parseFloat($("expAmount").value), paid: $("expPaid").value }); $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0]; $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00"; showToast("✓ Expense added"); fetchData(); } catch { showToast("Error adding expense — try again"); } $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false; $("expDesc").focus(); };
- $("incForm").onsubmit = async e => { e.preventDefault(); haptic(); $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true; try { await post({ action: "add", type: "income", date: $("incDate").value, source: backendSource($("incSource").value), customer: $("incCustomer").value.trim(), amount: parseFloat($("incAmount").value), paid: $("incPaid").value, fulfilled: $("incFulfilled").value || "" }); $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = ""; showToast("✓ Income added — keep it up!"); celebrate(); fetchData(); } catch { showToast("Error adding income — try again"); } $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false; $("incCustomer").focus(); };
+ $("expForm").onsubmit = async e => { e.preventDefault(); haptic(); $("expBtn").textContent = "Adding..."; $("expBtn").disabled = true; const paid = $("expPaid").value; try { await post({ action: "add", type: "expense", date: $("expDate").value, description: $("expDesc").value, category: backendCategory($("expCat").value), amount: parseFloat($("expAmount").value), paid }); $("expDesc").value = ""; $("expAmount").value = ""; $("expDate").value = new Date().toISOString().split("T")[0]; $("gstAmt").textContent = "0.00"; $("totalAmt").textContent = "0.00"; revealPaidIfNeeded(paid); if (paid !== "yes") showToast("✓ Expense added"); fetchData(); } catch { showToast("Error adding expense — try again"); } $("expBtn").textContent = "Add Expense"; $("expBtn").disabled = false; $("expDesc").focus(); };
+ $("incForm").onsubmit = async e => { e.preventDefault(); haptic(); $("incBtn").textContent = "Adding..."; $("incBtn").disabled = true; const paid = $("incPaid").value; try { await post({ action: "add", type: "income", date: $("incDate").value, source: backendSource($("incSource").value), customer: $("incCustomer").value.trim(), amount: parseFloat($("incAmount").value), paid, fulfilled: $("incFulfilled").value || "" }); $("incCustomer").value = ""; $("incAmount").value = ""; $("incDate").value = new Date().toISOString().split("T")[0]; $("incFulfilled").value = ""; revealPaidIfNeeded(paid); if (paid !== "yes") showToast("✓ Income added — keep it up!"); celebrate(); fetchData(); } catch { showToast("Error adding income — try again"); } $("incBtn").textContent = "Add Income"; $("incBtn").disabled = false; $("incCustomer").focus(); };
  const headerObs = new IntersectionObserver(([e]) => { $("stickyBar").classList.toggle("visible", !e.isIntersecting); }, { threshold: 0 });
  headerObs.observe($("headerArea"));
  let ptrStartY = 0, ptrActive = false;
