@@ -230,6 +230,15 @@
  .entry-actions { flex-wrap: wrap; justify-content: flex-end; }
  .entry-actions button { font-size: 0.8rem; border: 1px solid var(--border) !important; border-radius: 6px; padding: 3px 7px; background: var(--input) !important; }
  .paid-badge.yes, .paid-badge.no, .due-badge { border-radius: 6px; }
+ .field-label { display: block; font-size: 0.72rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin: 2px 0 5px; }
+ .entry-form-card form { gap: 11px; }
+ .entry-form-card input, .entry-form-card select { font-size: 16px; min-height: 46px; }
+ .entry-form-card .row { gap: 10px; }
+ .entry-form-card .row.pay-row { align-items: stretch; }
+ .entry-form-card .field-group { flex: 1; min-width: 0; }
+ .entry-form-card .pay-select { flex: 0 0 42%; min-width: 0; }
+ .entry-form-card .primary-action { min-height: 46px; }
+ .entry-form-card .gst-info { text-align: left; padding: 0 2px; }
  .mgr-title { text-align: left; font-size: 1.05rem; letter-spacing: 0.01em; }
  .mgr-section { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-top: 8px; background: var(--input); }
  .mgr-section:last-child { border-bottom: 1px solid var(--border); }
@@ -245,6 +254,46 @@
  .app-header, .sticky-bar { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
  .summary .bal-row, .stat-row, .mode-tabs, .row, .filter-row, .date-toggle, .date-range { min-width: 0; }
  .card, .week-alert, .search-bar, .entry, .swipe-entry, input, select, button { max-width: 100%; }
+ @media (max-width: 767px) {
+   body { display: block; padding: 0; }
+   #app {
+     width: 100%;
+     max-width: 480px;
+     margin-left: auto;
+     margin-right: auto;
+     padding-left: 16px;
+     padding-right: 16px;
+   }
+   .app-header,
+   .header-area,
+   .sticky-bar {
+     left: auto;
+     right: auto;
+     width: 100%;
+     margin-left: 0;
+     margin-right: 0;
+     padding-left: 0;
+     padding-right: 0;
+   }
+   .app-header {
+     height: auto;
+     min-height: calc(50px + env(safe-area-inset-top));
+     padding-top: env(safe-area-inset-top);
+   }
+   .header-area {
+     padding-top: 12px;
+     padding-bottom: 4px;
+   }
+   .sticky-bar {
+     padding-left: 16px;
+     padding-right: 16px;
+   }
+   .entry-form-card .row { flex-direction: column; gap: 11px; }
+   .entry-form-card .row.pay-row { flex-direction: row; }
+   .entry-form-card .pay-select { flex: 0 0 42%; }
+   .entry-form-card .primary-action { flex: 1; align-self: flex-end; }
+   .toggle label { padding: 11px 9px; font-size: 0.92rem; }
+ }
  @media (min-width: 768px) {
    body { padding-top: 16px; padding-bottom: 16px; }
    #app { padding-left: 32px; padding-right: 32px; }
@@ -328,28 +377,64 @@
 <div class="week-alert" id="weekAlert" style="display:none"></div>
 <div class="desktop-cols">
 <div class="col-form">
-<div class="card">
+<div class="card entry-form-card">
  <div class="toggle">
    <input type="radio" name="type" id="tExp" value="expense" checked onchange="toggleForm()"><label for="tExp">Expense <span class="kbd-hint">E</span></label>
    <input type="radio" name="type" id="tInc" value="income" onchange="toggleForm()"><label for="tInc">Income <span class="kbd-hint">I</span></label>
  </div>
  <form id="expForm" style="margin-top:10px">
-   <input id="expDesc" placeholder="Description (e.g. MFF Run #12, Shopify labels)" required>
+   <div class="field-group">
+     <label class="field-label" for="expDesc">Description</label>
+     <input id="expDesc" placeholder="Description (e.g. MFF Run #12, Shopify labels)" required>
+   </div>
    <div class="row">
-     <input id="expAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal" oninput="calcGst()">
-     <select id="expCat"><option value="📦 Co-Packing">Co-Packing</option><option value="🌾 Ingredients">Ingredients</option><option value="🏷️ Bags & Boxes">Bags & Boxes</option><option value="🚚 Shipping & Gas">Shipping & Gas</option><option value="💻 Tech & Office">Tech & Office</option><option value="📢 Ads & Promo">Ads & Promo</option><option value="☕ Business Meal">Business Meal</option><option value="💳 Debt Repayment">Debt Repayment</option></select>
+     <div class="field-group">
+       <label class="field-label" for="expAmount">Amount</label>
+       <input id="expAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal" oninput="calcGst()">
+     </div>
+     <div class="field-group">
+       <label class="field-label" for="expCat">Category</label>
+       <select id="expCat"><option value="📦 Co-Packing">Co-Packing</option><option value="🌾 Ingredients">Ingredients</option><option value="🏷️ Bags & Boxes">Bags & Boxes</option><option value="🚚 Shipping & Gas">Shipping & Gas</option><option value="💻 Tech & Office">Tech & Office</option><option value="📢 Ads & Promo">Ads & Promo</option><option value="☕ Business Meal">Business Meal</option><option value="💳 Debt Repayment">Debt Repayment</option></select>
+     </div>
    </div>
    <div class="gst-info">GST (5%): $<span id="gstAmt">0.00</span> · Total: $<span id="totalAmt">0.00</span></div>
-   <input id="expDate" type="date">
-   <div class="row"><select id="expPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select><button type="submit" id="expBtn">Add Expense</button></div>
+   <div class="field-group">
+     <label class="field-label" for="expDate">Date</label>
+     <input id="expDate" type="date">
+   </div>
+   <div class="row pay-row">
+     <div class="pay-select">
+       <label class="field-label" for="expPaid">Status</label>
+       <select id="expPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
+     </div>
+     <button type="submit" id="expBtn" class="primary-action">Add Expense</button>
+   </div>
  </form>
  <form id="incForm" style="margin-top:10px;display:none">
-   <select id="incSource" onchange="updateFulfilledVis()"><option value="🛍️ DTC">DTC</option><option value="🏢 Wholesale">Wholesale</option></select>
-   <input id="incCustomer" placeholder="Order # or Note (e.g. 1234, Sample Pack)" required>
-   <input id="incAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
-   <input id="incDate" type="date">
-   <div class="fulfilled-wrap" id="fulfilledWrap"><label>Fulfilled / Shipped Date</label><input id="incFulfilled" type="date"></div>
-   <div class="row"><select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select><button type="submit" id="incBtn">Add Income</button></div>
+   <div class="field-group">
+     <label class="field-label" for="incSource">Source</label>
+     <select id="incSource" onchange="updateFulfilledVis()"><option value="🛍️ DTC">DTC</option><option value="🏢 Wholesale">Wholesale</option></select>
+   </div>
+   <div class="field-group">
+     <label class="field-label" for="incCustomer">Order or Note</label>
+     <input id="incCustomer" placeholder="Order # or Note (e.g. 1234, Sample Pack)" required>
+   </div>
+   <div class="field-group">
+     <label class="field-label" for="incAmount">Amount</label>
+     <input id="incAmount" type="number" step="0.01" min="0" placeholder="Amount" required inputmode="decimal">
+   </div>
+   <div class="field-group">
+     <label class="field-label" for="incDate">Date</label>
+     <input id="incDate" type="date">
+   </div>
+   <div class="fulfilled-wrap" id="fulfilledWrap"><label class="field-label" for="incFulfilled">Fulfilled / Shipped Date</label><input id="incFulfilled" type="date"></div>
+   <div class="row pay-row">
+     <div class="pay-select">
+       <label class="field-label" for="incPaid">Status</label>
+       <select id="incPaid"><option value="no">Not Paid</option><option value="yes">Paid</option></select>
+     </div>
+     <button type="submit" id="incBtn" class="primary-action">Add Income</button>
+   </div>
  </form>
 </div>
 </div>

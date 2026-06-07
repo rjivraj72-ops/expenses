@@ -64,8 +64,11 @@
   .total-name { font-weight: 600; color: var(--text); }
   .total-qty { font-weight: 900; color: var(--accent); }
   .order-log { font-size: 0.7rem; color: var(--muted); margin-bottom: 10px; }
-  .order-log div { padding: 4px 0; border-bottom: 1px solid var(--border); }
-  .order-log div:last-child { border-bottom: none; }
+  .order-line { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .order-line:last-child { border-bottom: none; }
+  .order-line-main { min-width: 0; line-height: 1.35; }
+  .order-line-actions { display: flex; gap: 6px; }
+  .order-line-actions button { width: auto; padding: 6px 8px; font-size: 0.68rem; background: var(--input); color: var(--text); border: 1px solid var(--border); }
   .preview { background: var(--input); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 0.8rem; color: var(--text); white-space: pre-line; margin-bottom: 10px; line-height: 1.6; -webkit-user-select: all; user-select: all; }
   .back-link { display: block; text-align: center; color: var(--accent); font-size: 0.75rem; font-weight: 700; text-decoration: none; padding: 12px 0; }
   .footer { text-align: center; color: var(--muted); font-size: 0.65rem; padding: 16px 0 10px; }
@@ -78,6 +81,7 @@
   @keyframes toastIn { to { opacity: 1; } }
   @keyframes toastOut { to { opacity: 0; } }
   .reset-btn { background: var(--input); color: var(--text); font-size: 0.75rem; padding: 9px; margin-top: 8px; border: 1px solid var(--border); }
+  .cancel-edit-btn { display: none; background: var(--input); color: var(--text); border: 1px solid var(--border); margin-top: 8px; }
   .shopify-btn { display: block; background: var(--accent); color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 700; padding: 12px; border-radius: 10px; text-align: center; transition: transform 0.1s; }
   .shopify-btn:active { transform: scale(0.96); }
   .whatsapp-btn { background: #25D366; margin-bottom: 8px; }
@@ -108,11 +112,30 @@
   .sku-item input { background: var(--card); }
   .preview { font-size: 0.85rem; line-height: 1.55; }
   .footer { padding-top: 20px; }
+  .editing-note { display: none; margin: 8px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--input); border: 1px solid var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; text-align: center; }
   /* iPhone layout stability */
   html, body { width: 100%; min-width: 0; overflow-x: hidden; }
   body { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); max-width: 720px; margin: 0 auto; }
   .header-area { margin-left: calc(-1 * max(16px, env(safe-area-inset-left))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right))); padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
   .card, .mode-tabs, .week-meta, .sku-grid, input, select, textarea, button { max-width: 100%; min-width: 0; }
+  @media (max-width: 767px) {
+    body {
+      width: 100%;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .header-area {
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    .order-line { grid-template-columns: 1fr; }
+    .order-line-actions button { flex: 1; }
+  }
 </style>
 </head>
 <body>
@@ -160,7 +183,9 @@
     <div class="sku-item"><span class="sku-label">Dark&Dreamy</span><input type="number" min="0" inputmode="numeric" data-sku="Dark & Dreamy" placeholder="0"></div>
     <div class="sku-item"><span class="sku-label">Bulk</span><input type="number" min="0" inputmode="numeric" data-sku="Bulk Container" placeholder="0"></div>
   </div>
-  <button class="add-btn" onclick="addOrder()">+ Add to Order</button>
+  <button class="add-btn" id="addOrderBtn" onclick="addOrder()">+ Add to Order</button>
+  <button class="cancel-edit-btn" id="cancelEditBtn" onclick="cancelEdit()">Cancel Edit</button>
+  <div class="editing-note" id="editingNote"></div>
 </div>
 
 <div class="card" id="totals-card" style="display:none">
@@ -199,6 +224,7 @@ let validatedPin = "";
 let pinEntry = "";
 let pinFails = 0;
 let pinLocked = false;
+let editingIndex = -1;
 skus.forEach(s => totals[s] = 0);
 
 function getInput(sku) { return document.querySelector(`[data-sku="${sku}"]`); }
@@ -326,6 +352,18 @@ function showToast(msg) {
   setTimeout(() => t.remove(), 2000);
 }
 
+function recalcTotals() {
+  skus.forEach(s => totals[s] = 0);
+  orders.forEach(order => {
+    skus.forEach(s => { totals[s] += parseInt(order.items[s]) || 0; });
+  });
+}
+
+function clearOrderForm() {
+  document.getElementById("customer").value = "";
+  skus.forEach(s => getInput(s).value = "");
+}
+
 function addOrder() {
   const name = document.getElementById("customer").value.trim();
   if (!name) { showToast("Enter customer name"); return; }
@@ -334,17 +372,23 @@ function addOrder() {
   const order = { name, items: {} };
   skus.forEach(s => {
     const qty = parseInt(getInput(s).value) || 0;
-    if (qty > 0) { totals[s] += qty; order.items[s] = qty; hasQty = true; }
+    if (qty > 0) { order.items[s] = qty; hasQty = true; }
   });
 
   if (!hasQty) { showToast("Enter at least one quantity"); return; }
 
-  orders.push(order);
-  document.getElementById("customer").value = "";
-  skus.forEach(s => getInput(s).value = "");
+  if (editingIndex >= 0) {
+    orders[editingIndex] = order;
+    editingIndex = -1;
+    showToast(`✓ ${name} updated`);
+  } else {
+    orders.push(order);
+    showToast(`✓ ${name} added`);
+  }
 
+  recalcTotals();
+  clearOrderForm();
   render();
-  showToast(`✓ ${name} added`);
 }
 
 function render() {
@@ -352,9 +396,21 @@ function render() {
   document.getElementById("totals-card").style.display = hasOrders ? "block" : "none";
   document.getElementById("send-card").style.display = hasOrders ? "block" : "none";
 
-  document.getElementById("orderLog").innerHTML = orders.map(o => {
+  document.getElementById("addOrderBtn").textContent = editingIndex >= 0 ? "Update Order" : "+ Add to Order";
+  document.getElementById("cancelEditBtn").style.display = editingIndex >= 0 ? "block" : "none";
+  const editingNote = document.getElementById("editingNote");
+  editingNote.style.display = editingIndex >= 0 ? "block" : "none";
+  editingNote.textContent = editingIndex >= 0 ? `Editing ${orders[editingIndex]?.name || "order"}` : "";
+
+  document.getElementById("orderLog").innerHTML = orders.map((o, i) => {
     const items = Object.entries(o.items).map(([s, q]) => `${esc(s)} ×${q}`).join(", ");
-    return `<div><strong>${esc(o.name)}:</strong> ${items}</div>`;
+    return `<div class="order-line">
+      <div class="order-line-main"><strong>${esc(o.name)}:</strong> ${items}</div>
+      <div class="order-line-actions">
+        <button onclick="editOrder(${i})">Edit</button>
+        <button onclick="removeOrder(${i})">Remove</button>
+      </div>
+    </div>`;
   }).join("");
 
   document.getElementById("totals").innerHTML = skus
@@ -365,10 +421,46 @@ function render() {
   document.getElementById("preview").textContent = buildMessage();
 }
 
+function editOrder(index) {
+  const order = orders[index];
+  if (!order) return;
+  editingIndex = index;
+  document.getElementById("customer").value = order.name;
+  skus.forEach(s => { getInput(s).value = order.items[s] || ""; });
+  render();
+  document.getElementById("customer").focus();
+  showToast("Edit the order, then update");
+}
+
+function cancelEdit() {
+  editingIndex = -1;
+  clearOrderForm();
+  render();
+  showToast("Edit cancelled");
+}
+
+function removeOrder(index) {
+  const order = orders[index];
+  if (!order) return;
+  if (!confirm(`Remove ${order.name} from this production order?`)) return;
+  orders.splice(index, 1);
+  if (editingIndex === index) {
+    editingIndex = -1;
+    clearOrderForm();
+  } else if (editingIndex > index) {
+    editingIndex--;
+  }
+  recalcTotals();
+  render();
+  showToast("Order removed");
+}
+
 function resetAll() {
   if (!confirm("Start over? This clears all orders.")) return;
   orders.length = 0;
-  skus.forEach(s => totals[s] = 0);
+  editingIndex = -1;
+  clearOrderForm();
+  recalcTotals();
   render();
   showToast("Cleared");
 }
