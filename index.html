@@ -284,11 +284,11 @@
    <span class="app-header-title">GRANOLA KID</span>
  </div>
  <div class="app-header-right">
-   <button class="app-hdr-btn" onclick="openGemini()" title="Gemini AI">AI</button>
-   <button class="app-hdr-btn" onclick="openShopify()" title="Shopify">S</button>
+   <button class="app-hdr-btn" onclick="openGemini()" title="Gemini AI">🤖</button>
+   <button class="app-hdr-btn" onclick="openShopify()" title="Shopify">🛍️</button>
    <button class="app-hdr-btn" id="darkToggle" onclick="toggleDark()"></button>
-   <button class="app-hdr-btn refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh (R)">↻</button>
-   <button class="app-hdr-lock" id="lockBtn" onclick="lockApp()">Lock</button>
+   <button class="app-hdr-btn refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh (R)">🔄</button>
+   <button class="app-hdr-lock" id="lockBtn" onclick="lockApp()">🔒 Lock</button>
  </div>
 </div>
 <div class="sticky-bar" id="stickyBar">
@@ -474,7 +474,7 @@ function lockApp() {
  updateDots();
 }
 
-$("darkToggle").textContent = window._gkDark ? "L" : "D";
+$("darkToggle").textContent = window._gkDark ? "☀️" : "🌙";
 function toggleDark() {
  haptic();
  window._gkDark = !window._gkDark;
@@ -484,7 +484,7 @@ function toggleDark() {
  r.classList.toggle("dark", window._gkDark);
  Object.keys(mode).forEach(k => r.style.setProperty("--" + k, mode[k]));
  document.getElementById("metaTheme").setAttribute("content", window._gkDark ? "#1c1c1e" : "#f2f2f7");
- $("darkToggle").textContent = window._gkDark ? "L" : "D";
+ $("darkToggle").textContent = window._gkDark ? "☀️" : "🌙";
 }
 function animateValue(el, from, to, duration, prefix) {
  prefix = prefix || "";
@@ -595,12 +595,12 @@ function renderList() {
    const statusBadge = dueLabel ? `<span class="due-badge ${dueClass}">${dueLabel}</span>` : "";
    const remindBtn = dueClass === "overdue" && e.type === "income" ? `<button onclick="remind(${i}, event)" title="Send payment reminder email" style="background:#c0694f !important;color:#fff !important;font-size:11px !important;padding:3px 8px !important;border-radius:6px !important">Remind</button>` : "";
 
-   html += `<div class="swipe-entry" data-idx="${i}"><div class="swipe-action swipe-action-left">Paid</div><div class="swipe-action swipe-action-right">Delete</div><div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}${e.paid === 'yes' ? ' paid-entry' : ''}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions">${statusBadge}<span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i}, event)`}">${e.paid === 'yes' ? 'Paid' : 'Unpaid'}</span><button onclick="cam(${i}, event)" title="Upload receipt">${e.receipt ? 'Img' : 'Rcpt'}</button><button onclick="del(${i}, event)" title="Delete entry">Del</button>${remindBtn}</div></div>${receiptUrl ? `<a href="${esc(receiptUrl)}" target="_blank" rel="noopener"><img class="receipt-thumb" src="${esc(receiptUrl)}" alt="Receipt" onerror="this.outerHTML='<span class=\\'receipt-link\\'>View Receipt</span>'"></a>` : ''}</div></div>`;
+   html += `<div class="swipe-entry" data-idx="${i}"><div class="swipe-action swipe-action-left">Paid</div><div class="entry ${e.type === 'income' ? 'inc-row' : 'exp-row'}${e.paid === 'yes' ? ' paid-entry' : ''}" onclick="edit(${i})"><div class="entry-top"><span class="entry-desc">${desc}</span><span class="entry-amount ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '-'}$${amt.toFixed(2)}</span></div><div class="entry-bottom"><span>${meta}</span><div class="entry-actions">${statusBadge}<span class="paid-badge ${e.paid === 'yes' ? 'yes' : 'no'}" onclick="${e.paid === 'yes' ? '' : `markPaid(${i}, event)`}">${e.paid === 'yes' ? 'Paid' : 'Unpaid'}</span><button onclick="cam(${i}, event)" title="Upload receipt">${e.receipt ? 'Img' : 'Rcpt'}</button><button onclick="del(${i}, event)" title="Delete entry">Delete</button>${remindBtn}</div></div>${receiptUrl ? `<a href="${esc(receiptUrl)}" target="_blank" rel="noopener"><img class="receipt-thumb" src="${esc(receiptUrl)}" alt="Receipt" onerror="this.outerHTML='<span class=\\'receipt-link\\'>View Receipt</span>'"></a>` : ''}</div></div>`;
  });
  $("list").innerHTML = html;
  initSwipe();
 }
-function initSwipe() { document.querySelectorAll(".swipe-entry").forEach(wrap => { const entryEl = wrap.querySelector(".entry"); let startX = 0, startY = 0, dx = 0, locked = false, direction = null; wrap.addEventListener("touchstart", e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; dx = 0; locked = false; direction = null; entryEl.style.transition = "none"; }, { passive: true }); wrap.addEventListener("touchmove", e => { const cx = e.touches[0].clientX, cy = e.touches[0].clientY; if (!direction) { const ax = Math.abs(cx - startX), ay = Math.abs(cy - startY); if (ax < 8 && ay < 8) return; direction = ax > ay ? "h" : "v"; if (direction === "v") { locked = true; return; } } if (locked) return; e.preventDefault(); dx = Math.max(-120, Math.min(120, cx - startX)); entryEl.style.transform = `translateX(${dx}px)`; wrap.classList.toggle("swiping-right", dx > 30); wrap.classList.toggle("swiping-left", dx < -30); }, { passive: false }); wrap.addEventListener("touchend", () => { entryEl.style.transition = "transform 0.2s"; entryEl.style.transform = ""; wrap.classList.remove("swiping-right", "swiping-left"); const idx = parseInt(wrap.dataset.idx); if (dx > 100) { swipeHandled = true; haptic(20); markPaid(idx, new Event("swipe")); } else if (dx < -100) { swipeHandled = true; haptic(20); del(idx, new Event("swipe")); } dx = 0; }, { passive: true }); }); }
+function initSwipe() { document.querySelectorAll(".swipe-entry").forEach(wrap => { const entryEl = wrap.querySelector(".entry"); let startX = 0, startY = 0, dx = 0, locked = false, direction = null; wrap.addEventListener("touchstart", e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; dx = 0; locked = false; direction = null; entryEl.style.transition = "none"; }, { passive: true }); wrap.addEventListener("touchmove", e => { const cx = e.touches[0].clientX, cy = e.touches[0].clientY; if (!direction) { const ax = Math.abs(cx - startX), ay = Math.abs(cy - startY); if (ax < 8 && ay < 8) return; direction = ax > ay ? "h" : "v"; if (direction === "v") { locked = true; return; } } if (locked) return; e.preventDefault(); dx = Math.max(0, Math.min(120, cx - startX)); entryEl.style.transform = `translateX(${dx}px)`; wrap.classList.toggle("swiping-right", dx > 30); }, { passive: false }); wrap.addEventListener("touchend", () => { entryEl.style.transition = "transform 0.2s"; entryEl.style.transform = ""; wrap.classList.remove("swiping-right", "swiping-left"); const idx = parseInt(wrap.dataset.idx); if (dx > 100) { swipeHandled = true; haptic(20); markPaid(idx, new Event("swipe")); } dx = 0; }, { passive: true }); }); }
 let mgrRange = "ytd", pieSlices = [];
 function setRange(r, el) { mgrRange = r; document.querySelectorAll(".date-toggle button").forEach(b => b.classList.remove("active")); el.classList.add("active"); $("dateRange").style.display = r === "custom" ? "flex" : "none"; if (r === "custom") { const yr = new Date().getFullYear(); if (!$("mgrFrom").value) $("mgrFrom").value = `${yr}-01-01`; if (!$("mgrTo").value) $("mgrTo").value = new Date().toISOString().split("T")[0]; } renderMgr(); }
 function toggleSec(id) { haptic(); $(id).classList.toggle("open"); $(id + "Arrow").classList.toggle("open"); }
@@ -615,7 +615,16 @@ function showToast(msg) { const t = document.createElement("div"); t.className =
 let refreshing = false;
 function refreshData() { if (refreshing) return; refreshing = true; haptic(); $("refreshBtn").classList.add("spinning"); fetchData().then(() => { $("refreshBtn").classList.remove("spinning"); showToast("✓ Refreshed"); }).catch(() => { $("refreshBtn").classList.remove("spinning"); showToast("Error refreshing"); }).finally(() => { refreshing = false; }); }
 function celebrate() { const emojis = ["","","","","",""]; const div = document.createElement("div"); div.className = "celebrate"; for (let i = 0; i < 20; i++) { const s = document.createElement("span"); s.textContent = emojis[Math.floor(Math.random() * emojis.length)]; s.style.left = Math.random() * 100 + "%"; s.style.animationDelay = Math.random() * 1 + "s"; s.style.fontSize = (32 + Math.random() * 24) + "px"; div.appendChild(s); } document.body.appendChild(div); setTimeout(() => div.remove(), 4500); }
-async function del(i, event) { if (event && event.stopPropagation) event.stopPropagation(); if (!confirm("Delete this entry?")) return; haptic(20); const e = allData[i]; try { await post({ action: "delete", type: e.type, row: e.row }); showToast("✓ Deleted"); fetchData(); } catch { showToast("Error deleting — try again"); } }
+async function del(i, event) {
+ if (event && event.stopPropagation) event.stopPropagation();
+ const e = allData[i];
+ const label = e.type === "income" ? `${e.source || "Income"} ${e.customer || ""}`.trim() : (e.description || "Expense");
+ const amt = e.type === "expense" ? parseFloat(e.total || e.amount || 0) : parseFloat(e.amount || 0);
+ const signed = `${e.type === "income" ? "+" : "-"}$${amt.toFixed(2)}`;
+ if (!confirm(`Delete this transaction?\n\n${label}\n${signed}\n${fmtDate(e.date)}\n\nThis cannot be undone.`)) return;
+ haptic(20);
+ try { await post({ action: "delete", type: e.type, row: e.row }); showToast("Deleted"); fetchData(); } catch { showToast("Error deleting — try again"); }
+}
 async function markPaid(i, event) { if (event && event.stopPropagation) event.stopPropagation(); haptic(20); const e = allData[i]; try { await post({ action: "pay", type: e.type, row: e.row }); showToast("✓ Marked as paid"); fetchData(); } catch { showToast("Error updating — try again"); } }
 async function cam(i, event) { event.stopPropagation(); const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = async () => { const file = inp.files[0]; if (!file) return; if (file.size > 5 * 1024 * 1024) { showToast("Image too large (max 5MB)"); return; } const reader = new FileReader(); reader.onload = async () => { const base64 = reader.result.split(",")[1]; const e = allData[i]; try { await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "receipt", type: e.type, row: e.row, data: base64, pin: validatedPin, mime: file.type, filename: `receipt_${fmtDate(e.date)}_${Date.now()}.${file.type.split("/")[1]}` })}); showToast("✓ Receipt uploaded"); fetchData(); } catch { showToast("Error uploading — try again"); } }; reader.readAsDataURL(file); }; inp.click(); }
 function remind(i, event) { event.stopPropagation(); const e = allData[i]; const order = e.customer || "N/A"; const amt = parseFloat(e.amount || 0).toFixed(2); const fd = fmtDate(e.fulfilled) || fmtDate(e.date); const subj = encodeURIComponent(`Payment Reminder — Order ${order}`); let body = `Hi,\n\nThis is a friendly reminder that payment of $${amt} for Order ${order} (fulfilled ${fd}) is now overdue (Net 14).\n\nPlease let us know the status at your earliest convenience.`; if (e.receipt) body += `\n\nInvoice/Receipt: ${e.receipt}`; body += `\n\nThank you!\n— Granola Kid`; window.open(`mailto:?subject=${subj}&body=${encodeURIComponent(body)}`); }
