@@ -236,6 +236,14 @@ function unlockApp(pin) {
   document.getElementById("app").style.display = "block";
 }
 
+function showPinScreen() {
+  validatedPin = "";
+  pinEntry = "";
+  updateDots();
+  document.getElementById("app").style.display = "none";
+  document.getElementById("pin-screen").style.display = "flex";
+}
+
 async function validatePin(pin) {
   const res = await fetch(API, {
     method: "POST", redirect: "follow",
@@ -303,11 +311,14 @@ document.addEventListener("keydown", e => {
 (async function restoreSession() {
   const pin = sessionStorage.getItem("gk-auth-pin");
   if (!pin) return;
+  unlockApp(pin);
   try {
-    if (await validatePin(pin)) unlockApp(pin);
-    else sessionStorage.removeItem("gk-auth-pin");
+    if (!(await validatePin(pin))) {
+      sessionStorage.removeItem("gk-auth-pin");
+      showPinScreen();
+    }
   } catch {
-    sessionStorage.removeItem("gk-auth-pin");
+    // Keep the current tab unlocked if Google Apps Script is just slow/offline.
   }
 })();
 
