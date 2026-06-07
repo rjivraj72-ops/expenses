@@ -359,7 +359,7 @@
 <div class="logo"><img src="logo.png" alt="Logo" style="width:100%;max-width:260px;display:block;margin:0 auto;"></div>
 <nav class="mode-tabs" aria-label="App sections">
  <a class="active" href="index.html">Finance</a>
- <a href="create-order.html">Production Order</a>
+ <a href="create-order.html" onclick="storeInternalNav()">Production Order</a>
 </nav>
 <div class="summary">
  <div class="bal-row">
@@ -470,7 +470,7 @@
  <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">Export to CSV</button>
 </div>
 <div class="footer">
- <a href="create-order.html" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:12px;border-radius:10px;margin-bottom:12px;text-align:center">Production Order</a>
+ <a href="create-order.html" onclick="storeInternalNav()" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:12px;border-radius:10px;margin-bottom:12px;text-align:center">Production Order</a>
  <div>Made by Granola Kid</div>
 </div>
 </div>
@@ -543,6 +543,32 @@ let prevCashBal = 0, prevTotalBal = 0, prevIncTotal = 0, prevPendTotal = 0, prev
 let swipeHandled = false;
 let appInitialized = false;
 const FINANCE_CACHE_KEY = "gk-finance-cache";
+const NAV_AUTH_KEY = "gk-nav-auth";
+const NAV_AUTH_TTL = 2 * 60 * 1000;
+
+function storeInternalNav() {
+ if (!validatedPin) return;
+ try {
+   localStorage.setItem(NAV_AUTH_KEY, JSON.stringify({ pin: validatedPin, expires: Date.now() + NAV_AUTH_TTL }));
+ } catch {}
+}
+
+function consumeInternalNavPin() {
+ try {
+   const raw = localStorage.getItem(NAV_AUTH_KEY);
+   if (!raw) return "";
+   const auth = JSON.parse(raw);
+   if (!auth.pin || !auth.expires || Date.now() > auth.expires) {
+     localStorage.removeItem(NAV_AUTH_KEY);
+     return "";
+   }
+   localStorage.removeItem(NAV_AUTH_KEY);
+   return auth.pin;
+ } catch {
+   localStorage.removeItem(NAV_AUTH_KEY);
+   return "";
+ }
+}
 
 function emptyAppData() { return { income: [], expense: [], capital: 0, pricing: {}, cashWave: [] }; }
 
@@ -595,7 +621,7 @@ function unlockApp(pin, json) {
 }
 
 (async function restoreSession() {
- const pin = sessionStorage.getItem("gk-auth-pin");
+ const pin = sessionStorage.getItem("gk-auth-pin") || consumeInternalNavPin();
  if (!pin) return;
  const cached = readCachedData();
  unlockApp(pin, cached || emptyAppData());
@@ -636,6 +662,7 @@ function lockApp() {
  validatedPin = "";
  sessionStorage.removeItem("gk-auth-pin");
  sessionStorage.removeItem(FINANCE_CACHE_KEY);
+ localStorage.removeItem(NAV_AUTH_KEY);
  document.getElementById("app").style.display = "none";
  document.getElementById("pin-screen").style.display = "flex";
  pinEntry = "";

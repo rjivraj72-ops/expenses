@@ -155,7 +155,7 @@
   <h1>Production Order</h1>
   <div class="subtitle">Weekly order for Haley · Due Monday 5pm PT</div>
   <nav class="mode-tabs" aria-label="App sections">
-    <a href="index.html">Finance</a>
+    <a href="index.html" onclick="storeInternalNav()">Finance</a>
     <a class="active" href="create-order.html">Production Order</a>
   </nav>
 </div>
@@ -205,7 +205,7 @@
   </div>
 </div>
 
-<a class="back-link" href="index.html">Back to Granola Kid</a>
+<a class="back-link" href="index.html" onclick="storeInternalNav()">Back to Granola Kid</a>
 <div class="footer">Made by Granola Kid</div>
 </div>
 
@@ -225,10 +225,34 @@ let pinEntry = "";
 let pinFails = 0;
 let pinLocked = false;
 let editingIndex = -1;
+const NAV_AUTH_KEY = "gk-nav-auth";
+const NAV_AUTH_TTL = 2 * 60 * 1000;
 skus.forEach(s => totals[s] = 0);
 
 function getInput(sku) { return document.querySelector(`[data-sku="${sku}"]`); }
 function esc(s) { const d = document.createElement("div"); d.textContent = String(s || ""); return d.innerHTML; }
+function storeInternalNav() {
+  if (!validatedPin) return;
+  try {
+    localStorage.setItem(NAV_AUTH_KEY, JSON.stringify({ pin: validatedPin, expires: Date.now() + NAV_AUTH_TTL }));
+  } catch {}
+}
+function consumeInternalNavPin() {
+  try {
+    const raw = localStorage.getItem(NAV_AUTH_KEY);
+    if (!raw) return "";
+    const auth = JSON.parse(raw);
+    if (!auth.pin || !auth.expires || Date.now() > auth.expires) {
+      localStorage.removeItem(NAV_AUTH_KEY);
+      return "";
+    }
+    localStorage.removeItem(NAV_AUTH_KEY);
+    return auth.pin;
+  } catch {
+    localStorage.removeItem(NAV_AUTH_KEY);
+    return "";
+  }
+}
 function unlockApp(pin) {
   validatedPin = pin;
   sessionStorage.setItem("gk-auth-pin", pin);
@@ -239,6 +263,7 @@ function unlockApp(pin) {
 function showPinScreen() {
   validatedPin = "";
   pinEntry = "";
+  localStorage.removeItem(NAV_AUTH_KEY);
   updateDots();
   document.getElementById("app").style.display = "none";
   document.getElementById("pin-screen").style.display = "flex";
@@ -309,7 +334,7 @@ document.addEventListener("keydown", e => {
 });
 
 (async function restoreSession() {
-  const pin = sessionStorage.getItem("gk-auth-pin");
+  const pin = sessionStorage.getItem("gk-auth-pin") || consumeInternalNavPin();
   if (!pin) return;
   unlockApp(pin);
   try {
