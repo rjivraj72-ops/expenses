@@ -108,6 +108,11 @@
   .sku-item input { background: var(--card); }
   .preview { font-size: 0.85rem; line-height: 1.55; }
   .footer { padding-top: 20px; }
+  /* iPhone layout stability */
+  html, body { width: 100%; min-width: 0; overflow-x: hidden; }
+  body { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); max-width: 720px; margin: 0 auto; }
+  .header-area { margin-left: calc(-1 * max(16px, env(safe-area-inset-left))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right))); padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+  .card, .mode-tabs, .week-meta, .sku-grid, input, select, textarea, button { max-width: 100%; min-width: 0; }
 </style>
 </head>
 <body>
