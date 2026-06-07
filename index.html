@@ -158,6 +158,11 @@
  .app-header-left { display: flex; align-items: center; }
  .app-header-title { font-weight: 900; font-size: 0.85rem; color: var(--text); }
  .app-header-right { display: flex; align-items: center; gap: 6px; }
+ .tools-wrap { position: relative; }
+ .tools-menu { position: absolute; top: 42px; right: 0; min-width: 190px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px; box-shadow: 0 12px 28px rgba(31,36,32,0.16); display: none; z-index: 90; }
+ .tools-menu.open { display: block; }
+ .tools-menu button { width: 100%; background: transparent; color: var(--text); border: 0; border-radius: 6px; padding: 10px 9px; display: flex; align-items: center; justify-content: flex-start; gap: 9px; font-size: 0.86rem; text-align: left; }
+ .tools-menu button:active { background: var(--input); transform: none; }
  .mode-tabs { display: flex; gap: 6px; margin: 10px 0; }
  .mode-tabs a { flex: 1; text-align: center; text-decoration: none; padding: 9px 8px; border-radius: 10px; font-size: 0.82rem; font-weight: 800; color: var(--text); background: var(--input); border: 1px solid var(--border); }
  .mode-tabs a.active { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -169,6 +174,23 @@
  .refresh-btn.spinning { animation: spin 0.8s linear; }
  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--dark); color: var(--bg); padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards; }
+ .calc-overlay { position: fixed; inset: 0; z-index: 180; background: rgba(0,0,0,0.45); display: none; align-items: flex-end; justify-content: center; }
+ .calc-overlay.open { display: flex; }
+ .calc-sheet { width: 100%; max-width: 420px; background: var(--card); border-radius: 16px 16px 0 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); border: 1px solid var(--border); box-shadow: 0 -18px 40px rgba(0,0,0,0.18); }
+ .calc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+ .calc-title { font-size: 0.95rem; font-weight: 900; color: var(--text); }
+ .calc-close { width: 34px; height: 34px; padding: 0; border-radius: 8px; background: var(--input); color: var(--text); border: 1px solid var(--border); }
+ .calc-display { background: var(--input); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+ .calc-display input { border: 0; background: transparent; padding: 0; min-height: 0; font-size: 1.8rem; font-weight: 900; text-align: right; font-variant-numeric: tabular-nums; }
+ .calc-results { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+ .calc-result { background: var(--input); border: 1px solid var(--border); border-radius: 8px; padding: 9px; }
+ .calc-result span { display: block; color: var(--muted); font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+ .calc-result strong { display: block; margin-top: 3px; color: var(--text); font-size: 1rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+ .calc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+ .calc-actions button { min-height: 42px; border-radius: 8px; background: var(--input); color: var(--text); border: 1px solid var(--border); }
+ .calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+ .calc-keys button { height: 48px; border-radius: 8px; background: var(--input); color: var(--text); border: 1px solid var(--border); font-size: 1rem; }
+ .calc-keys button.calc-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
  @keyframes toastIn { to { opacity: 1; } }
  @keyframes toastOut { to { opacity: 0; } }
  .sticky-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: var(--card); padding: 6px 16px; padding-top: calc(6px + env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transform: translateY(-100%); transition: transform 0.25s ease; }
@@ -357,12 +379,43 @@
    <span class="app-header-title">GRANOLA KID</span>
  </div>
  <div class="app-header-right">
-   <button class="app-hdr-btn" onclick="openGemini()" title="Gemini AI">🤖</button>
-   <button class="app-hdr-btn" onclick="openShopify()" title="Shopify">🛍️</button>
-   <button class="app-hdr-btn" onclick="openRbc()" title="RBC Mobile">🏦</button>
+   <div class="tools-wrap">
+     <button class="app-hdr-btn" onclick="toggleTools(event)" title="Tools">🧰</button>
+     <div class="tools-menu" id="toolsMenu">
+       <button onclick="openCalc()">🧮 Calculator</button>
+       <button onclick="openGemini()">🤖 Gemini AI</button>
+       <button onclick="openShopify()">🛍️ Shopify</button>
+       <button onclick="openRbc()">🏦 RBC Mobile</button>
+     </div>
+   </div>
    <button class="app-hdr-btn" id="darkToggle" onclick="toggleDark()"></button>
    <button class="app-hdr-btn refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh (R)">🔄</button>
    <button class="app-hdr-lock" id="lockBtn" onclick="lockApp()">🔒 Lock</button>
+ </div>
+</div>
+<div class="calc-overlay" id="calcOverlay" onclick="closeCalc(event)">
+ <div class="calc-sheet" role="dialog" aria-label="Calculator">
+   <div class="calc-head">
+     <div class="calc-title">Calculator</div>
+     <button class="calc-close" onclick="closeCalc()">×</button>
+   </div>
+   <div class="calc-display"><input id="calcDisplay" inputmode="decimal" value="0" oninput="calcInputChanged()"></div>
+   <div class="calc-results">
+     <div class="calc-result"><span>GST 5%</span><strong id="calcGst">$0.00</strong></div>
+     <div class="calc-result"><span>Total</span><strong id="calcTotal">$0.00</strong></div>
+   </div>
+   <div class="calc-actions">
+     <button onclick="calcAddGst()">+ GST</button>
+     <button onclick="calcRemoveGst()">Remove GST</button>
+     <button onclick="calcCopy('base')">Copy Base</button>
+     <button onclick="calcCopy('total')">Copy Total</button>
+   </div>
+   <div class="calc-keys">
+     <button onclick="calcKey('7')">7</button><button onclick="calcKey('8')">8</button><button onclick="calcKey('9')">9</button><button onclick="calcBack()">⌫</button>
+     <button onclick="calcKey('4')">4</button><button onclick="calcKey('5')">5</button><button onclick="calcKey('6')">6</button><button onclick="calcClear()">C</button>
+     <button onclick="calcKey('1')">1</button><button onclick="calcKey('2')">2</button><button onclick="calcKey('3')">3</button><button class="calc-primary" onclick="calcUseForAmount()">Use</button>
+     <button onclick="calcKey('0')">0</button><button onclick="calcKey('.')">.</button><button onclick="calcKey('00')">00</button><button class="calc-primary" onclick="calcCopy('total')">Copy</button>
+   </div>
  </div>
 </div>
 <div class="sticky-bar" id="stickyBar">
@@ -489,7 +542,7 @@
 </div>
 <div class="footer">
  <a href="create-order.html" onclick="storeInternalNav()" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:12px;border-radius:10px;margin-bottom:12px;text-align:center">Production Order</a>
- <div>Made by Granola Kid · v1.6.8</div>
+ <div>Made by Granola Kid · v1.6.9</div>
 </div>
 </div>
 <script>
@@ -679,20 +732,37 @@ function revealPaidIfNeeded(paid) {
  renderList();
 }
 
+function closeTools() { const menu = $("toolsMenu"); if (menu) menu.classList.remove("open"); }
+function toggleTools(event) { if (event && event.stopPropagation) event.stopPropagation(); haptic(); $("toolsMenu").classList.toggle("open"); }
+document.addEventListener("click", e => { if (!e.target.closest || !e.target.closest(".tools-wrap")) closeTools(); });
+let calcTargetId = "";
+function calcNumber() { return moneyValue($("calcDisplay").value); }
+function calcSet(value) { $("calcDisplay").value = value ? String(Math.round(value * 100) / 100) : "0"; calcUpdate(); }
+function calcUpdate() { const base = calcNumber(); const gst = Math.round(base * 0.05 * 100) / 100; $("calcGst").textContent = `$${gst.toFixed(2)}`; $("calcTotal").textContent = `$${(base + gst).toFixed(2)}`; }
+function calcInputChanged() { $("calcDisplay").value = $("calcDisplay").value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"); calcUpdate(); }
+function openCalc() { haptic(); closeTools(); const active = document.activeElement; calcTargetId = active && ["expAmount","incAmount","eAmt"].includes(active.id) ? active.id : ($("tInc").checked ? "incAmount" : "expAmount"); const target = $(calcTargetId); calcSet(moneyValue(target ? target.value : 0)); $("calcOverlay").classList.add("open"); setTimeout(() => { $("calcDisplay").focus(); $("calcDisplay").select(); }, 50); }
+function closeCalc(event) { if (event && event.target !== $("calcOverlay")) return; haptic(); $("calcOverlay").classList.remove("open"); }
+function calcKey(value) { haptic(); const el = $("calcDisplay"); if (el.value === "0" && value !== ".") el.value = ""; if (value === "." && el.value.includes(".")) return; el.value += value; calcInputChanged(); }
+function calcBack() { haptic(); const el = $("calcDisplay"); el.value = el.value.length > 1 ? el.value.slice(0, -1) : "0"; calcUpdate(); }
+function calcClear() { haptic(); calcSet(0); }
+function calcAddGst() { calcSet(calcNumber() * 1.05); }
+function calcRemoveGst() { calcSet(calcNumber() / 1.05); }
+async function calcCopy(which) { const base = calcNumber(); const value = which === "total" ? base + Math.round(base * 0.05 * 100) / 100 : base; const text = value.toFixed(2); try { await navigator.clipboard.writeText(text); showToast("Copied"); } catch { showToast(text); } }
+function calcUseForAmount() { const el = $(calcTargetId); if (!el) return; el.value = calcNumber().toFixed(2); if (el.id === "expAmount") calcGst(); closeCalc(); el.focus(); }
 function openGemini() {
- haptic();
+ haptic(); closeTools();
  const start = Date.now();
  window.location = "googlegemini://";
  setTimeout(() => { if (Date.now() - start < 2000) window.open("https://gemini.google.com", "_blank"); }, 1500);
 }
 function openShopify() {
- haptic();
+ haptic(); closeTools();
  const start = Date.now();
  window.location = "shopify://";
  setTimeout(() => { if (Date.now() - start < 2000) window.open("https://admin.shopify.com", "_blank"); }, 1500);
 }
 function openRbc() {
- haptic();
+ haptic(); closeTools();
  const start = Date.now();
  window.location = "rbcmobile://";
  setTimeout(() => { if (Date.now() - start < 2000) window.open("https://www.rbc.com/rbcapp/", "_blank"); }, 1500);
@@ -930,7 +1000,7 @@ async function markPaid(i, event) { if (event && event.stopPropagation) event.st
 async function cam(i, event) { event.stopPropagation(); const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = async () => { const file = inp.files[0]; if (!file) return; if (file.size > 5 * 1024 * 1024) { showToast("Image too large (max 5MB)"); return; } const reader = new FileReader(); reader.onload = async () => { const base64 = reader.result.split(",")[1]; const e = allData[i]; try { await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "receipt", type: e.type, row: e.row, data: base64, pin: validatedPin, mime: file.type, filename: `receipt_${fmtDate(e.date)}_${Date.now()}.${file.type.split("/")[1]}` })}); showToast("✓ Receipt uploaded"); fetchData(); } catch { showToast("Error uploading — try again"); } }; reader.readAsDataURL(file); }; inp.click(); }
 function remind(i, event) { event.stopPropagation(); const e = allData[i]; const order = e.customer || "N/A"; const amt = parseFloat(e.amount || 0).toFixed(2); const fd = fmtDate(e.fulfilled) || fmtDate(e.date); const subj = encodeURIComponent(`Payment Reminder — Order ${order}`); let body = `Hi,\n\nThis is a friendly reminder that payment of $${amt} for Order ${order} (fulfilled ${fd}) is now overdue (Net 14).\n\nPlease let us know the status at your earliest convenience.`; if (e.receipt) body += `\n\nInvoice/Receipt: ${e.receipt}`; body += `\n\nThank you!\n— Granola Kid`; window.open(`mailto:?subject=${subj}&body=${encodeURIComponent(body)}`); }
 function edit(i) { if (swipeHandled) { swipeHandled = false; return; } haptic(); const e = allData[i]; const overlay = document.createElement("div"); overlay.className = "edit-overlay"; overlay.onclick = ev => { if (ev.target === overlay) overlay.remove(); }; let fields; if (e.type === "expense") { fields = `<input id="eDesc" value="${esc(e.description || "")}" placeholder="Description" required><div class="row"><div class="symbol-input"><span class="symbol-prefix">$</span><input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="0.00" required inputmode="decimal"></div><select id="eCat">${["Co-Packing","Ingredients","Bags & Boxes","Shipping & Gas","Tech & Office","Ads & Promo","Business Meal","Debt Repayment"].map(c => `<option${(e.category||"").includes(c) ? " selected" : ""}>${c}</option>`).join("")}</select></div><input id="eDate" type="date" value="${fmtDate(e.date)}"><select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`; } else { fields = `<select id="eSrc"><option${(e.source||"").includes("DTC") && !isGstRefund(e) ? " selected" : ""}>DTC</option><option${(e.source||"").includes("Wholesale") ? " selected" : ""}>Wholesale</option><option${isGstRefund(e) ? " selected" : ""}>GST Refund</option></select><input id="eCust" value="${esc(e.customer || "")}" placeholder="Order or note" required onblur="formatOrderInput('eCust')"><div class="symbol-input"><span class="symbol-prefix">$</span><input id="eAmt" type="number" step="0.01" value="${e.amount || ""}" placeholder="0.00" required inputmode="decimal"></div><input id="eDate" type="date" value="${fmtDate(e.date)}">${(e.source || "").toLowerCase().includes("wholesale") ? `<label style="font-size:12px;color:var(--muted)">Fulfilled Date</label><input id="eFulfilled" type="date" value="${fmtDate(e.fulfilled)}">` : ''}<select id="ePaid"><option value="no"${e.paid !== "yes" ? " selected" : ""}>Not Paid</option><option value="yes"${e.paid === "yes" ? " selected" : ""}>Paid</option></select>`; } overlay.innerHTML = `<div class="edit-sheet"><h3>Edit ${e.type === "income" ? "Income" : "Expense"}</h3><form id="editForm">${fields}<div class="edit-btns"><button type="button" class="cancel" onclick="this.closest('.edit-overlay').remove()">Cancel</button><button type="submit">Save</button></div></form></div>`; document.body.appendChild(overlay); $("editForm").onsubmit = async ev => { ev.preventDefault(); haptic(); const amount = moneyValue($("eAmt").value); const gst = Math.round(amount * 0.05 * 100) / 100; const body = { action: "edit", type: e.type, row: e.row, date: $("eDate").value, amount, paid: $("ePaid").value }; if (e.type === "expense") { body.gst = gst; body.total = Math.round((amount + gst) * 100) / 100; body.description = $("eDesc").value; body.category = backendCategory($("eCat").value); } else { body.source = backendSource($("eSrc").value); body.customer = normalizeOrderNote($("eCust").value); const ef = document.getElementById("eFulfilled"); if (ef) body.fulfilled = ef.value; } overlay.remove(); try { await post(body); if (body.paid === "yes" && !showPaid) showToast("Updated. Paid items are hidden in Unpaid view."); else showToast("Updated"); fetchData(); } catch { showToast("Error saving — try again"); } }; }
-document.addEventListener("keydown", e => { if (document.getElementById("pin-screen").style.display !== "none") return; if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA") return; if (document.querySelector(".edit-overlay")) { if (e.key === "Escape") { document.querySelector(".edit-overlay").remove(); } return; } if (e.key === "r" || e.key === "R") { e.preventDefault(); refreshData(); } else if (e.key === "e" || e.key === "E") { e.preventDefault(); $("tExp").checked = true; toggleForm(); $("expDesc").focus(); } else if (e.key === "i" || e.key === "I") { e.preventDefault(); $("tInc").checked = true; toggleForm(); $("incCustomer").focus(); } else if (e.key === "/" || e.key === "f" || e.key === "F") { e.preventDefault(); $("searchBar").focus(); } else if (e.key === "Escape") { $("searchBar").value = ""; renderList(); $("searchBar").blur(); } });
+document.addEventListener("keydown", e => { if (document.getElementById("pin-screen").style.display !== "none") return; if ($("calcOverlay").classList.contains("open")) { if (e.key === "Escape") closeCalc(); return; } if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA") return; if (document.querySelector(".edit-overlay")) { if (e.key === "Escape") { document.querySelector(".edit-overlay").remove(); } return; } if (e.key === "r" || e.key === "R") { e.preventDefault(); refreshData(); } else if (e.key === "e" || e.key === "E") { e.preventDefault(); $("tExp").checked = true; toggleForm(); $("expDesc").focus(); } else if (e.key === "i" || e.key === "I") { e.preventDefault(); $("tInc").checked = true; toggleForm(); $("incCustomer").focus(); } else if (e.key === "/" || e.key === "f" || e.key === "F") { e.preventDefault(); $("searchBar").focus(); } else if (e.key === "Escape") { closeTools(); $("searchBar").value = ""; renderList(); $("searchBar").blur(); } });
 </script>
 </body>
 </html>
