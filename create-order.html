@@ -113,6 +113,7 @@
   .preview { font-size: 0.85rem; line-height: 1.55; }
   .footer { padding-top: 20px; }
   .editing-note { display: none; margin: 8px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--input); border: 1px solid var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; text-align: center; }
+  .draft-status { display: none; font-size: 0.72rem; color: var(--muted); font-weight: 800; text-align: center; margin-top: 8px; }
   /* iPhone layout stability */
   html, body { width: 100%; min-width: 0; overflow-x: hidden; }
   body { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); max-width: 720px; margin: 0 auto; }
@@ -198,6 +199,7 @@
 <div class="card" id="send-card" style="display:none">
   <div class="card-title">Notes for Co-Packer</div>
   <textarea id="orderNotes" placeholder="Notes, substitutions, rush timing, packaging requests..." oninput="render()"></textarea>
+  <div class="draft-status" id="draftStatus">Draft saved</div>
   <div class="preview" id="preview"></div>
   <div class="button-row">
     <button class="copy-btn" onclick="copyOrder()">Copy Order</button>
@@ -206,7 +208,7 @@
 </div>
 
 <a class="back-link" href="index.html" onclick="storeInternalNav()">Back to Granola Kid</a>
-<div class="footer">Made by Granola Kid</div>
+<div class="footer">Made by Granola Kid · v1.6.0</div>
 </div>
 
 <script>
@@ -227,6 +229,7 @@ let pinLocked = false;
 let editingIndex = -1;
 const NAV_AUTH_KEY = "gk-nav-auth";
 const NAV_AUTH_TTL = 2 * 60 * 1000;
+const ORDER_DRAFT_KEY = "gk-order-draft";
 skus.forEach(s => totals[s] = 0);
 
 function getInput(sku) { return document.querySelector(`[data-sku="${sku}"]`); }
@@ -400,6 +403,48 @@ function clearOrderForm() {
   skus.forEach(s => getInput(s).value = "");
 }
 
+function saveDraft() {
+  const draft = {
+    orders,
+    notes: document.getElementById("orderNotes")?.value || "",
+    weekRange: document.getElementById("weekRange")?.textContent || "",
+    savedAt: new Date().toISOString()
+  };
+  try { localStorage.setItem(ORDER_DRAFT_KEY, JSON.stringify(draft)); } catch {}
+  const status = document.getElementById("draftStatus");
+  if (status && orders.length) {
+    status.style.display = "block";
+    status.textContent = "Draft saved";
+  }
+}
+
+function clearDraft() {
+  localStorage.removeItem(ORDER_DRAFT_KEY);
+  const status = document.getElementById("draftStatus");
+  if (status) status.style.display = "none";
+}
+
+function restoreDraft() {
+  try {
+    const raw = localStorage.getItem(ORDER_DRAFT_KEY);
+    if (!raw) return;
+    const draft = JSON.parse(raw);
+    if (!Array.isArray(draft.orders) || !draft.orders.length) return;
+    orders.length = 0;
+    draft.orders.forEach(o => orders.push({ name: o.name || "", items: o.items || {} }));
+    document.getElementById("orderNotes").value = draft.notes || "";
+    recalcTotals();
+    render();
+    const status = document.getElementById("draftStatus");
+    if (status) {
+      status.style.display = "block";
+      status.textContent = "Draft restored";
+    }
+  } catch {
+    clearDraft();
+  }
+}
+
 function addOrder() {
   const name = document.getElementById("customer").value.trim();
   if (!name) { showToast("Enter customer name"); return; }
@@ -455,6 +500,8 @@ function render() {
     .join("");
 
   document.getElementById("preview").textContent = buildMessage();
+  if (hasOrders) saveDraft();
+  else clearDraft();
 }
 
 function editOrder(index) {
@@ -497,6 +544,7 @@ function resetAll() {
   editingIndex = -1;
   clearOrderForm();
   recalcTotals();
+  clearDraft();
   render();
   showToast("Cleared");
 }
@@ -552,6 +600,8 @@ async function sendWhatsApp() {
   btn.textContent = "Send via WhatsApp";
   window.location.href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
+
+restoreDraft();
 </script>
 </body>
 </html>
