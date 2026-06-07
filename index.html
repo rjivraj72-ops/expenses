@@ -294,6 +294,10 @@
      padding-left: 16px;
      padding-right: 16px;
    }
+   .app-header-title { font-size: 0.78rem; }
+   .app-header-right { gap: 4px; }
+   .app-hdr-btn { width: 32px; height: 32px; }
+   .app-hdr-lock { padding: 7px 9px; font-size: 0.72rem; }
    .entry-form-card .row { flex-direction: column; gap: 11px; }
    .entry-form-card .row.pay-row { flex-direction: row; }
    .entry-form-card .pay-select { flex: 0 0 42%; }
@@ -352,6 +356,7 @@
  <div class="app-header-right">
    <button class="app-hdr-btn" onclick="openGemini()" title="Gemini AI">🤖</button>
    <button class="app-hdr-btn" onclick="openShopify()" title="Shopify">🛍️</button>
+   <button class="app-hdr-btn" onclick="openRbc()" title="RBC Mobile">🏦</button>
    <button class="app-hdr-btn" id="darkToggle" onclick="toggleDark()"></button>
    <button class="app-hdr-btn refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh (R)">🔄</button>
    <button class="app-hdr-lock" id="lockBtn" onclick="lockApp()">🔒 Lock</button>
@@ -481,7 +486,7 @@
 </div>
 <div class="footer">
  <a href="create-order.html" onclick="storeInternalNav()" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:12px;border-radius:10px;margin-bottom:12px;text-align:center">Production Order</a>
- <div>Made by Granola Kid · v1.6.4</div>
+ <div>Made by Granola Kid · v1.6.5</div>
 </div>
 </div>
 <script>
@@ -682,6 +687,12 @@ function openShopify() {
  const start = Date.now();
  window.location = "shopify://";
  setTimeout(() => { if (Date.now() - start < 2000) window.open("https://admin.shopify.com", "_blank"); }, 1500);
+}
+function openRbc() {
+ haptic();
+ const start = Date.now();
+ window.location = "rbcmobile://";
+ setTimeout(() => { if (Date.now() - start < 2000) window.open("https://www.rbc.com/rbcapp/", "_blank"); }, 1500);
 }
 function lockApp() {
  haptic();
