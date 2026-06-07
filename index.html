@@ -542,8 +542,25 @@ let allData = [], capital = 0, pricing = {}, cashWaveData = [];
 let prevCashBal = 0, prevTotalBal = 0, prevIncTotal = 0, prevPendTotal = 0, prevExpTotal = 0;
 let swipeHandled = false;
 let appInitialized = false;
+const FINANCE_CACHE_KEY = "gk-finance-cache";
 
 function emptyAppData() { return { income: [], expense: [], capital: 0, pricing: {}, cashWave: [] }; }
+
+function readCachedData() {
+ try {
+   const raw = sessionStorage.getItem(FINANCE_CACHE_KEY);
+   return raw ? JSON.parse(raw) : null;
+ } catch {
+   sessionStorage.removeItem(FINANCE_CACHE_KEY);
+   return null;
+ }
+}
+
+function writeCachedData(json) {
+ try {
+   sessionStorage.setItem(FINANCE_CACHE_KEY, JSON.stringify(json));
+ } catch {}
+}
 
 async function fetchPinData(pin) {
  const res = await fetch(API, {
@@ -558,6 +575,7 @@ async function fetchPinData(pin) {
 }
 
 function applyData(json) {
+ writeCachedData(json);
  capital = parseFloat(json.capital) || 0;
  pricing = json.pricing || {};
  cashWaveData = json.cashWave || [];
@@ -572,14 +590,16 @@ function unlockApp(pin, json) {
  sessionStorage.setItem("gk-auth-pin", pin);
  document.getElementById("pin-screen").style.display = "none";
  document.getElementById("app").style.display = "block";
- if (!appInitialized) initApp(json || emptyAppData());
+ if (!appInitialized) initApp(json || readCachedData() || emptyAppData());
  else if (json) applyData(json);
 }
 
 (async function restoreSession() {
  const pin = sessionStorage.getItem("gk-auth-pin");
  if (!pin) return;
- unlockApp(pin, emptyAppData());
+ const cached = readCachedData();
+ unlockApp(pin, cached || emptyAppData());
+ if (cached) updateSyncStatus("loading");
  try {
    const json = await fetchPinData(pin);
    if (json) applyData(json);
@@ -615,6 +635,7 @@ function lockApp() {
  haptic();
  validatedPin = "";
  sessionStorage.removeItem("gk-auth-pin");
+ sessionStorage.removeItem(FINANCE_CACHE_KEY);
  document.getElementById("app").style.display = "none";
  document.getElementById("pin-screen").style.display = "flex";
  pinEntry = "";
