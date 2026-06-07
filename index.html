@@ -546,7 +546,7 @@
 </div>
 <div class="footer">
  <a href="create-order.html" onclick="storeInternalNav()" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:12px;border-radius:10px;margin-bottom:12px;text-align:center">Production Order</a>
- <div>Made by Granola Kid · v1.7.4</div>
+ <div>Made by Granola Kid · v1.7.5</div>
 </div>
 </div>
 <script>
@@ -899,10 +899,10 @@ function gstPaidForExpenses(expenses) {
  const rows = expenses.map(e => ({ date: fmtDate(e.date), gst: gstForExpense(e) })).filter(r => r.gst > 0).sort((a, b) => a.date.localeCompare(b.date));
  if (!rows.length) return 0;
  const sum = rows.reduce((s, r) => s + r.gst, 0);
- const latest = rows[rows.length - 1].gst;
+ const max = rows.reduce((m, r) => Math.max(m, r.gst), 0);
  let rising = 0;
  for (let i = 1; i < rows.length; i++) if (rows[i].gst + 0.005 >= rows[i - 1].gst) rising++;
- if (rows.length >= 3 && rising / (rows.length - 1) >= 0.85 && sum > latest * 1.15) return latest;
+ if (rows.length >= 3 && sum > max * 1.15) return max;
  return sum;
 }
 function normalizeOrderNote(value) { const v = (value || "").trim(); if (/^\d+$/.test(v)) return `#${v}`; return v; }
