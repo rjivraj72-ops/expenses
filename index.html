@@ -173,7 +173,7 @@
  .app-hdr-lock:active { background: var(--bg); }
  .refresh-btn.spinning { animation: spin 0.8s linear; }
  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
- .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--dark); color: var(--bg); padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards; }
+ .toast { position: fixed; top: calc(env(safe-area-inset-top) + 12px); left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 32px); background: var(--dark); color: var(--bg); padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; line-height: 1.25; text-align: center; z-index: 300; opacity: 0; animation: toastIn 0.3s ease forwards, toastOut 0.3s ease 1.5s forwards; }
  .calc-overlay { position: fixed; inset: 0; z-index: 180; background: rgba(0,0,0,0.45); display: none; align-items: flex-end; justify-content: center; }
  .calc-overlay.open { display: flex; }
  .calc-sheet { width: 100%; max-width: 420px; background: var(--card); border-radius: 16px 16px 0 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); border: 1px solid var(--border); box-shadow: 0 -18px 40px rgba(0,0,0,0.18); }
@@ -546,7 +546,7 @@
 </div>
 <div class="footer">
  <a href="create-order.html" onclick="storeInternalNav()" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:12px;border-radius:10px;margin-bottom:12px;text-align:center">Production Order</a>
- <div>Made by Granola Kid · v1.7.7</div>
+ <div>Made by Granola Kid · v1.7.8</div>
 </div>
 </div>
 <script>
