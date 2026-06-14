@@ -222,6 +222,15 @@
  .detail-amt { font-weight: 900; font-variant-numeric: tabular-nums; white-space: nowrap; }
  .detail-empty { padding: 12px; text-align: center; color: var(--muted); font-size: 0.8rem; font-weight: 700; }
  .recon-note { margin-top: 8px; color: var(--muted); font-size: 0.76rem; line-height: 1.35; }
+ .check-row { display: grid; grid-template-columns: auto 1fr; gap: 8px; padding: 9px 10px; border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--text); }
+ .check-row:last-child { border-bottom: 0; }
+ .check-pill { align-self: start; border-radius: 6px; padding: 2px 6px; background: var(--input); border: 1px solid var(--border); color: var(--muted); font-size: 0.68rem; font-weight: 900; }
+ .check-pill.warn { color: #b26b00; border-color: rgba(178,107,0,0.35); }
+ .check-pill.ok { color: var(--accent); border-color: rgba(47,111,85,0.3); }
+ .version-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+ .version-item { background: var(--input); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+ .version-value { font-size: 1rem; font-weight: 900; color: var(--text); }
+ .version-label { margin-top: 2px; font-size: 0.68rem; font-weight: 800; color: var(--muted); text-transform: uppercase; }
  .entry.paid-entry { opacity: 0.5; }
  .ptr-indicator { text-align: center; padding: 0; height: 0; overflow: hidden; transition: height 0.2s; font-size: 13px; color: var(--muted); font-weight: 500; display: flex; align-items: center; justify-content: center; }
  .receipt-thumb { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; margin-top: 6px; border: 1px solid var(--border); cursor: pointer; }
@@ -545,6 +554,8 @@
  <div class="mgr-body" id="secGst"><div class="ytd-grid" id="gstGrid"></div><div id="gstDetail"></div></div>
  <div class="mgr-section" onclick="toggleSec('secRecon')"><span class="sec-label">Reconciliation</span><span class="sec-arrow" id="secReconArrow">▸</span></div>
  <div class="mgr-body" id="secRecon"><div class="ytd-grid" id="reconGrid"></div><div class="recon-note" id="reconNote"></div></div>
+ <div class="mgr-section" onclick="toggleSec('secChecks')"><span class="sec-label">Data Checks</span><span class="sec-arrow" id="secChecksArrow">▸</span></div>
+ <div class="mgr-body" id="secChecks"><div id="dataChecks"></div></div>
  <div class="mgr-section" onclick="toggleSec('secPie')"><span class="sec-label">Expenses by Category</span><span class="sec-arrow" id="secPieArrow">▸</span></div>
  <div class="mgr-body" id="secPie"><div class="pie-wrap"><canvas id="pieChart" width="200" height="200" onclick="tapPie(event)"></canvas></div><div class="pie-legend" id="pieLegend"></div><div id="catDetail"></div></div>
  <div class="mgr-section" onclick="toggleSec('secProfit')"><span class="sec-label">Profitability</span><span class="sec-arrow" id="secProfitArrow">▸</span></div>
@@ -555,11 +566,13 @@
  <div class="mgr-body" id="secWave"><div id="cashWave"></div></div>
  <div class="mgr-section" onclick="toggleSec('secActivity')"><span class="sec-label">Recent Activity</span><span class="sec-arrow" id="secActivityArrow">▸</span></div>
  <div class="mgr-body" id="secActivity"><div id="mgrActivityList"></div></div>
+ <div class="mgr-section" onclick="toggleSec('secBackup')"><span class="sec-label">Backup & Version</span><span class="sec-arrow" id="secBackupArrow">▸</span></div>
+ <div class="mgr-body" id="secBackup"><div class="version-grid" id="versionGrid"></div><button class="export-btn" onclick="exportBackup()" style="margin-top:0">Export Full Backup</button></div>
  <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">Export to CSV</button>
 </div>
 <div class="footer">
  <a href="create-order.html" onclick="storeInternalNav()" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:12px;border-radius:10px;margin-bottom:12px;text-align:center">Production Order</a>
- <div>Made by Granola Kid · v1.8.0</div>
+ <div>Made by Granola Kid · v1.9.0</div>
 </div>
 </div>
 <script>
@@ -626,7 +639,7 @@ document.addEventListener("gesturechange", function(e) { e.preventDefault(); });
 document.addEventListener("gestureend", function(e) { e.preventDefault(); });
 const $ = id => document.getElementById(id);
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
-let allData = [], capital = 0, pricing = {}, cashWaveData = [], sheetGstPaidYtd = null, sheetCashBalance = null;
+let allData = [], capital = 0, pricing = {}, cashWaveData = [], orderHistoryData = [], sheetGstPaidYtd = null, sheetCashBalance = null;
 let prevCashBal = 0, prevTotalBal = 0, prevIncTotal = 0, prevPendTotal = 0, prevExpTotal = 0;
 let swipeHandled = false;
 let appInitialized = false;
@@ -694,6 +707,7 @@ function applyData(json) {
  capital = parseFloat(json.capital) || 0;
  pricing = json.pricing || {};
  cashWaveData = json.cashWave || [];
+ orderHistoryData = json.orders || json.orderHistory || [];
  sheetGstPaidYtd = optionalMoney(json.gstPaidYtd, json.gstYtd, json.gstPaid2026, json.gstSummary && json.gstSummary.ytd);
  sheetCashBalance = optionalMoney(json.cashBalance, json.bankBalance, json.rbcBalance, json.summary && json.summary.cashBalance);
  allData = [...(json.income || []).map(r => ({ ...r, type: "income" })), ...(json.expense || []).map(r => ({ ...r, type: "expense" }))].sort((a, b) => fmtDate(b.date).localeCompare(fmtDate(a.date)));
@@ -1040,9 +1054,107 @@ function renderReconciliation() {
  grid.innerHTML = `<div class="ytd-item"><div class="ytd-val">${sheetCashBalance !== null ? moneyText(sheetCash) : "Needs Sheet"}</div><div class="ytd-lbl">Sheet Cash</div></div><div class="ytd-item"><div class="ytd-val">${moneyText(rowCash)}</div><div class="ytd-lbl">Transaction Math</div></div><div class="ytd-item ${Math.abs(diff) < 0.01 ? 'profit' : 'loss'}"><div class="ytd-val">${diff >= 0 ? '' : '-'}${moneyText(Math.abs(diff))}</div><div class="ytd-lbl">Difference</div></div><div class="ytd-item"><div class="ytd-val">${paidExpenseRows(allData).length}</div><div class="ytd-lbl">Paid Expenses</div></div>`;
  note.textContent = Math.abs(diff) < 0.01 ? "Cash balance is aligned with the current transaction rows." : "Difference means the Sheet cash balance and row-by-row app math are not aligned. Check recent paid/unpaid changes first.";
 }
-function renderMgr() { const data = getMgrData(); const revenueData = data.filter(e => e.type !== "income" || !isGstRefund(e)); const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; const ytdInc = revenueData.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount || 0), 0); const ytdExp = data.filter(e => e.type === "expense").reduce((s, e) => s + totalForExpense(e), 0); const expenseData = data.filter(e => e.type === "expense"); const needsSheetGst = mgrRange === "ytd" && sheetGstPaidYtd === null; const ytdGst = mgrRange === "ytd" ? (sheetGstPaidYtd || 0) : gstPaidForExpenses(expenseData); const ytdGstText = needsSheetGst ? "Needs Sheet" : `$${ytdGst.toFixed(2)}`; const ytdProfit = ytdInc - ytdExp; const profitClass = ytdProfit >= 0 ? "profit" : "loss"; const rangeLabel = mgrRange === "ytd" ? "YTD" : mgrRange === "all" ? "All Time" : "Period"; $("rangeSnap").innerHTML = `${ytdProfit >= 0 ? '' : ''} ${rangeLabel}: ${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}`; $("rangeSnap").style.color = ytdProfit >= 0 ? "#5a8a5e" : "#c0694f"; $("ytdGrid").innerHTML = `<div class="ytd-item"><div class="ytd-val">$${ytdInc.toFixed(2)}</div><div class="ytd-lbl">${rangeLabel} Revenue</div></div><div class="ytd-item"><div class="ytd-val">$${ytdExp.toFixed(2)}</div><div class="ytd-lbl">${rangeLabel} Expenses</div></div><div class="ytd-item ${profitClass}"><div class="ytd-val">${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}</div><div class="ytd-lbl">${ytdProfit >= 0 ? '' : ''} ${rangeLabel} Profit</div></div><div class="ytd-item"><div class="ytd-val">${ytdGstText}</div><div class="ytd-lbl">GST Paid</div></div>`; const gstRefunds = data.filter(e => e.type === "income" && gstRefundAppliesToMgr(e)).reduce((s, e) => s + parseFloat(e.amount || 0), 0); const gstRecoverable = ytdGst - gstRefunds; $("gstGrid").innerHTML = `<div class="ytd-item profit"><div class="ytd-val">${ytdGstText}</div><div class="ytd-lbl">${rangeLabel} GST Paid</div></div><div class="ytd-item"><div class="ytd-val">$${gstRefunds.toFixed(2)}</div><div class="ytd-lbl">GST Refunds Received</div></div><div class="ytd-item ${gstRecoverable >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${needsSheetGst ? "Needs Sheet" : `${gstRecoverable >= 0 ? '' : '-'}$${Math.abs(gstRecoverable).toFixed(2)}`}</div><div class="ytd-lbl">Est. Recoverable</div></div>`; renderGstDetail(expenseData); renderReconciliation(); renderActivity(); const cats = {}; expenseData.forEach(e => { const c = e.category || "Other"; cats[c] = (cats[c] || 0) + totalForExpense(e); }); const pieColors = ["#c0694f","#5a8a5e","#c4a24e","#8b6f4e","#6b8fa3","#a36b8f","#7a9a6b","#d4956a"]; const catEntries = Object.entries(cats).sort((a, b) => b[1] - a[1]); const pieTotal = catEntries.reduce((s, c) => s + c[1], 0) || 1; const canvas = $("pieChart"); const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, 200, 200); pieSlices = []; let startAngle = -Math.PI / 2; catEntries.forEach(([cat, val], idx) => { const slice = (val / pieTotal) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(100, 100); ctx.arc(100, 100, 90, startAngle, startAngle + slice); ctx.fillStyle = pieColors[idx % pieColors.length]; ctx.fill(); pieSlices.push({ cat, val, start: startAngle, end: startAngle + slice, color: pieColors[idx % pieColors.length] }); startAngle += slice; }); ctx.beginPath(); ctx.arc(100, 100, 50, 0, Math.PI * 2); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--card").trim(); ctx.fill(); $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) => `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${esc(cat)} $${val.toFixed(0)}</span>`).join(""); $("catDetail").innerHTML = ""; const p = pricing; function estCogs(e) { const amt = parseFloat(e.amount || 0); const src = (e.source || "").toLowerCase(); if (src.includes("wholesale") || src.includes("ws")) return (amt / (p.wsPrice || 9.30)) * (p.wsCogs || 5.42); else return (amt / (p.dtcPrice || 13.29)) * (p.dtcCogs || 5.50); } const incData = revenueData.filter(e => e.type === "income"); const dtcSales = incData.filter(e => !(e.source || "").toLowerCase().includes("wholesale")); const wsSales = incData.filter(e => (e.source || "").toLowerCase().includes("wholesale")); const dtcRev = dtcSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0); const dtcCost = dtcSales.reduce((s, e) => s + estCogs(e), 0); const wsRev = wsSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0); const wsCost = wsSales.reduce((s, e) => s + estCogs(e), 0); const totalRev = dtcRev + wsRev; const totalCost = dtcCost + wsCost; const grossProfit = totalRev - totalCost; const marginPct = totalRev > 0 ? ((grossProfit / totalRev) * 100).toFixed(1) : "0.0"; const dtcMargin = dtcRev > 0 ? (((dtcRev - dtcCost) / dtcRev) * 100).toFixed(1) : "0.0"; const wsMargin = wsRev > 0 ? (((wsRev - wsCost) / wsRev) * 100).toFixed(1) : "0.0"; $("profitGrid").innerHTML = `<div class="ytd-item ${grossProfit >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${grossProfit >= 0 ? '+' : ''}$${grossProfit.toFixed(2)}</div><div class="ytd-lbl">Est. Gross Profit</div></div><div class="ytd-item"><div class="ytd-val">${marginPct}%</div><div class="ytd-lbl">Blended Margin</div></div><div class="ytd-item"><div class="ytd-val">${dtcMargin}%</div><div class="ytd-lbl">DTC Margin</div></div><div class="ytd-item"><div class="ytd-val">${wsMargin}%</div><div class="ytd-lbl">Wholesale Margin</div></div>`; const mProfit = {}; incData.forEach(e => { const m = fmtDate(e.date).substring(0, 7) || "Unknown"; if (!mProfit[m]) mProfit[m] = { rev: 0, cogs: 0 }; mProfit[m].rev += parseFloat(e.amount || 0); mProfit[m].cogs += estCogs(e); }); $("monthProfit").innerHTML = Object.keys(mProfit).sort().reverse().map(m => { const mp = mProfit[m]; const gp = mp.rev - mp.cogs; const mg = mp.rev > 0 ? ((gp / mp.rev) * 100).toFixed(1) : "0.0"; const parts = m.split("-"); const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m; return `<div class="profit-row"><div class="profit-label"><span>${esc(label)}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div></div>`; }).join(""); const today = new Date(); const todayStr = localDateStr(today); const in7 = addDaysLocal(todayStr, 7); const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0]; const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split("T")[0]; const prevMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split("T")[0]; let wed7 = 0, spillover = 0; const cwRows = cashWaveData.map(r => { const d = fmtDate(r.date); if (!d) return null; const mffDue = addDaysLocal(d, 7); const wsDue = addDaysLocal(d, 15); if (!mffDue || !wsDue) return null; const mff = parseFloat(r.mff) || 0; const ws = parseFloat(r.wholesale) || 0; if (mffDue >= todayStr && mffDue <= in7) wed7 += mff; if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= new Date(today.getFullYear(), today.getMonth(), 7).toISOString().split("T")[0]) spillover += mff; return { date: d, mff, mffDue, ws, wsDue, notes: r.notes || "" }; }).filter(Boolean).sort((a, b) => b.date.localeCompare(a.date)); let cwHtml = wed7 > 0 ? `<div class="cw-alert">$${wed7.toFixed(2)} due to MFF in next 7 days</div>` : `<div class="cw-alert ok">No MFF payments due this week</div>`; if (spillover > 0) cwHtml += `<div class="cw-alert">Overdue Month spillover: $${spillover.toFixed(2)} from last month due this week</div>`; if (cwRows.length) { cwHtml += cwRows.map(r => { const total = r.mff + r.ws || 1; return `<div><div class="cw-row"><span>${esc(r.date)}</span><span><span class="cw-out">-$${r.mff.toFixed(0)}</span> → <span class="cw-in">+$${r.ws.toFixed(0)}</span></span></div><div class="cw-bar"><div class="cw-bar-out" style="width:${(r.mff / total) * 100}%"></div><div class="cw-bar-in" style="width:${(r.ws / total) * 100}%"></div></div><div style="font-size:11px;color:var(--muted)">Pay MFF: ${esc(r.mffDue)} · WS due: ${esc(r.wsDue)}${r.notes ? ' · ' + esc(r.notes) : ''}</div></div>`; }).join(""); } else { cwHtml += '<div style="text-align:center;color:var(--muted);padding:12px;font-size:13px">Add production runs to the Cash Wave tab in Google Sheets</div>'; } $("cashWave").innerHTML = cwHtml; }
+function monthKey(dateValue) { const d = fmtDate(dateValue); return d && d.length >= 7 ? d.substring(0, 7) : ""; }
+function monthLabel(key) { const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; const parts = key.split("-"); return parts.length === 2 ? `${names[parseInt(parts[1], 10) - 1]} ${parts[0]}` : key; }
+function renderMonthlyClose(data) {
+ const target = $("monthProfit");
+ if (!target) return;
+ const months = {};
+ data.forEach(e => {
+   const key = monthKey(e.date);
+   if (!key) return;
+   if (!months[key]) months[key] = { revenue: 0, expenses: 0, gst: 0, cash: 0 };
+   if (e.type === "income" && !isGstRefund(e)) {
+     const amt = moneyValue(e.amount);
+     months[key].revenue += amt;
+     if (e.paid === "yes") months[key].cash += amt;
+   }
+   if (e.type === "expense") {
+     const total = totalForExpense(e);
+     months[key].expenses += total;
+     if (e.paid === "yes") {
+       months[key].gst += gstForExpense(e);
+       months[key].cash -= bankExpenseAmount(e);
+     }
+   }
+ });
+ const keys = Object.keys(months).sort().reverse();
+ target.innerHTML = keys.length ? keys.map(key => {
+   const m = months[key];
+   const profit = m.revenue - m.expenses;
+   return `<div class="detail-list" style="margin-bottom:8px"><div class="detail-row"><div class="detail-main"><div class="detail-title">${esc(monthLabel(key))}</div><div class="detail-meta">Revenue ${moneyText(m.revenue)} · Expenses ${moneyText(m.expenses)} · GST ${moneyText(m.gst)} · Cash ${m.cash >= 0 ? '+' : '-'}${moneyText(Math.abs(m.cash))}</div></div><div class="detail-amt">${profit >= 0 ? '+' : '-'}${moneyText(Math.abs(profit))}</div></div></div>`;
+ }).join("") : `<div class="detail-list"><div class="detail-empty">No monthly activity in this view</div></div>`;
+}
+function buildDataChecks() {
+ const checks = [];
+ const seen = {};
+ allData.forEach(e => {
+   const date = fmtDate(e.date);
+   if (e.type === "expense") {
+     const total = totalForExpense(e);
+     const gst = gstForExpense(e);
+     if (e.paid === "yes" && total <= 0) checks.push({ level: "warn", text: `Paid expense missing total: ${e.description || "Expense"} · ${date}` });
+     if (moneyValue(e.amount) > 0 && gst <= 0 && !(e.category || "").toLowerCase().includes("debt")) checks.push({ level: "warn", text: `Expense has $0 GST: ${e.description || "Expense"} · ${date}` });
+     const key = ["expense", date, (e.description || "").toLowerCase().trim(), total.toFixed(2)].join("|");
+     seen[key] = (seen[key] || 0) + 1;
+   } else {
+     const source = (e.source || "").toLowerCase();
+     if (e.paid === "yes" && !isGstRefund(e) && !(e.customer || "").trim()) checks.push({ level: "warn", text: `Paid income missing customer/order note · ${date}` });
+     const key = ["income", date, source, (e.customer || "").toLowerCase().trim(), moneyValue(e.amount).toFixed(2)].join("|");
+     seen[key] = (seen[key] || 0) + 1;
+   }
+ });
+ Object.keys(seen).forEach(key => { if (seen[key] > 1) checks.push({ level: "warn", text: `Possible duplicate transaction (${seen[key]} matches)` }); });
+ return checks;
+}
+function renderDataChecks() {
+ const el = $("dataChecks");
+ if (!el) return;
+ const checks = buildDataChecks();
+ if (!checks.length) {
+   el.innerHTML = `<div class="detail-list"><div class="check-row"><span class="check-pill ok">OK</span><span>No unusual transaction issues found.</span></div></div>`;
+   return;
+ }
+ el.innerHTML = `<div class="detail-list">${checks.slice(0, 12).map(c => `<div class="check-row"><span class="check-pill ${c.level}">${c.level === "warn" ? "CHECK" : "OK"}</span><span>${esc(c.text)}</span></div>`).join("")}</div>`;
+}
+function renderVersionStatus() {
+ const el = $("versionGrid");
+ if (!el) return;
+ const appVersion = "v1.9.0";
+ const orderVersion = "v1.7.0";
+ const lastSync = $("syncStatus") ? $("syncStatus").textContent : "Not synced";
+ el.innerHTML = `<div class="version-item"><div class="version-value">${appVersion}</div><div class="version-label">Finance</div></div><div class="version-item"><div class="version-value">${orderVersion}</div><div class="version-label">Production</div></div><div class="version-item"><div class="version-value">${allData.length}</div><div class="version-label">Rows Loaded</div></div><div class="version-item"><div class="version-value">${orderHistoryData.length}</div><div class="version-label">Orders</div></div>`;
+}
+function renderMgr() { const data = getMgrData(); const revenueData = data.filter(e => e.type !== "income" || !isGstRefund(e)); const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; const ytdInc = revenueData.filter(e => e.type === "income").reduce((s, e) => s + parseFloat(e.amount || 0), 0); const ytdExp = data.filter(e => e.type === "expense").reduce((s, e) => s + totalForExpense(e), 0); const expenseData = data.filter(e => e.type === "expense"); const needsSheetGst = mgrRange === "ytd" && sheetGstPaidYtd === null; const ytdGst = mgrRange === "ytd" ? (sheetGstPaidYtd || 0) : gstPaidForExpenses(expenseData); const ytdGstText = needsSheetGst ? "Needs Sheet" : `$${ytdGst.toFixed(2)}`; const ytdProfit = ytdInc - ytdExp; const profitClass = ytdProfit >= 0 ? "profit" : "loss"; const rangeLabel = mgrRange === "ytd" ? "YTD" : mgrRange === "all" ? "All Time" : "Period"; $("rangeSnap").innerHTML = `${ytdProfit >= 0 ? '' : ''} ${rangeLabel}: ${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}`; $("rangeSnap").style.color = ytdProfit >= 0 ? "#5a8a5e" : "#c0694f"; $("ytdGrid").innerHTML = `<div class="ytd-item"><div class="ytd-val">$${ytdInc.toFixed(2)}</div><div class="ytd-lbl">${rangeLabel} Revenue</div></div><div class="ytd-item"><div class="ytd-val">$${ytdExp.toFixed(2)}</div><div class="ytd-lbl">${rangeLabel} Expenses</div></div><div class="ytd-item ${profitClass}"><div class="ytd-val">${ytdProfit >= 0 ? '+' : ''}$${ytdProfit.toFixed(2)}</div><div class="ytd-lbl">${ytdProfit >= 0 ? '' : ''} ${rangeLabel} Profit</div></div><div class="ytd-item"><div class="ytd-val">${ytdGstText}</div><div class="ytd-lbl">GST Paid</div></div>`; const gstRefunds = data.filter(e => e.type === "income" && gstRefundAppliesToMgr(e)).reduce((s, e) => s + parseFloat(e.amount || 0), 0); const gstRecoverable = ytdGst - gstRefunds; $("gstGrid").innerHTML = `<div class="ytd-item profit"><div class="ytd-val">${ytdGstText}</div><div class="ytd-lbl">${rangeLabel} GST Paid</div></div><div class="ytd-item"><div class="ytd-val">$${gstRefunds.toFixed(2)}</div><div class="ytd-lbl">GST Refunds Received</div></div><div class="ytd-item ${gstRecoverable >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${needsSheetGst ? "Needs Sheet" : `${gstRecoverable >= 0 ? '' : '-'}$${Math.abs(gstRecoverable).toFixed(2)}`}</div><div class="ytd-lbl">Est. Recoverable</div></div>`; renderGstDetail(expenseData); renderReconciliation(); renderDataChecks(); renderVersionStatus(); renderActivity(); const cats = {}; expenseData.forEach(e => { const c = e.category || "Other"; cats[c] = (cats[c] || 0) + totalForExpense(e); }); const pieColors = ["#c0694f","#5a8a5e","#c4a24e","#8b6f4e","#6b8fa3","#a36b8f","#7a9a6b","#d4956a"]; const catEntries = Object.entries(cats).sort((a, b) => b[1] - a[1]); const pieTotal = catEntries.reduce((s, c) => s + c[1], 0) || 1; const canvas = $("pieChart"); const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, 200, 200); pieSlices = []; let startAngle = -Math.PI / 2; catEntries.forEach(([cat, val], idx) => { const slice = (val / pieTotal) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(100, 100); ctx.arc(100, 100, 90, startAngle, startAngle + slice); ctx.fillStyle = pieColors[idx % pieColors.length]; ctx.fill(); pieSlices.push({ cat, val, start: startAngle, end: startAngle + slice, color: pieColors[idx % pieColors.length] }); startAngle += slice; }); ctx.beginPath(); ctx.arc(100, 100, 50, 0, Math.PI * 2); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--card").trim(); ctx.fill(); $("pieLegend").innerHTML = catEntries.map(([cat, val], idx) => `<span><span class="dot" style="background:${pieColors[idx % pieColors.length]}"></span>${esc(cat)} $${val.toFixed(0)}</span>`).join(""); $("catDetail").innerHTML = ""; const p = pricing; function estCogs(e) { const amt = parseFloat(e.amount || 0); const src = (e.source || "").toLowerCase(); if (src.includes("wholesale") || src.includes("ws")) return (amt / (p.wsPrice || 9.30)) * (p.wsCogs || 5.42); else return (amt / (p.dtcPrice || 13.29)) * (p.dtcCogs || 5.50); } const incData = revenueData.filter(e => e.type === "income"); const dtcSales = incData.filter(e => !(e.source || "").toLowerCase().includes("wholesale")); const wsSales = incData.filter(e => (e.source || "").toLowerCase().includes("wholesale")); const dtcRev = dtcSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0); const dtcCost = dtcSales.reduce((s, e) => s + estCogs(e), 0); const wsRev = wsSales.reduce((s, e) => s + parseFloat(e.amount || 0), 0); const wsCost = wsSales.reduce((s, e) => s + estCogs(e), 0); const totalRev = dtcRev + wsRev; const totalCost = dtcCost + wsCost; const grossProfit = totalRev - totalCost; const marginPct = totalRev > 0 ? ((grossProfit / totalRev) * 100).toFixed(1) : "0.0"; const dtcMargin = dtcRev > 0 ? (((dtcRev - dtcCost) / dtcRev) * 100).toFixed(1) : "0.0"; const wsMargin = wsRev > 0 ? (((wsRev - wsCost) / wsRev) * 100).toFixed(1) : "0.0"; $("profitGrid").innerHTML = `<div class="ytd-item ${grossProfit >= 0 ? 'profit' : 'loss'}"><div class="ytd-val">${grossProfit >= 0 ? '+' : ''}$${grossProfit.toFixed(2)}</div><div class="ytd-lbl">Est. Gross Profit</div></div><div class="ytd-item"><div class="ytd-val">${marginPct}%</div><div class="ytd-lbl">Blended Margin</div></div><div class="ytd-item"><div class="ytd-val">${dtcMargin}%</div><div class="ytd-lbl">DTC Margin</div></div><div class="ytd-item"><div class="ytd-val">${wsMargin}%</div><div class="ytd-lbl">Wholesale Margin</div></div>`; const mProfit = {}; incData.forEach(e => { const m = fmtDate(e.date).substring(0, 7) || "Unknown"; if (!mProfit[m]) mProfit[m] = { rev: 0, cogs: 0 }; mProfit[m].rev += parseFloat(e.amount || 0); mProfit[m].cogs += estCogs(e); }); $("monthProfit").innerHTML = Object.keys(mProfit).sort().reverse().map(m => { const mp = mProfit[m]; const gp = mp.rev - mp.cogs; const mg = mp.rev > 0 ? ((gp / mp.rev) * 100).toFixed(1) : "0.0"; const parts = m.split("-"); const label = parts.length === 2 ? mNames[parseInt(parts[1]) - 1] + " " + parts[0] : m; return `<div class="profit-row"><div class="profit-label"><span>${esc(label)}</span><span class="pval ${gp >= 0 ? 'pos' : 'neg'}">${gp >= 0 ? '+' : ''}$${gp.toFixed(0)} (${mg}%)</span></div></div>`; }).join(""); renderMonthlyClose(data); const today = new Date(); const todayStr = localDateStr(today); const in7 = addDaysLocal(todayStr, 7); const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0]; const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split("T")[0]; const prevMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split("T")[0]; let wed7 = 0, spillover = 0; const cwRows = cashWaveData.map(r => { const d = fmtDate(r.date); if (!d) return null; const mffDue = addDaysLocal(d, 7); const wsDue = addDaysLocal(d, 15); if (!mffDue || !wsDue) return null; const mff = parseFloat(r.mff) || 0; const ws = parseFloat(r.wholesale) || 0; if (mffDue >= todayStr && mffDue <= in7) wed7 += mff; if (d >= prevMonthStart && d <= prevMonthEnd && mffDue >= monthStart && mffDue <= new Date(today.getFullYear(), today.getMonth(), 7).toISOString().split("T")[0]) spillover += mff; return { date: d, mff, mffDue, ws, wsDue, notes: r.notes || "" }; }).filter(Boolean).sort((a, b) => b.date.localeCompare(a.date)); let cwHtml = wed7 > 0 ? `<div class="cw-alert">$${wed7.toFixed(2)} due to MFF in next 7 days</div>` : `<div class="cw-alert ok">No MFF payments due this week</div>`; if (spillover > 0) cwHtml += `<div class="cw-alert">Overdue Month spillover: $${spillover.toFixed(2)} from last month due this week</div>`; if (cwRows.length) { cwHtml += cwRows.map(r => { const total = r.mff + r.ws || 1; return `<div><div class="cw-row"><span>${esc(r.date)}</span><span><span class="cw-out">-$${r.mff.toFixed(0)}</span> → <span class="cw-in">+$${r.ws.toFixed(0)}</span></span></div><div class="cw-bar"><div class="cw-bar-out" style="width:${(r.mff / total) * 100}%"></div><div class="cw-bar-in" style="width:${(r.ws / total) * 100}%"></div></div><div style="font-size:11px;color:var(--muted)">Pay MFF: ${esc(r.mffDue)} · WS due: ${esc(r.wsDue)}${r.notes ? ' · ' + esc(r.notes) : ''}</div></div>`; }).join(""); } else { cwHtml += '<div style="text-align:center;color:var(--muted);padding:12px;font-size:13px">Add production runs to the Cash Wave tab in Google Sheets</div>'; } $("cashWave").innerHTML = cwHtml; }
 function tapPie(event) { const canvas = $("pieChart"); const rect = canvas.getBoundingClientRect(); const x = (event.clientX - rect.left) * (200 / rect.width) - 100; const y = (event.clientY - rect.top) * (200 / rect.height) - 100; const dist = Math.sqrt(x * x + y * y); if (dist < 50 || dist > 90) { $("catDetail").innerHTML = ""; return; } let angle = Math.atan2(y, x); if (angle < -Math.PI / 2) angle += Math.PI * 2; const hit = pieSlices.find(s => angle >= s.start && angle < s.end); if (!hit) return; const data = getMgrData(); const entries = data.filter(e => e.type === "expense" && (e.category || "Other") === hit.cat); $("catDetail").innerHTML = `<div class="cat-detail" style="border-left:3px solid ${hit.color}"><div style="font-weight:700;margin-bottom:4px">${esc(hit.cat)} — $${hit.val.toFixed(2)}</div>${entries.map(e => `<div><span>${esc(e.description || "")} · ${fmtDate(e.date)}</span><span>$${totalForExpense(e).toFixed(2)}</span></div>`).join("")}</div>`; }
 function exportCSV() { const rows = [["Type","Date","Description/Source","Category/Customer","Amount","GST","Total","Paid"]]; allData.forEach(e => { if (e.type === "income") rows.push(["Income", fmtDate(e.date), e.source || "", e.customer || "", e.amount || 0, "", "", e.paid || ""]); else rows.push(["Expense", fmtDate(e.date), e.description || "", e.category || "", e.amount || 0, gstForExpense(e), totalForExpense(e), e.paid || ""]); }); const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n"); const blob = new Blob([csv], { type: "text/csv" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `granola-kid-${localDateStr(new Date())}.csv`; a.click(); URL.revokeObjectURL(a.href); }
+function exportBackup() {
+ const backup = {
+   exportedAt: new Date().toISOString(),
+   appVersion: "finance-v1.9.0",
+   productionVersion: "production-v1.7.0",
+   summary: {
+     capital,
+     cashBalance: sheetCashBalance,
+     rowCashBalance: rowCashBalance(),
+     gstPaidYtd: sheetGstPaidYtd,
+     transactionRows: allData.length,
+     orderRows: orderHistoryData.length
+   },
+   income: allData.filter(e => e.type === "income"),
+   expenses: allData.filter(e => e.type === "expense"),
+   orders: orderHistoryData,
+   cashWave: cashWaveData,
+   pricing
+ };
+ const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+ const a = document.createElement("a");
+ a.href = URL.createObjectURL(blob);
+ a.download = `granola-kid-backup-${localDateStr(new Date())}.json`;
+ a.click();
+ URL.revokeObjectURL(a.href);
+ showToast("Backup exported");
+}
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 function safeUrl(url) { if (!url) return ""; try { const u = new URL(url); return (u.protocol === "https:" || u.protocol === "http:") ? url : ""; } catch { return ""; } }
 function fmtDate(d) { if (!d) return ""; const s = String(d); if (s.length === 10) return s; const dt = new Date(s); if (isNaN(dt.getTime())) return s.substring(0, 10); return localDateStr(dt); }
