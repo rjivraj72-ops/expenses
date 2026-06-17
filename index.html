@@ -157,6 +157,10 @@
  .app-header { height: calc(50px + env(safe-area-inset-top)); padding: env(safe-area-inset-top) 16px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 60; }
  .app-header-left { display: flex; align-items: center; }
  .app-header-title { font-weight: 900; font-size: 0.85rem; color: var(--text); }
+ .sync-pill { display: inline-flex; align-items: center; min-height: 28px; max-width: 132px; padding: 6px 9px; border: 1px solid var(--border); border-radius: 10px; background: var(--input); color: var(--muted); font-size: 0.72rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .sync-pill.ok { color: var(--accent); }
+ .sync-pill.busy { color: #b26b00; border-color: rgba(178,107,0,0.35); }
+ .sync-pill.error { color: #ff3b30; border-color: rgba(255,59,48,0.35); }
  .app-header-right { display: flex; align-items: center; gap: 6px; }
  .tools-wrap { position: relative; }
  .tools-menu { position: absolute; top: 42px; right: 0; min-width: 190px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px; box-shadow: 0 12px 28px rgba(31,36,32,0.16); display: none; z-index: 90; }
@@ -195,10 +199,10 @@
  .calc-keys button.calc-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
  @keyframes toastIn { to { opacity: 1; } }
  @keyframes toastOut { to { opacity: 0; } }
- .sticky-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: var(--card); padding: 6px 16px; padding-top: calc(6px + env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transform: translateY(-100%); transition: transform 0.25s ease; }
+ .sticky-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: var(--card); padding: 6px 18px; padding-top: calc(6px + env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; gap: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transform: translateY(-100%); transition: transform 0.25s ease; }
  .sticky-bar.visible { transform: translateY(0); }
- .sticky-bar .sb-title { font-weight: 700; font-size: 14px; color: var(--dark); }
- .sticky-bar .sb-vals { display: flex; gap: 16px; font-size: 13px; font-weight: 700; }
+ .sticky-bar .sb-title { font-weight: 700; font-size: 14px; color: var(--dark); flex: 0 0 auto; }
+ .sticky-bar .sb-vals { display: flex; justify-content: flex-end; gap: 14px; min-width: 0; padding-right: 2px; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
  .sticky-bar .sb-cash { color: var(--dark); }
  .sticky-bar .sb-total { color: var(--muted); }
  .search-bar { display: block; width: 100%; font-size: 0.95rem; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); margin-bottom: 10px; -webkit-appearance: none; }
@@ -302,7 +306,8 @@
  #app { width: 100%; max-width: 1100px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
  .header-area { margin-left: calc(-1 * max(16px, env(safe-area-inset-left))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right))); padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
  .app-header { left: 0; right: 0; width: 100%; }
- .app-header, .sticky-bar { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+ .app-header { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+ .sticky-bar { padding-left: max(18px, env(safe-area-inset-left)); padding-right: max(22px, env(safe-area-inset-right)); }
  .summary .bal-row, .stat-row, .mode-tabs, .row, .filter-row, .date-toggle, .date-range { min-width: 0; }
  .card, .week-alert, .search-bar, .entry, .swipe-entry, input, select, button { max-width: 100%; }
  @media (max-width: 767px) {
@@ -396,7 +401,7 @@
 <div class="ptr-indicator" id="ptrIndicator"></div>
 <div class="app-header" id="appHeader">
  <div class="app-header-left">
-   <span class="app-header-title">GRANOLA KID</span>
+   <span class="sync-pill" id="topSyncStatus">Not synced</span>
  </div>
  <div class="app-header-right">
    <div class="tools-wrap">
@@ -405,6 +410,7 @@
        <button onclick="openCalc()">🧮 Calculator</button>
        <button onclick="openGemini()">🤖 Gemini AI</button>
        <button onclick="openShopify()">🛍️ Shopify</button>
+       <button onclick="openSheets()">📊 Google Sheets</button>
        <button onclick="openRbc()">🏦 RBC Mobile</button>
      </div>
    </div>
@@ -571,8 +577,7 @@
  <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">Export to CSV</button>
 </div>
 <div class="footer">
- <a href="create-order.html" onclick="storeInternalNav()" style="display:block;background:var(--accent);color:#fff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:12px;border-radius:10px;margin-bottom:12px;text-align:center">Production Order</a>
- <div>Made by Granola Kid · v1.9.1</div>
+ <div>Made by Granola Kid · v1.9.4</div>
 </div>
 </div>
 <script>
@@ -828,6 +833,12 @@ function openShopify() {
  window.location = "shopify://";
  setTimeout(() => { if (Date.now() - start < 2000) window.open("https://admin.shopify.com", "_blank"); }, 1500);
 }
+function openSheets() {
+ haptic(); closeTools();
+ const start = Date.now();
+ window.location = "googlesheets://";
+ setTimeout(() => { if (Date.now() - start < 2000) window.open("https://docs.google.com/spreadsheets/d/1YfY7Eqni5P_E5ILboDAw-BCPIPNTKhHThnIcvKrKrrQ/edit", "_blank"); }, 1500);
+}
 function openRbc() {
  haptic(); closeTools();
  const start = Date.now();
@@ -885,13 +896,21 @@ function dateLabel(dateStr) {
 }
 function updateSyncStatus(state) {
  const el = $("syncStatus");
- if (!el) return;
- if (state === "loading") { el.textContent = "Syncing with Google Sheets..."; return; }
- if (state === "saving") { el.textContent = "Saving to Google Sheets..."; return; }
- if (state === "retry") { el.textContent = "Connection slow. Retrying..."; return; }
- if (state === "error") { el.textContent = "Could not reach Google Sheets. Tap refresh to try again."; return; }
+ const top = $("topSyncStatus");
+ function setStatus(longText, shortText, cls) {
+   if (el) el.textContent = longText;
+   if (top) {
+     top.textContent = shortText;
+     top.className = `sync-pill ${cls || ""}`.trim();
+   }
+ }
+ if (state === "loading") { setStatus("Syncing with Google Sheets...", "Syncing", "busy"); return; }
+ if (state === "saving") { setStatus("Saving to Google Sheets...", "Saving", "busy"); return; }
+ if (state === "retry") { setStatus("Connection slow. Retrying...", "Retrying", "busy"); return; }
+ if (state === "error") { setStatus("Could not reach Google Sheets. Tap refresh to try again.", "Offline", "error"); return; }
  const now = new Date();
- el.textContent = `Last synced ${now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+ const time = now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+ setStatus(`Last synced ${time}`, `Synced ${time}`, "ok");
 }
 function friendlyError(err) {
  const msg = (err && err.message ? err.message : "").toLowerCase();
@@ -1150,7 +1169,7 @@ function renderDataChecks() {
 function renderVersionStatus() {
  const el = $("versionGrid");
  if (!el) return;
- const appVersion = "v1.9.1";
+ const appVersion = "v1.9.4";
  const orderVersion = "v1.7.0";
  const lastSync = $("syncStatus") ? $("syncStatus").textContent : "Not synced";
  el.innerHTML = `<div class="version-item"><div class="version-value">${appVersion}</div><div class="version-label">Finance</div></div><div class="version-item"><div class="version-value">${orderVersion}</div><div class="version-label">Production</div></div><div class="version-item"><div class="version-value">${allData.length}</div><div class="version-label">Rows Loaded</div></div><div class="version-item"><div class="version-value">${orderHistoryData.length}</div><div class="version-label">Orders</div></div>`;
@@ -1161,7 +1180,7 @@ function exportCSV() { const rows = [["Type","Date","Description/Source","Catego
 function exportBackup() {
  const backup = {
    exportedAt: new Date().toISOString(),
-   appVersion: "finance-v1.9.1",
+   appVersion: "finance-v1.9.4",
    productionVersion: "production-v1.7.0",
    summary: {
      capital,
