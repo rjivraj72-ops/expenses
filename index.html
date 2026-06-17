@@ -569,14 +569,14 @@
  <div class="mgr-body" id="secMonthly"><div id="monthProfit"></div></div>
  <div class="mgr-section" onclick="toggleSec('secWave')"><span class="sec-label">Cash Wave</span><span class="sec-arrow" id="secWaveArrow">▸</span></div>
  <div class="mgr-body" id="secWave"><div id="cashWave"></div></div>
- <div class="mgr-section" onclick="toggleSec('secActivity')"><span class="sec-label">App Activity</span><span class="sec-arrow" id="secActivityArrow">▸</span></div>
+ <div class="mgr-section" onclick="toggleSec('secActivity')"><span class="sec-label">Recent Activity</span><span class="sec-arrow" id="secActivityArrow">▸</span></div>
  <div class="mgr-body" id="secActivity"><div id="mgrActivityList"></div></div>
  <div class="mgr-section" onclick="toggleSec('secBackup')"><span class="sec-label">Backup & Version</span><span class="sec-arrow" id="secBackupArrow">▸</span></div>
  <div class="mgr-body" id="secBackup"><div class="version-grid" id="versionGrid"></div><button class="export-btn" onclick="exportBackup()" style="margin-top:0">Export Full Backup</button></div>
  <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">Export to CSV</button>
 </div>
 <div class="footer">
- <div>Made by Granola Kid · v1.9.5</div>
+ <div>Made by Granola Kid · v1.9.6</div>
 </div>
 </div>
 <script>
@@ -935,7 +935,7 @@ function renderActivity() {
    const time = isNaN(d.getTime()) ? "" : d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
    return `<div class="activity-item"><span>${esc(item.text)}</span><span class="activity-time">${time}</span></div>`;
  }).join("");
- if (mgrList) mgrList.innerHTML = items.length ? `<div class="activity-log" style="display:block"><div id="mgrActivityItems">${html}</div></div>` : `<div class="detail-empty">No recent activity yet</div>`;
+ if (mgrList) mgrList.innerHTML = items.length ? `<div class="activity-log" style="display:block"><div id="mgrActivityItems">${html}</div></div>` : `<div class="detail-empty">No recent app activity yet</div>`;
 }
 function looksDuplicate(type, body) {
  return allData.some(e => {
@@ -1162,7 +1162,7 @@ function renderDataChecks() {
 function renderVersionStatus() {
  const el = $("versionGrid");
  if (!el) return;
- const appVersion = "v1.9.5";
+ const appVersion = "v1.9.6";
  const orderVersion = "v1.7.0";
  const lastSync = $("syncStatus") ? $("syncStatus").textContent : "Not synced";
  el.innerHTML = `<div class="version-item"><div class="version-value">${appVersion}</div><div class="version-label">Finance</div></div><div class="version-item"><div class="version-value">${orderVersion}</div><div class="version-label">Production</div></div><div class="version-item"><div class="version-value">${allData.length}</div><div class="version-label">Rows Loaded</div></div><div class="version-item"><div class="version-value">${orderHistoryData.length}</div><div class="version-label">Orders</div></div>`;
@@ -1173,7 +1173,7 @@ function exportCSV() { const rows = [["Type","Date","Description/Source","Catego
 function exportBackup() {
  const backup = {
    exportedAt: new Date().toISOString(),
-   appVersion: "finance-v1.9.5",
+   appVersion: "finance-v1.9.6",
    productionVersion: "production-v1.7.0",
    summary: {
      capital,
