@@ -201,7 +201,7 @@
 </div>
 
 <a class="back-link" href="index.html" onclick="storeInternalNav()">Back to Granola Kid</a>
-<div class="footer">Made by Granola Kid · v1.7.0</div>
+<div class="footer">Made by Granola Kid · v1.7.1</div>
 </div>
 
 <script>
@@ -212,6 +212,8 @@ document.addEventListener("gesturechange", e => e.preventDefault());
 document.addEventListener("gestureend", e => e.preventDefault());
 
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
+const API_TIMEOUT_MS = 18000;
+const API_RETRY_DELAYS = [500, 1400, 2800];
 const skus = ["Naked","GoNuts","CocoYummy","CranCinny Bliss","Dark & Dreamy","Bulk Container"];
 const totals = {};
 const orders = [];
@@ -228,6 +230,34 @@ skus.forEach(s => totals[s] = 0);
 
 function getInput(sku) { return document.querySelector(`[data-sku="${sku}"]`); }
 function esc(s) { const d = document.createElement("div"); d.textContent = String(s || ""); return d.innerHTML; }
+function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+async function apiFetch(payload, options) {
+  options = options || {};
+  let lastErr;
+  for (let attempt = 0; attempt <= API_RETRY_DELAYS.length; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), options.timeout || API_TIMEOUT_MS);
+    try {
+      const res = await fetch(API, {
+        method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (res.ok || attempt === API_RETRY_DELAYS.length) return res;
+      lastErr = new Error(`Request failed ${res.status}`);
+    } catch (err) {
+      clearTimeout(timer);
+      lastErr = err;
+      if (attempt === API_RETRY_DELAYS.length) throw err;
+    }
+    showToast("Connection slow. Retrying...");
+    await wait(API_RETRY_DELAYS[attempt]);
+  }
+  throw lastErr || new Error("Request failed");
+}
 function storeInternalNav() {
   if (!validatedPin) return;
   try {
@@ -267,11 +297,7 @@ function showPinScreen() {
 }
 
 async function validatePin(pin) {
-  const res = await fetch(API, {
-    method: "POST", redirect: "follow",
-    headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify({ action: "fetch", pin })
-  });
+  const res = await apiFetch({ action: "fetch", pin });
   if (!res.ok) return false;
   const json = await res.json();
   return !json.error;
@@ -589,17 +615,13 @@ function resetAll() {
 
 async function saveOrder() {
   if (!validatedPin) throw new Error("PIN required");
-  const res = await fetch(API, {
-    method: "POST", redirect: "follow",
-    headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify({
+  const res = await apiFetch({
       pin: validatedPin, action: "order",
       date: new Date().toISOString().split("T")[0],
       Naked: totals["Naked"], GoNuts: totals["GoNuts"],
       CocoYummy: totals["CocoYummy"], CranCinnyBliss: totals["CranCinny Bliss"],
       DarkDreamy: totals["Dark & Dreamy"], BulkContainer: totals["Bulk Container"]
-    })
-  });
+    }, { timeout: 22000 });
   if (!res.ok) throw new Error("Order save failed");
   showToast("✓ Order saved to sheet");
 }
