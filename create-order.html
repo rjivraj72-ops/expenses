@@ -12,8 +12,8 @@
 <script>
 (function() {
   var accent = '#2f6f55';
-  var light = { accent:accent, dark:"#1c1c1e", text:"#1f2420", muted:"#727a75", bg:"#f5f6f3", input:"#ffffff", border:"#e2e6df", header:"#f8f9f6", divider:"#e2e6df", card:"#ffffff" };
-  var dark  = { accent:"#65b891", dark:"#ffffff", text:"#f7f8f5", muted:"#9aa39d", bg:"#101410", input:"#1b211c", border:"#323a34", header:"#151a16", divider:"#323a34", card:"#181e19" };
+  var light = { accent:accent, accentSoft:"#e8f2ec", expense:"#a94f42", expenseSoft:"#f8ebe7", pending:"#946400", pendingSoft:"#fbf2dc", oat:"#c08a2d", blue:"#567c8d", plum:"#7a5f8f", dark:"#1c1c1e", text:"#1f2420", muted:"#727a75", bg:"#f5f6f3", input:"#ffffff", border:"#e2e6df", header:"#f8f9f6", divider:"#e2e6df", card:"#ffffff" };
+  var dark  = { accent:"#6fc49c", accentSoft:"#1b3025", expense:"#ed8c7d", expenseSoft:"#35211f", pending:"#e2b85f", pendingSoft:"#332b19", oat:"#d4a64c", blue:"#82adbf", plum:"#ba9ac8", dark:"#ffffff", text:"#f7f8f5", muted:"#a8b0aa", bg:"#101410", input:"#1b211c", border:"#323a34", header:"#151a16", divider:"#323a34", card:"#181e19" };
   var stored = localStorage.getItem("gk-dark");
   var isDark = stored !== null ? stored === "1" : window.matchMedia("(prefers-color-scheme: dark)").matches;
   var mode = isDark ? dark : light;
@@ -106,10 +106,20 @@
   h1 { font-size: 1.2rem; letter-spacing: 0.01em; }
   .subtitle, .card-title, .week-box .label { color: var(--muted); }
   .card, .week-box { border-radius: 8px; box-shadow: 0 1px 2px rgba(31,36,32,0.04); }
+  .week-box:first-child { background: var(--accentSoft); border-color: var(--accent); }
+  .week-box:last-child { background: var(--pendingSoft); border-color: var(--pending); }
+  .week-box:first-child .value { color: var(--accent); }
+  .week-box:last-child .value { color: var(--pending); }
   .card { padding: 16px; margin-bottom: 12px; }
   input, select, textarea, button, .shopify-btn, .mode-tabs a, .preview { border-radius: 8px; }
   .sku-grid { gap: 10px; }
   .sku-item { background: var(--input); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+  .sku-item:nth-child(1) { border-left: 3px solid var(--oat); }
+  .sku-item:nth-child(2) { border-left: 3px solid var(--accent); }
+  .sku-item:nth-child(3) { border-left: 3px solid var(--blue); }
+  .sku-item:nth-child(4) { border-left: 3px solid var(--expense); }
+  .sku-item:nth-child(5) { border-left: 3px solid var(--plum); }
+  .sku-item:nth-child(6) { border-left: 3px solid var(--muted); }
   .sku-item input { background: var(--card); }
   .preview { font-size: 0.85rem; line-height: 1.55; }
   .footer { padding-top: 20px; }
@@ -201,7 +211,7 @@
 </div>
 
 <a class="back-link" href="index.html" onclick="storeInternalNav()">Back to Granola Kid</a>
-<div class="footer">Made by Granola Kid · v1.7.1</div>
+<div class="footer">Made by Granola Kid · v1.7.2</div>
 </div>
 
 <script>
