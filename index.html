@@ -154,8 +154,8 @@
  .celebrate span { position: absolute; top: -30px; font-size: 24px; animation: fall 3s ease-in forwards; }
  @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
  .gst-info { font-size: 0.7rem; color: var(--muted); text-align: right; padding: 2px 0; }
- .app-header { height: calc(50px + env(safe-area-inset-top)); padding: env(safe-area-inset-top) 16px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 60; }
- .app-header-left { display: flex; align-items: center; }
+ .app-header { height: calc(58px + env(safe-area-inset-top)); padding: env(safe-area-inset-top) 16px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 60; }
+ .app-header-left { display: flex; align-items: center; min-width: 0; }
  .app-header-title { font-weight: 900; font-size: 0.85rem; color: var(--text); }
  .sync-pill { display: inline-flex; align-items: center; min-height: 28px; max-width: 132px; padding: 6px 9px; border: 1px solid var(--border); border-radius: 10px; background: var(--input); color: var(--muted); font-size: 0.72rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
  .sync-pill.ok { color: var(--accent); }
@@ -170,9 +170,9 @@
  .mode-tabs { display: flex; gap: 6px; margin: 10px 0; }
  .mode-tabs a { flex: 1; text-align: center; text-decoration: none; padding: 9px 8px; border-radius: 10px; font-size: 0.82rem; font-weight: 800; color: var(--text); background: var(--input); border: 1px solid var(--border); }
  .mode-tabs a.active { background: var(--accent); border-color: var(--accent); color: #fff; }
- .app-hdr-btn { background: none; border: 1px solid var(--border); border-radius: 10px; width: 34px; height: 34px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); transition: background 0.15s; }
+ .app-hdr-btn { background: none; border: 1px solid var(--border); border-radius: 10px; width: 42px; height: 42px; font-size: 1.18rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); transition: background 0.15s; flex: 0 0 auto; }
  .app-hdr-btn:active { background: var(--bg); }
- .app-hdr-lock { background: none; border: 1px solid var(--border); border-radius: 10px; padding: 7px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: var(--muted); display: flex; align-items: center; gap: 5px; transition: background 0.15s; }
+ .app-hdr-lock { background: none; border: 1px solid var(--border); border-radius: 10px; min-height: 42px; padding: 8px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 5px; transition: background 0.15s; width: auto; flex: 0 0 auto; }
  .app-hdr-lock:active { background: var(--bg); }
  .refresh-btn.spinning { animation: spin 0.8s linear; }
  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -347,7 +347,7 @@
    }
    .app-header {
      height: auto;
-     min-height: calc(50px + env(safe-area-inset-top));
+     min-height: calc(58px + env(safe-area-inset-top));
      padding-top: env(safe-area-inset-top);
    }
    .header-area {
@@ -360,13 +360,20 @@
    }
    .app-header-title { font-size: 0.78rem; }
    .app-header-right { gap: 4px; }
-   .app-hdr-btn { width: 32px; height: 32px; }
-   .app-hdr-lock { padding: 7px 9px; font-size: 0.72rem; }
+   .app-hdr-btn { width: 40px; height: 40px; font-size: 1.12rem; }
+   .app-hdr-lock { min-height: 40px; padding: 7px 9px; font-size: 0.72rem; }
+   .sync-pill { max-width: 108px; }
    .entry-form-card .row { flex-direction: column; gap: 11px; }
    .entry-form-card .row.pay-row { flex-direction: row; }
    .entry-form-card .pay-select { flex: 0 0 42%; }
    .entry-form-card .primary-action { flex: 1; align-self: flex-end; }
    .toggle label { padding: 11px 9px; font-size: 0.92rem; }
+ }
+ @media (max-width: 360px) {
+   .app-header-right { gap: 3px; }
+   .app-hdr-lock { width: 40px; padding: 0; font-size: 0; }
+   .app-hdr-lock .lock-icon { font-size: 1rem; }
+   .sync-pill { max-width: 92px; padding-left: 7px; padding-right: 7px; }
  }
  @media (min-width: 768px) {
    body { padding-top: 16px; padding-bottom: 16px; }
@@ -430,7 +437,7 @@
    </div>
    <button class="app-hdr-btn" id="darkToggle" onclick="toggleDark()"></button>
    <button class="app-hdr-btn refresh-btn" id="refreshBtn" onclick="refreshData()" title="Refresh (R)">🔄</button>
-   <button class="app-hdr-lock" id="lockBtn" onclick="lockApp()">🔒 Lock</button>
+   <button class="app-hdr-lock" id="lockBtn" onclick="lockApp()" title="Lock"><span class="lock-icon">🔒</span><span>Lock</span></button>
  </div>
 </div>
 <div class="calc-overlay" id="calcOverlay" onclick="closeCalc(event)">
@@ -589,7 +596,7 @@
  <button class="export-btn" onclick="exportCSV()" style="margin-top:12px">Export to CSV</button>
 </div>
 <div class="footer">
- <div>Made by Granola Kid · v1.9.8</div>
+ <div>Made by Granola Kid · v1.9.9</div>
 </div>
 </div>
 <script>
@@ -1179,7 +1186,7 @@ function renderDataChecks() {
 function renderVersionStatus() {
  const el = $("versionGrid");
  if (!el) return;
- const appVersion = "v1.9.8";
+ const appVersion = "v1.9.9";
  const orderVersion = "v1.7.2";
  el.innerHTML = `<div class="version-item"><div class="version-value">${appVersion}</div><div class="version-label">Finance</div></div><div class="version-item"><div class="version-value">${orderVersion}</div><div class="version-label">Production</div></div><div class="version-item"><div class="version-value">${allData.length}</div><div class="version-label">Rows Loaded</div></div><div class="version-item"><div class="version-value">${orderHistoryData.length}</div><div class="version-label">Orders</div></div>`;
 }
@@ -1189,7 +1196,7 @@ function exportCSV() { const rows = [["Type","Date","Description/Source","Catego
 function exportBackup() {
  const backup = {
    exportedAt: new Date().toISOString(),
-   appVersion: "finance-v1.9.8",
+   appVersion: "finance-v1.9.9",
    productionVersion: "production-v1.7.2",
    summary: {
      capital,
