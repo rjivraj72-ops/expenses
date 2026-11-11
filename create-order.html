@@ -211,15 +211,12 @@
 </div>
 
 <a class="back-link" href="index.html" onclick="storeInternalNav()">Back to Granola Kid</a>
-<div class="footer">Made by Granola Kid · v1.7.2</div>
+<div class="footer">Made by Granola Kid · v1.7.3</div>
 </div>
 
 <script>
 document.addEventListener("touchstart", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
 document.addEventListener("touchmove", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
-document.addEventListener("gesturestart", e => e.preventDefault());
-document.addEventListener("gesturechange", e => e.preventDefault());
-document.addEventListener("gestureend", e => e.preventDefault());
 
 const API = "https://script.google.com/macros/s/AKfycbyTeqbHXcfc1aOKpZd3dFzbjQrKcKjhF2UjEDa0jhIp8dz7IEYQY9ZtDVmuEGMY6Qr0/exec";
 const API_TIMEOUT_MS = 18000;
@@ -310,7 +307,15 @@ async function validatePin(pin) {
   const res = await apiFetch({ action: "fetch", pin });
   if (!res.ok) return false;
   const json = await res.json();
+  if (json.error === "locked") showPinMessage("Too many wrong PINs. Locked for up to 15 minutes.");
+  if (json.error === "pin_not_configured") showPinMessage("PIN isn't set up on the server (APP_PIN).");
   return !json.error;
+}
+
+function showPinMessage(text) {
+  const msg = document.getElementById("pinMsg");
+  msg.textContent = text;
+  setTimeout(() => { if (!pinLocked) msg.textContent = "Enter PIN to create orders"; }, 5000);
 }
 
 async function pinKey(n) {
@@ -627,12 +632,15 @@ async function saveOrder() {
   if (!validatedPin) throw new Error("PIN required");
   const res = await apiFetch({
       pin: validatedPin, action: "order",
-      date: new Date().toISOString().split("T")[0],
+      date: localDateStr(new Date()),
       Naked: totals["Naked"], GoNuts: totals["GoNuts"],
       CocoYummy: totals["CocoYummy"], CranCinnyBliss: totals["CranCinny Bliss"],
       DarkDreamy: totals["Dark & Dreamy"], BulkContainer: totals["Bulk Container"]
     }, { timeout: 22000 });
   if (!res.ok) throw new Error("Order save failed");
+  let json = {};
+  try { json = await res.json(); } catch {}
+  if (json.error) throw new Error(json.error);
   showToast("✓ Order saved to sheet");
 }
 
