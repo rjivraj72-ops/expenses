@@ -21,6 +21,21 @@ for (const page of pages) {
   });
 }
 
+// 1b. No function defined twice in the same page (the second silently replaces the first).
+for (const page of pages) {
+  const names = [...read(page).matchAll(/^\s*(?:async\s+)?function\s+([A-Za-z0-9_$]+)\s*\(/gm)].map(m => m[1]);
+  const dupes = [...new Set(names.filter((n, i) => names.indexOf(n) !== i))];
+  if (dupes.length) fail(`${page}: functions defined more than once: ${dupes.join(", ")}`);
+}
+
+// 1c. Backend: valid JavaScript, and the PIN must never be committed.
+const backend = "backend/Code.gs";
+if (existsSync(backend)) {
+  const gs = read(backend);
+  try { new vm.Script(gs, { filename: backend }); } catch (err) { fail(`${backend}: ${err.message}`); }
+  if (/(PIN|pin)\s*[=:]\s*["']\d{4,}["']/.test(gs)) fail(`${backend}: looks like a PIN is written in the code — keep it in Script Properties`);
+}
+
 // 2. Version numbers must agree between the two pages.
 const index = read("index.html");
 const order = read("create-order.html");

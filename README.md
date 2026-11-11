@@ -23,4 +23,4 @@ New expenses get 5% GST by default. **Bank Fees** and **Debt Repayment** default
 
 ## Backend
 
-The Apps Script code isn't in this repo yet. It enforces the PIN, so attempt limits need to be added there.
+The Google Apps Script code is in `backend/Code.gs`. See `backend/README.md` for how to deploy it. GitHub doesn't deploy it automatically, so you paste it into Apps Script yourself.
