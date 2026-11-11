@@ -7,13 +7,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#f2f2f7" id="metaTheme">
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
 <title>Granola Kid - Production Order</title>
 <script>
 (function() {
   var accent = '#2f6f55';
-  var light = { accent:accent, accentSoft:"#e8f2ec", expense:"#a94f42", expenseSoft:"#f8ebe7", pending:"#946400", pendingSoft:"#fbf2dc", oat:"#c08a2d", blue:"#567c8d", plum:"#7a5f8f", dark:"#1c1c1e", text:"#1f2420", muted:"#727a75", bg:"#f5f6f3", input:"#ffffff", border:"#e2e6df", header:"#f8f9f6", divider:"#e2e6df", card:"#ffffff" };
-  var dark  = { accent:"#6fc49c", accentSoft:"#1b3025", expense:"#ed8c7d", expenseSoft:"#35211f", pending:"#e2b85f", pendingSoft:"#332b19", oat:"#d4a64c", blue:"#82adbf", plum:"#ba9ac8", dark:"#ffffff", text:"#f7f8f5", muted:"#a8b0aa", bg:"#101410", input:"#1b211c", border:"#323a34", header:"#151a16", divider:"#323a34", card:"#181e19" };
+  var light = { accent:accent, accentSoft:"#e8f2ec", expense:"#a94f42", expenseSoft:"#f8ebe7", pending:"#946400", pendingSoft:"#fbf2dc", oat:"#c08a2d", blue:"#567c8d", plum:"#7a5f8f", dark:"#1c1c1e", text:"#1f2420", muted:"#59615b", bg:"#f5f6f3", input:"#ffffff", border:"#e2e6df", header:"#f8f9f6", divider:"#e2e6df", card:"#ffffff" };
+  var dark  = { accent:"#6fc49c", accentSoft:"#1b3025", expense:"#ed8c7d", expenseSoft:"#35211f", pending:"#e2b85f", pendingSoft:"#332b19", oat:"#d4a64c", blue:"#82adbf", plum:"#ba9ac8", dark:"#ffffff", text:"#f7f8f5", muted:"#bcc4be", bg:"#101410", input:"#1b211c", border:"#323a34", header:"#151a16", divider:"#323a34", card:"#181e19" };
   var stored = localStorage.getItem("gk-dark");
   var isDark = stored !== null ? stored === "1" : window.matchMedia("(prefers-color-scheme: dark)").matches;
   var mode = isDark ? dark : light;
@@ -94,7 +95,7 @@
   .pin-dots .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); background: transparent; transition: all 0.2s; }
   .pin-dots .dot.filled { background: var(--accent); border-color: var(--accent); }
   .pin-dots.wrong { animation: shake 0.4s; }
-  .pin-dots.wrong .dot.filled { background: #ff3b30; border-color: #ff3b30; }
+  .pin-dots.wrong .dot.filled { background: var(--expense); border-color: var(--expense); }
   @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
   .pin-pad { display: grid; grid-template-columns: repeat(3, 76px); gap: 12px; }
   .pin-pad button { width: 76px; height: 76px; border-radius: 50%; font-size: 26px; border: 1px solid var(--border); background: var(--card); color: var(--text); }
@@ -135,11 +136,36 @@
     .order-line { grid-template-columns: 1fr; }
     .order-line-actions button { flex: 1; }
   }
+
+  /* ===== Look & feel — matches Finance v1.11 ===== */
+  @font-face { font-family: "Fraunces"; src: url("fonts/fraunces-latin-800-normal.woff2") format("woff2"); font-weight: 800; font-display: swap; }
+  :root { --f-display: "Fraunces", Georgia, "Times New Roman", serif; }
+  .wordmark { font-family: var(--f-display); font-weight: 800; font-size: 1.15rem; line-height: 1; letter-spacing: -0.01em; color: var(--text); white-space: nowrap; margin-bottom: 10px; }
+  .wordmark b { color: var(--accent); font-weight: 800; }
+  .wordmark .wm-the { font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 0.62em; letter-spacing: 0.14em; text-transform: uppercase; color: var(--oat); vertical-align: 0.28em; }
+  .wordmark-lg { font-size: 2.3rem; margin-bottom: 10px; }
+  .header-area { padding-top: calc(22px + env(safe-area-inset-top)); }
+  h1 { font-family: var(--f-display); font-weight: 800; font-size: 1.85rem; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .subtitle { font-size: 0.8rem; letter-spacing: 0.03em; }
+  .card { border: 0; border-radius: 14px; box-shadow: 0 1px 2px rgba(31,36,32,0.05), 0 0 0 1px rgba(31,36,32,0.05); }
+  html.dark .card { box-shadow: none; }
+  .card-title { font-family: var(--f-display); font-weight: 800; font-size: 1.15rem; text-transform: none; letter-spacing: 0; color: var(--text); margin-bottom: 10px; }
+  .week-box { border: 0; border-radius: 12px; }
+  .week-box .label { font-size: 0.78rem; }
+  .week-box .value { font-size: 1rem; }
+  .sku-item { border-top: 0; border-right: 0; border-bottom: 0; border-radius: 10px; }
+  .mode-tabs a { border: 0; font-size: 0.92rem; }
+  html:not(.dark) .mode-tabs a:not(.active) { box-shadow: inset 0 0 0 1px var(--border); }
+  html.dark .mode-tabs a.active { color: #101410; }
+  .order-line-actions button { font-size: 0.8rem; min-height: 36px; }
+  .back-link { font-size: 0.9rem; }
+  .footer { font-size: 0.8rem; }
+  .footer-tag { font-family: var(--f-display); font-weight: 800; font-size: 1.05rem; color: var(--accent); margin-bottom: 4px; }
 </style>
 </head>
 <body>
 <div id="pin-screen" class="pin-screen">
-  <h2>Granola Kid</h2>
+  <div class="wordmark wordmark-lg" aria-label="The Granola Kid"><span class="wm-the">The</span> Granola <b>Kid</b></div>
   <p id="pinMsg" style="color:var(--muted);font-size:14px">Enter PIN to create orders</p>
   <div class="pin-dots" id="pinDots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
   <div class="pin-pad">
@@ -151,6 +177,7 @@
 </div>
 <div id="app" style="display:none">
 <div class="header-area">
+  <div class="wordmark" aria-label="The Granola Kid"><span class="wm-the">The</span> Granola <b>Kid</b></div>
   <h1>Production Order</h1>
   <div class="subtitle">Weekly order for Haley · Due Monday 5pm PT</div>
   <nav class="mode-tabs" aria-label="App sections">
@@ -211,7 +238,7 @@
 </div>
 
 <a class="back-link" href="index.html" onclick="storeInternalNav()">Back to Granola Kid</a>
-<div class="footer">Made by Granola Kid · v1.7.3</div>
+<div class="footer"><div class="footer-tag">Every crunch creates change!</div>Made by Granola Kid · v1.8.0</div>
 </div>
 
 <script>
